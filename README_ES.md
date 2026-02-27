@@ -1,0 +1,279 @@
+# BeatBoard
+
+[📖 Read in English](./README.md)
+
+<!-- Sección de Badges -->
+![Licencia](https://img.shields.io/badge/licencia-CC%20BY--NC%204.0-blue.svg)
+![Versión](https://img.shields.io/badge/versión-1.0.0-green.svg)
+![Plataforma](https://img.shields.io/badge/plataforma-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
+![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
+![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
+
+![main](./imgs/beatboard_001.png)
+
+## Descripción
+
+BeatBoard es una aplicación de escritorio de pizarra virtual para escritores de guiones, inspirada en el Beat Board de Final Draft. Proporciona un lienzo infinito donde los escritores pueden crear, organizar y conectar "beats" - los bloques fundamentales de construcción de una historia.
+
+Ya sea que estés delineando un guión cinematográficonovela o serie de TV, BeatBoard te ayuda a visualizar la estructura de tu historia con tarjetas de colores y líneas de flujo.
+
+## Tabla de Contenidos
+
+- [Descripción](#descripción)
+- [Características](#características)
+- [Instalación](#instalación)
+- [Uso](#uso)
+- [Atajos de Teclado](#atajos-de-teclado)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Contribuir](#contribuir)
+- [Licencia](#licencia)
+- [Agradecimientos](#agradecimientos)
+
+## Características
+
+### Características Principales
+- **Lienzo Infinito** - Desplazamiento y zoom en un espacio de trabajo ilimitado
+- **Tarjetas de Beat** - Crea tarjetas coloreadas con título y contenido
+- **Conexiones** - Une beats con líneas de flujo curvas bezier
+- **Arrastrar y Soltar** - Organiza libremente los beats en el lienzo
+
+### Productividad
+- **Deshacer/Rehacer** - Soporte completo de historial para todas las operaciones
+- **Copiar/Pegar** - Duplica beats con Ctrl+C / Ctrl+V
+- **Orden Z** - Traer al frente, enviar atrás, mover arriba/abajo
+- **Selección Múltiple** - Selecciona y mueve varios beats a la vez
+
+### Personalización
+- **9 Temas** - Temas claros y oscuros (Nord, Dracula, One Dark, etc.)
+- **8 Colores de Beat** - Amarillo, Azul, Verde, Rojo, Naranja, Púrpura, Gris
+- **Fondo Personalizado** - Elige entre colores predefinidos o personalizados
+- **Cuadrícula Opcional** - Mostrar/ocultar cuadrícula de alineación
+
+### Exportar y Guardar
+- **Archivos de Proyecto** - Guarda y carga archivos de proyecto .bbp
+- **Auto-guardado** - Guardado automático cada 5 minutos
+- **Exportar PDF** - Genera documentos PDF de tu beat board
+- **Exportar Texto** - Exporta beats como texto plano
+
+### Adicionales
+- **Panel de Propiedades** - Edita propiedades del beat seleccionado
+- **Barra de Estado** - Coordenadas del cursor en tiempo real
+- **Punto Central** - Guía visual en el origen (0,0)
+
+## Instalación
+
+### Requisitos Previos
+- Python 3.10 o superior
+- PySide6
+
+### Desde el Código Fuente
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/carlymx/BeatBoard.git
+cd BeatBoard
+
+# Crear entorno virtual (recomendado)
+python -m venv .venv
+source .venv/bin/activate  # Linux/macOS
+# .venv\Scripts\activate  # Windows
+
+# Instalar dependencias
+pip install pyside6
+
+# Ejecutar la aplicación
+python -m beatboard.app.main
+```
+
+### Ejecutables Pre-construidos
+
+Descarga desde la página de [Lanzamientos](https://github.com/carlymx/BeatBoard/releases) o compila desde el código fuente (ver abajo):
+
+| Plataforma | Tipo | Archivo |
+|------------|------|---------|
+| Linux | AppImage | `BeatBoard-x86_64.AppImage` |
+| Linux | Portable | `BeatBoard-portable` |
+
+### Requisitos del Sistema
+
+- **Linux**: Ubuntu 20.04+, Linux Mint 20+, Debian 11+, Fedora 34+ (GLIBC 2.31+)
+
+### Compilar desde el Código Fuente
+
+Para compilar el ejecutable y AppImage tú mismo:
+
+```bash
+# 1. Navegar al directorio del proyecto
+cd BeatBoard
+
+# 2. Compilar con Docker/Podman (recomendado para máxima compatibilidad)
+podman build -t beatboard-builder:latest -f build/Dockerfile .
+
+# 3. Extraer los archivos generados
+podman run --rm -v $(pwd)/build:/output:Z beatboard-builder:latest \
+    cp -r /build/AppDir /output/ && cp /build/output/BeatBoard-portable /output/
+
+# 4. Crear AppImage (requiere FUSE)
+cd build
+wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+chmod +x appimagetool
+./appimagetool -s AppDir BeatBoard-x86_64.AppImage
+```
+
+Los archivos generados estarán en `build/`:
+- `BeatBoard-portable` - Ejecutable portable
+- `BeatBoard-x86_64.AppImage` - AppImage autocontenido
+
+Ver `DESARROLLOActual.md` para instrucciones detalladas de compilación.
+
+### Ejecutar AppImage (Linux)
+
+```bash
+chmod +x BeatBoard-x86_64.AppImage
+./BeatBoard-x86_64.AppImage
+```
+
+## Uso
+
+### Primeros Pasos
+
+1. **Crear un Beat** - Doble clic en cualquier lugar del lienzo
+2. **Editar un Beat** - Doble clic en un beat para abrir el editor
+3. **Mover un Beat** - Clic y arrastra para reposicionar
+4. **Conectar Beats** - Clic en "Conectar" en la barra de herramientas, luego clic en beat origen y destino
+
+### Gestión de Beats
+
+- **Eliminar**: Selecciona beat(s) y presiona Delete/Supr
+- **Copiar**: Ctrl+C para copiar beats seleccionados
+- **Pegar**: Ctrl+V para pegar beats copiados
+- **Seleccionar Todo**: Ctrl+A para seleccionar todos los beats
+
+### Trabajando con Conexiones
+
+1. Clic en el botón "Conectar" en la barra de herramientas
+2. Clic en el beat origen
+3. Clic en el beat destino
+4. Presiona Escape para salir del modo conexión
+
+## Atajos de Teclado
+
+| Atajo | Acción |
+|-------|--------|
+| Ctrl+Z | Deshacer |
+| Ctrl+Y | Rehacer |
+| Ctrl+A | Seleccionar Todo |
+| Ctrl+C | Copiar |
+| Ctrl+X | Cortar |
+| Ctrl+V | Pegar |
+| Delete | Eliminar seleccionado |
+| Ctrl+Home | Traer al Frente |
+| Ctrl+End | Enviar al Fondo |
+| Ctrl+PageUp | Mover Arriba |
+| Ctrl+PageDown | Mover Abajo |
+| Ctrl+0 | Ajustar al Contenido |
+| Ctrl++ | Acercar |
+| Ctrl+- | Alejar |
+| Espacio | Modo desplazamiento (mantener) |
+| Escape | Cancelar / Deseleccionar |
+| 1-8 | Cambiar color del beat |
+
+## Estructura del Proyecto
+
+```
+BeatBoard/
+├── beatboard/
+│   ├── app/              # Punto de entrada de la aplicación
+│   │   ├── main.py
+│   │   └── application.py
+│   ├── core/             # Modelos de datos principales
+│   │   ├── beat.py
+│   │   ├── connection.py
+│   │   ├── project.py
+│   │   └── constants.py
+│   ├── ui/               # Interfaz de usuario
+│   │   ├── main_window.py
+│   │   ├── theme_manager.py
+│   │   ├── canvas/       # Componentes de vista gráfica
+│   │   ├── dialogs/      # Ventanas de diálogo
+│   │   └── widgets/      # Widgets personalizados
+│   ├── services/         # Lógica de negocio
+│   │   ├── autosave_service.py
+│   │   └── export_service.py
+│   └── tests/            # Pruebas unitarias
+├── dist/                 # Ejecutables compilados
+├── beatboard.spec        # Spec de PyInstaller
+└── README.md
+```
+
+## Ejecutar Pruebas
+
+```bash
+# Activar entorno virtual
+source .venv/bin/activate
+
+# Ejecutar todas las pruebas
+python -m pytest beatboard/tests/ -v
+
+# Ejecutar archivo de prueba específico
+python -m pytest beatboard/tests/test_beat.py -v
+```
+
+## Contribuir
+
+¡Las contribuciones son bienidas! Por favor, sigue estos pasos:
+
+1. Haz fork del repositorio
+2. Crea una rama de funcionalidad (`git checkout -b feature/funcionalidad-increible`)
+3. Haz commit de tus cambios (`git commit -m 'Añadir funcionalidad increíble'`)
+4. Haz push a la rama (`git push origin feature/funcionalidad-increible`)
+5. Abre un Pull Request
+
+## Licencia
+
+Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/legalcode.es).
+
+**Eres libre de:**
+- Compartir — copiar y redistribuir el material
+- Adaptar — remezclar, transformar y crear a partir del material
+
+**Bajo los siguientes términos:**
+- Atribución — Debes dar crédito apropiado
+- NoComercial — No puedes usar el material para fines comerciales
+
+## Registro de Cambios
+
+### v1.0.1 (2026-02-27)
+- Corregidos iconos de toolbar (ahora embebidos en la app en lugar de depender del sistema)
+- Añadidos iconos por tema (iconos claros para tema oscuro, iconos oscuros para tema claro)
+- Compilado con Ubuntu 22.04 para máxima compatibilidad con distribuciones Linux
+
+### v1.0.0 (2026-02-27)
+- Lanzamiento inicial
+- Lienzo infinito con desplazamiento y zoom
+- Tarjetas de beat con título y contenido
+- Conexiones entre beats con curvas bezier
+- 9 temas (claros y oscuros)
+- 8 colores de beat
+- Sistema deshacer/rehacer
+- Copiar/pegar beats
+- Gestión de orden z
+- Atajos de teclado
+- Auto-guardado
+- Exportar PDF/Texto
+- Persistencia de preferencias
+- Panel de propiedades
+- Cuadrícula y fondo personalizable
+- Correcciones: carga de conexiones, guardado de z-order
+
+## Agradecimientos
+
+- Inspirado en [Final Draft Beat Board](https://www.finaldraft.com/)
+- Construido con [PySide6](https://www.qt.io/qt-for-python)
+- Diseño de icono por CarlyMx
+
+---
+
+**Autor:** CarlyMx  
+**Email:** carlymx@gmail.com  
+**GitHub:** https://github.com/carlymx/BeatBoard

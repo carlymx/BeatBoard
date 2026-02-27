@@ -1,0 +1,50 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV QT_QPA_PLATFORM=offscreen
+
+WORKDIR /build
+
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    git \
+    wget \
+    libglib2.0-0 \
+    libxcb-xinerama0 \
+    libxkbcommon-x11-0 \
+    libdbus-1-3 \
+    libgl1-mesa-glx \
+    libegl1 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-shape0 \
+    libxcb-xfixes0 \
+    libxcb1 \
+    libxext6 \
+    libxrender1 \
+    libsm6 \
+    libice6 \
+    libx11-6 \
+    libxcb-cursor0 \
+    libxfixes3 \
+    libxi6 \
+    fuse \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build/beatboard
+COPY . /build/beatboard
+
+RUN python3 -m venv .venv && \
+    .venv/bin/pip install --upgrade pip && \
+    .venv/bin/pip install pyside6 pytest pyinstaller
+
+RUN .venv/bin/pyinstaller beatboard.spec --clean --noconfirm
+
+RUN mkdir -p /build/output && \
+    cp dist/BeatBoard /build/output/ && \
+    chmod +x /build/output/BeatBoard

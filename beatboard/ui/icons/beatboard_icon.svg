@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="512"
+   height="512"
+   viewBox="0 0 512 512"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
+   sodipodi:docname="beatboard_icon.svg"
+   inkscape:export-filename="app_icon.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="0.8334745"
+     inkscape:cx="115.78039"
+     inkscape:cy="167.37165"
+     inkscape:window-width="2560"
+     inkscape:window-height="1416"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g12">
+      <rect
+         style="font-variation-settings:'opsz' 32;fill:#333333;stroke:#006680;stroke-width:0;stroke-dasharray:none"
+         id="rect2"
+         width="484.53586"
+         height="484.53589"
+         x="22.640106"
+         y="22.215899"
+         ry="54.289635" />
+      <rect
+         style="font-variation-settings:'opsz' 32;fill:#006680;stroke:#006680;stroke-width:0;stroke-dasharray:none"
+         id="rect1"
+         width="484.53586"
+         height="484.53589"
+         x="13.73207"
+         y="13.732054"
+         ry="54.289635" />
+      <g
+         id="g11"
+         transform="translate(694.68232,69.588212)">
+        <rect
+           style="font-variation-settings:'opsz' 32;fill:#808080;stroke:#1a1a1a;stroke-width:0;stroke-dasharray:none"
+           id="rect8"
+           width="173.99086"
+           height="173.99086"
+           x="-622.33923"
+           y="11.12879" />
+        <rect
+           style="font-variation-settings:'opsz' 32;fill:#808080;stroke:#1a1a1a;stroke-width:0;stroke-dasharray:none"
+           id="rect9"
+           width="173.99086"
+           height="173.99086"
+           x="-622.33923"
+           y="206.71353" />
+        <rect
+           style="font-variation-settings:'opsz' 32;fill:#808080;stroke:#1a1a1a;stroke-width:0;stroke-dasharray:none"
+           id="rect10"
+           width="173.99086"
+           height="173.99086"
+           x="-421.97318"
+           y="11.12879" />
+        <rect
+           style="font-variation-settings:'opsz' 32;fill:#808080;stroke:#1a1a1a;stroke-width:0;stroke-dasharray:none"
+           id="rect11"
+           width="173.99086"
+           height="173.99086"
+           x="-421.97318"
+           y="206.71353" />
+        <rect
+           style="font-variation-settings:'opsz' 32;fill:#ffe680;stroke:#1a1a1a;stroke-width:0;stroke-dasharray:none"
+           id="rect3"
+           width="173.99086"
+           height="173.99086"
+           x="-630.33923"
+           y="3.1287901" />
+        <path
+           id="rect4"
+           style="font-variation-settings:'opsz' 32;fill:#ffcc00;stroke:#1a1a1a;stroke-width:0"
+           d="m -514.34538,3.1287934 h 57.99695 V 61.125749 Z"
+           sodipodi:nodetypes="cccc" />
+        <rect
+           style="font-variation-settings:'opsz' 32;fill:#80e5ff;stroke:#1a1a1a;stroke-width:0;stroke-dasharray:none"
+           id="rect5"
+           width="173.99086"
+           height="173.99086"
+           x="-630.33923"
+           y="198.71353" />
+        <path
+           id="path5"
+           style="font-variation-settings:'opsz' 32;fill:#00ccff;stroke:#1a1a1a;stroke-width:0"
+           d="m -514.34538,198.71355 h 57.99695 v 57.99695 z"
+           sodipodi:nodetypes="cccc" />
+        <rect
+           style="font-variation-settings:'opsz' 32;fill:#ffb380;stroke:#1a1a1a;stroke-width:0;stroke-dasharray:none"
+           id="rect6"
+           width="173.99086"
+           height="173.99086"
+           x="-429.97318"
+           y="3.1287901" />
+        <path
+           id="path6"
+           style="font-variation-settings:'opsz' 32;fill:#ff7f2a;stroke:#1a1a1a;stroke-width:0"
+           d="m -313.97932,3.1287934 h 57.99695 V 61.125749 Z"
+           sodipodi:nodetypes="cccc" />
+        <rect
+           style="font-variation-settings:'opsz' 32;fill:#87de87;stroke:#1a1a1a;stroke-width:0;stroke-dasharray:none"
+           id="rect7"
+           width="173.99086"
+           height="173.99086"
+           x="-429.97318"
+           y="198.71353" />
+        <path
+           id="path7"
+           style="font-variation-settings:'opsz' 32;fill:#5fd35f;stroke:#1a1a1a;stroke-width:0"
+           d="m -313.97932,198.71355 h 57.99695 v 57.99695 z"
+           sodipodi:nodetypes="cccc" />
+        <path
+           style="font-variation-settings:'opsz' 32;fill:none;stroke:#800080;stroke-width:16.6;stroke-linecap:round;stroke-dasharray:none"
+           d="M -536.30915,71.987805 C -359.93903,104.38232 -337.14289,296.3498 -337.14289,296.3498"
+           id="path11"
+           sodipodi:nodetypes="cc" />
+      </g>
+    </g>
+  </g>
+</svg>
