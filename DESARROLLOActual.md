@@ -26,7 +26,11 @@ BeatBoard versión 1.0.10 con corrección ortográfica (spellcheck).
   - Separados por idioma
 
 #### 📦 Archivos Generados v1.0.10
-- Pendiente de compilar
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.10_portable` (58 MB)
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.10.AppImage` (72 MB)
+- Compilar con GitHub Actions (workflow build-linux.yml) para máxima compatibilidad
+
+**IMPORTANTE: Compilar siempre con Python 3.10** para compatibilidad máxima con sistemas antiguos (GLIBC 2.31+).
 
 ---
 
@@ -361,34 +365,57 @@ Categories=Office;
 
 ### Requisitos
 
-- **Sistema**: Ubuntu 22.04 LTS (o cualquier distribución con GLIBC 2.31+)
-- **Herramientas**: Docker o Podman (para compilación con compatibilidad máxima)
+- **Sistema**: Ubuntu 22.04 LTS con Python 3.10
+- **Herramientas**: Podman o Docker
 - **Python**: 3.10 (IMPORTANTE: No usar 3.12+)
+
+### GitHub Actions (Recomendado)
+
+Para compilar automáticamente con GitHub Actions:
+
+1. Ir a **Actions** en el repositorio
+2. Ejecutar el workflow **Build Linux Executable**
+3. Descargar los artefactos generados
+
+Los workflows disponibles son:
+- `build-linux.yml` - Linux (usa Docker con Python 3.10)
+- `build-macos.yml` - macOS
+- `build-windows.yml` - Windows
 
 ### Linux (AppImage/Package)
 
-#### Método 1: Con Docker/Podman (Recomendado)
+#### Método 1: GitHub Actions (Automático)
 
-Este método garantiza máxima compatibilidad con diferentes distribuciones Linux.
+```bash
+# En GitHub:
+# 1. Ir a Actions > Build Linux Executable
+# 2. Click en "Run workflow"
+# 3. Descargar artefactos: BeatBoard-Linux
+```
+
+#### Método 2: Docker/Podman local
 
 ```bash
 # 1. Navegar al directorio del proyecto
 cd /path/to/BeatBoard
 
-# 2. Construir la imagen y generar ejecutables
+# 2. Construir la imagen
 podman build -t beatboard-builder:latest -f build/Dockerfile .
 
 # 3. Extraer los archivos generados
 podman run --rm -v $(pwd)/build:/output:Z beatboard-builder:latest \
-    cp -r /build/AppDir /output/ && \
-    cp /build/output/BeatBoard-portable /output/
+    cp -r /build/output/BeatBoard-portable /output/
 
-# 4. Crear AppImage (requiere FUSE)
+# 4. Crear AppImage
 cd build
 wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage \
     -O appimagetool
 chmod +x appimagetool
-./appimagetool -s AppDir BeatBoard-x86_64.AppImage
+mkdir -p AppDir/usr/bin
+cp ../dist/BeatBoard AppDir/usr/bin/beatboard
+chmod +x AppDir/usr/bin/beatboard
+# Crear AppRun, desktop file e icono...
+./appimagetool AppDir BeatBoard-x86_64.AppImage
 ```
 
 #### Método 2: Flatpak (para Flathub)

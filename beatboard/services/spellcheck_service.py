@@ -61,11 +61,33 @@ class SpellCheckService:
     def _get_base_path(self) -> Path:
         """Obtiene la ruta base del paquete beatboard."""
         import beatboard
+        import sys
+        
+        # Si estamos en un executable PyInstaller, usar sys._MEIPASS
+        if getattr(sys, 'frozen', False):
+            return Path(sys._MEIPASS)
+        
         return Path(beatboard.__file__).parent
     
     def _get_resources_path(self) -> Path:
         """Obtiene la ruta de diccionarios incluidos."""
-        return self._get_base_path() / "resources" / "dictionaries"
+        resources = self._get_base_path() / "resources" / "dictionaries"
+        
+        # Si no existe en la ruta base, intentar en el directorio actual
+        if not resources.exists():
+            resources = Path("beatboard/resources/dictionaries")
+        
+        # Si aún no existe, buscar en rutas alternativas
+        if not resources.exists():
+            # Buscar en el directorio del ejecutable o script
+            import sys
+            if getattr(sys, 'frozen', False):
+                base = Path(sys.executable).parent
+            else:
+                base = Path(__file__).parent.parent.parent
+            resources = base / "resources" / "dictionaries"
+        
+        return resources
     
     def _get_user_dicts_path(self) -> Path:
         """Obtiene la ruta de diccionarios del usuario."""

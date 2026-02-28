@@ -1051,7 +1051,48 @@ VERSION 2.0 - "Cloud & AI" (Mes 18)
 
 ---
 
-## 12. Referencias
+## 12. Compilación
+
+### Requisitos
+
+- **Sistema**: Ubuntu 22.04 LTS
+- **Herramientas**: Podman o Docker
+- **Python**: 3.10 (IMPORTANTE: No usar 3.12+)
+
+### GitHub Actions (Recomendado)
+
+Los workflows de GitHub Actions compilan automáticamente con Python 3.10:
+
+```bash
+# En GitHub:
+# 1. Ir a Actions
+# 2. Ejecutar workflow:
+#    - Build Linux Executable (usa Docker con Python 3.10)
+#    - Build macOS Executable
+#    - Build Windows Executable
+# 3. Descargar artefactos
+```
+
+### Linux (Manual)
+
+```bash
+# Construir imagen Docker
+podman build -t beatboard-builder:latest -f build/Dockerfile .
+
+# Extraer ejecutable
+podman run --rm -v $(pwd)/build:/output:Z beatboard-builder:latest \
+    cp -r /build/output/BeatBoard-portable /output/
+```
+
+**Compatibilidad:** Los binarios compilados con Ubuntu 22.04 + Python 3.10 son compatibles con:
+- Ubuntu 20.04+
+- Linux Mint 20+
+- Debian 11+
+- Fedora 34+
+
+---
+
+## 13. Referencias
 
 - [Qt Graphics View Framework](https://doc.qt.io/qtforpython-6/overviews/graphicsview.html)
 - [PySide6 Documentation](https://doc.qt.io/qtforpython-6/)
