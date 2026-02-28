@@ -4,7 +4,7 @@
 
 <!-- Sección de Badges -->
 ![Licencia](https://img.shields.io/badge/licencia-CC%20BY--NC%204.0-blue.svg)
-![Versión](https://img.shields.io/badge/versión-1.0.0-green.svg)
+![Versión](https://img.shields.io/badge/versión-1.0.5-green.svg)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -13,9 +13,9 @@
 
 ## Descripción
 
-BeatBoard es una aplicación de escritorio de pizarra virtual para escritores de guiones, inspirada en el Beat Board de Final Draft. Proporciona un lienzo infinito donde los escritores pueden crear, organizar y conectar "beats" - los bloques fundamentales de construcción de una historia.
+BeatBoard es una aplicación de escritorio de pizarra virtual para escritores, inspirada en el Beat Board de Final Draft. Ya seas guionista, escritor de relatos o novelas, BeatBoard te proporciona un lienzo infinito donde puedes crear, organizar y conectar "beats" - los bloques fundamentales de construcción de una historia.
 
-Ya sea que estés delineando un guión cinematográficonovela o serie de TV, BeatBoard te ayuda a visualizar la estructura de tu historia con tarjetas de colores y líneas de flujo.
+Ya sea que estés delineando un guión cinematográfico, novela, relato corto o serie de TV, BeatBoard te ayuda a visualizar la estructura de tu historia con tarjetas de colores y líneas de flujo.
 
 ## Tabla de Contenidos
 
@@ -47,7 +47,12 @@ Ya sea que estés delineando un guión cinematográficonovela o serie de TV, Bea
 - **9 Temas** - Temas claros y oscuros (Nord, Dracula, One Dark, etc.)
 - **8 Colores de Beat** - Amarillo, Azul, Verde, Rojo, Naranja, Púrpura, Gris
 - **Fondo Personalizado** - Elige entre colores predefinidos o personalizados
-- **Cuadrícula Opcional** - Mostrar/ocultar cuadrícula de alineación
+- **Cuadrícula Opcional** - Mostrar/ocultar cuadrícula de alineación con tamaño y color personalizables
+
+### Internacionalización
+- **Soporte Multiidioma** - Disponible en Inglés, Español, Francés y Alemán
+- **Detección de Idioma del Sistema** - Detecta automáticamente el idioma de tu sistema
+- **Preferencia de Idioma Persistente** - Recuerda tu elección de idioma
 
 ### Exportar y Guardar
 - **Archivos de Proyecto** - Guarda y carga archivos de proyecto .bbp
@@ -91,8 +96,8 @@ Descarga desde la página de [Lanzamientos](https://github.com/carlymx/BeatBoard
 
 | Plataforma | Tipo | Archivo |
 |------------|------|---------|
-| Linux | AppImage | `BeatBoard-x86_64.AppImage` |
-| Linux | Portable | `BeatBoard-portable` |
+| Linux | AppImage | `BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5.AppImage` |
+| Linux | Portable | `BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5_portable` |
 
 ### Requisitos del Sistema
 
@@ -242,6 +247,16 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 - NoComercial — No puedes usar el material para fines comerciales
 
 ## Registro de Cambios
+
+### v1.0.5 (2026-02-27)
+- Añadido soporte multiidioma (Inglés, Español, Francés, Alemán)
+- Añadida detección de idioma del sistema al primer inicio
+- Añadido color de cuadrícula personalizable con selector de color
+- Añadida opción de color de cuadrícula personalizado en ajustes de cuadrícula
+- Cambiados valores de tamaño de cuadrícula a: 50, 100, 150, 200, 250
+- Corregidos iconos de toolbar embebidos en el ejecutable
+- Corregida la creación de preferences.json al primer inicio
+- Añadida notificación de reinicio al cambiar de idioma
 
 ### v1.0.1 (2026-02-27)
 - Corregidos iconos de toolbar (ahora embebidos en la app en lugar de depender del sistema)

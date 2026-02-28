@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
 
 from beatboard.core.beat import Beat
 from beatboard.core.constants import BEAT_COLORS
+from beatboard.i18n import _tr
 
 if TYPE_CHECKING:
     pass
@@ -43,13 +44,13 @@ class PropertiesPanel(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(8, 8, 8, 8)
         
-        title_label = QLabel("Propiedades del Beat")
+        title_label = QLabel(_tr("beat_properties"))
         title_label.setStyleSheet("font-weight: bold; font-size: 14px;")
         main_layout.addWidget(title_label)
         
         main_layout.addSpacing(10)
         
-        self._no_selection_label = QLabel("Ningún beat seleccionado")
+        self._no_selection_label = QLabel(_tr("no_beat_selected"))
         self._no_selection_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._no_selection_label.setStyleSheet("color: gray; padding: 20px;")
         main_layout.addWidget(self._no_selection_label)
@@ -62,28 +63,28 @@ class PropertiesPanel(QWidget):
         props_layout.setContentsMargins(0, 0, 0, 0)
         props_layout.setSpacing(10)
         
-        title_field = self._create_field("Título:")
+        title_field = self._create_field(_tr("title"))
         self._title_input = title_field["input"]
         props_layout.addLayout(title_field["layout"])
         
-        color_field = self._create_color_field("Color:")
+        color_field = self._create_color_field(_tr("color"))
         self._color_combo = color_field["combo"]
         self._color_labels = color_field["labels"]
         props_layout.addLayout(color_field["layout"])
         
-        content_label = QLabel("Contenido:")
+        content_label = QLabel(_tr("content"))
         content_label.setStyleSheet("font-weight: bold;")
         props_layout.addWidget(content_label)
         
         self._content_input = QTextEdit()
-        self._content_input.setPlaceholderText("Descripción del beat...")
+        self._content_input.setPlaceholderText(_tr("content_placeholder"))
         self._content_input.setMinimumHeight(150)
         self._content_input.textChanged.connect(self._on_content_changed)
         props_layout.addWidget(self._content_input)
         
         main_layout.addStretch()
         
-        info_label = QLabel("💡 Doble clic en un beat\npara editarlo rápidamente")
+        info_label = QLabel(_tr("tip_double_click"))
         info_label.setStyleSheet("color: gray; font-size: 11px; padding: 10px;")
         info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(info_label)
@@ -97,7 +98,7 @@ class PropertiesPanel(QWidget):
         layout.addWidget(label)
         
         input_field = QLineEdit()
-        input_field.setPlaceholderText("...")
+        input_field.setPlaceholderText(_tr("title_placeholder"))
         input_field.textChanged.connect(self._on_title_changed)
         layout.addWidget(input_field)
         

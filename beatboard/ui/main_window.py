@@ -31,6 +31,7 @@ from beatboard.ui.undo_commands import (
     EditBeatCommand,
     MoveBeatCommand,
 )
+from beatboard.i18n import _tr
 
 if TYPE_CHECKING:
     pass
@@ -79,100 +80,100 @@ class MainWindow(QMainWindow):
     def _setup_menus(self) -> None:
         menubar = self.menuBar()
         
-        file_menu = menubar.addMenu("&Archivo")
+        file_menu = menubar.addMenu(_tr("menu_file"))
         
-        new_action = file_menu.addAction("&Nuevo")
+        new_action = file_menu.addAction(_tr("new_project"))
         new_action.setShortcut("Ctrl+N")
         new_action.triggered.connect(self._on_new_project)
         
-        open_action = file_menu.addAction("&Abrir...")
+        open_action = file_menu.addAction(_tr("open_project"))
         open_action.setShortcut("Ctrl+O")
         open_action.triggered.connect(self._on_open_project)
         
         file_menu.addSeparator()
         
-        save_action = file_menu.addAction("&Guardar")
+        save_action = file_menu.addAction(_tr("save_project"))
         save_action.setShortcut("Ctrl+S")
         save_action.triggered.connect(self._on_save_project)
         
-        save_as_action = file_menu.addAction("Guardar &como...")
+        save_as_action = file_menu.addAction(_tr("save_project_as"))
         save_as_action.setShortcut("Ctrl+Shift+S")
         save_as_action.triggered.connect(self._on_save_project_as)
         
         file_menu.addSeparator()
         
-        export_pdf_action = file_menu.addAction("Exportar a &PDF...")
+        export_pdf_action = file_menu.addAction(_tr("export_pdf"))
         export_pdf_action.triggered.connect(self._on_export_pdf)
         
-        export_text_action = file_menu.addAction("Exportar a &texto...")
+        export_text_action = file_menu.addAction(_tr("export_text"))
         export_text_action.triggered.connect(self._on_export_text)
         
         file_menu.addSeparator()
         
-        exit_action = file_menu.addAction("&Salir")
+        exit_action = file_menu.addAction(_tr("exit"))
         exit_action.setShortcut("Ctrl+Q")
         exit_action.triggered.connect(self.close)
         
-        edit_menu = menubar.addMenu("&Editar")
+        edit_menu = menubar.addMenu(_tr("menu_edit"))
         
-        undo_action = edit_menu.addAction("&Deshacer")
+        undo_action = edit_menu.addAction(_tr("undo"))
         undo_action.setShortcut("Ctrl+Z")
         undo_action.triggered.connect(self._undo_stack.undo)
         
-        redo_action = edit_menu.addAction("&Rehacer")
+        redo_action = edit_menu.addAction(_tr("redo"))
         redo_action.setShortcut("Ctrl+Y")
         redo_action.triggered.connect(self._undo_stack.redo)
         
         edit_menu.addSeparator()
         
-        select_all_action = edit_menu.addAction("Seleccionar &todo")
+        select_all_action = edit_menu.addAction(_tr("select_all"))
         select_all_action.setShortcut("Ctrl+A")
         select_all_action.triggered.connect(self._on_select_all)
         
         edit_menu.addSeparator()
         
-        copy_action = edit_menu.addAction("&Copiar")
+        copy_action = edit_menu.addAction(_tr("copy"))
         copy_action.setShortcut("Ctrl+C")
         copy_action.triggered.connect(self._on_copy)
         
-        cut_action = edit_menu.addAction("Cor&tar")
+        cut_action = edit_menu.addAction(_tr("cut"))
         cut_action.setShortcut("Ctrl+X")
         cut_action.triggered.connect(self._on_cut)
         
-        paste_action = edit_menu.addAction("&Pegar")
+        paste_action = edit_menu.addAction(_tr("paste"))
         paste_action.setShortcut("Ctrl+V")
         paste_action.triggered.connect(self._on_paste)
         
         edit_menu.addSeparator()
         
-        bring_front_action = edit_menu.addAction("Traer al &frente")
+        bring_front_action = edit_menu.addAction(_tr("bring_to_front"))
         bring_front_action.setShortcut("Ctrl+Home")
         bring_front_action.triggered.connect(self._on_bring_to_front)
         
-        send_back_action = edit_menu.addAction("Enviar al &fondo")
+        send_back_action = edit_menu.addAction(_tr("send_to_back"))
         send_back_action.setShortcut("Ctrl+End")
         send_back_action.triggered.connect(self._on_send_to_back)
         
-        move_up_action = edit_menu.addAction("Subir &uno")
+        move_up_action = edit_menu.addAction(_tr("move_up"))
         move_up_action.setShortcut("Ctrl+PageUp")
         move_up_action.triggered.connect(self._on_move_up)
         
-        move_down_action = edit_menu.addAction("&Bajar uno")
+        move_down_action = edit_menu.addAction(_tr("move_down"))
         move_down_action.setShortcut("Ctrl+PageDown")
         move_down_action.triggered.connect(self._on_move_down)
         
         edit_menu.addSeparator()
         
-        delete_action = edit_menu.addAction("&Eliminar beat")
+        delete_action = edit_menu.addAction(_tr("delete_beat"))
         delete_action.triggered.connect(self._on_delete_selected)
         
-        view_menu = menubar.addMenu("&Ver")
+        view_menu = menubar.addMenu(_tr("menu_view"))
         
-        theme_menu = view_menu.addMenu("&Tema")
+        theme_menu = view_menu.addMenu(_tr("theme"))
         
         theme_group = QActionGroup(self)
         
-        system_theme_action = theme_menu.addAction("Sistema")
+        system_theme_action = theme_menu.addAction(_tr("system"))
         system_theme_action.setCheckable(True)
         system_theme_action.setData(ThemeMode.SYSTEM.value)
         system_theme_action.triggered.connect(lambda: self._on_theme_changed(ThemeMode.SYSTEM))
@@ -180,14 +181,14 @@ class MainWindow(QMainWindow):
         
         theme_menu.addSeparator()
         
-        light_submenu = theme_menu.addMenu("Claro")
+        light_submenu = theme_menu.addMenu(_tr("light"))
         light_group = QActionGroup(self)
         
         light_actions = [
-            (ThemeMode.LIGHT, "Claro (predeterminado)"),
-            (ThemeMode.SOLARIZED_LIGHT, "Solarized Light"),
-            (ThemeMode.GITHUB_LIGHT, "GitHub Light"),
-            (ThemeMode.PAPERCOLOR, "PaperColor"),
+            (ThemeMode.LIGHT, _tr("light_default")),
+            (ThemeMode.SOLARIZED_LIGHT, _tr("solarized_light")),
+            (ThemeMode.GITHUB_LIGHT, _tr("github_light")),
+            (ThemeMode.PAPERCOLOR, _tr("papercolor")),
         ]
         for mode, label in light_actions:
             action = light_submenu.addAction(label)
@@ -196,15 +197,15 @@ class MainWindow(QMainWindow):
             action.triggered.connect(lambda checked, m=mode: self._on_theme_changed(m))
             light_group.addAction(action)
         
-        dark_submenu = theme_menu.addMenu("Oscuro")
+        dark_submenu = theme_menu.addMenu(_tr("dark"))
         dark_group = QActionGroup(self)
         
         dark_actions = [
-            (ThemeMode.DARK, "Oscuro (predeterminado)"),
-            (ThemeMode.DRACULA, "Dracula"),
-            (ThemeMode.NORD, "Nord"),
-            (ThemeMode.ONE_DARK, "One Dark"),
-            (ThemeMode.MATERIAL_DARK, "Material Dark"),
+            (ThemeMode.DARK, _tr("dark_default")),
+            (ThemeMode.DRACULA, _tr("dracula")),
+            (ThemeMode.NORD, _tr("nord")),
+            (ThemeMode.ONE_DARK, _tr("one_dark")),
+            (ThemeMode.MATERIAL_DARK, _tr("material_dark")),
         ]
         for mode, label in dark_actions:
             action = dark_submenu.addAction(label)
@@ -217,20 +218,20 @@ class MainWindow(QMainWindow):
         
         view_menu.addSeparator()
         
-        bg_menu = view_menu.addMenu("Color de &fondo")
+        bg_menu = view_menu.addMenu(_tr("canvas_background"))
         
         bg_group = QActionGroup(self)
         
         from beatboard.core.constants import CANVAS_BACKGROUND_COLORS
         
         bg_labels = {
-            "white": "Blanco",
-            "light_gray": "Gris claro",
-            "gray": "Gris",
-            "dark_gray": "Gris oscuro",
-            "cream": "Crema",
-            "dark": "Oscuro",
-            "black": "Negro",
+            "white": _tr("white"),
+            "light_gray": _tr("light_gray"),
+            "gray": _tr("gray"),
+            "dark_gray": _tr("dark_gray"),
+            "cream": _tr("cream"),
+            "dark": _tr("dark"),
+            "black": _tr("black"),
         }
         
         for bg_key, bg_hex in CANVAS_BACKGROUND_COLORS.items():
@@ -242,42 +243,42 @@ class MainWindow(QMainWindow):
         
         bg_menu.addSeparator()
         
-        custom_bg_action = bg_menu.addAction("Personalizado...")
+        custom_bg_action = bg_menu.addAction(_tr("custom"))
         custom_bg_action.triggered.connect(self._on_custom_canvas_background)
         
         self._update_canvas_background_check(bg_group)
         
         view_menu.addSeparator()
         
-        zoom_in_action = view_menu.addAction("Acercar")
+        zoom_in_action = view_menu.addAction(_tr("zoom_in"))
         zoom_in_action.setShortcut("Ctrl++")
         zoom_in_action.triggered.connect(self._beat_board_view.zoom_in)
         
-        zoom_out_action = view_menu.addAction("Alejar")
+        zoom_out_action = view_menu.addAction(_tr("zoom_out"))
         zoom_out_action.setShortcut("Ctrl+-")
         zoom_out_action.triggered.connect(self._beat_board_view.zoom_out)
         
-        fit_action = view_menu.addAction("Ajustar a contenido")
+        fit_action = view_menu.addAction(_tr("fit_to_content"))
         fit_action.setShortcut("Ctrl+0")
         fit_action.triggered.connect(self._beat_board_view.fit_to_contents)
         
         view_menu.addSeparator()
         
-        memorize_defaults_action = view_menu.addAction("Recordar tamaño y color del último beat")
+        memorize_defaults_action = view_menu.addAction(_tr("memorize_defaults"))
         memorize_defaults_action.setCheckable(True)
         memorize_defaults_action.triggered.connect(self._on_memorize_defaults_toggled)
         self._memorize_action = memorize_defaults_action
         
-        grid_action = view_menu.addAction("Mostrar cuadrícula")
+        grid_action = view_menu.addAction(_tr("show_grid"))
         grid_action.setCheckable(True)
         grid_action.triggered.connect(self._on_grid_toggled)
         self._grid_action = grid_action
         
         view_menu.addSeparator()
         
-        grid_menu = view_menu.addMenu("Opciones de cuadrícula")
+        grid_menu = view_menu.addMenu(_tr("grid_options"))
         
-        size_menu = grid_menu.addMenu("Tamaño de celda")
+        size_menu = grid_menu.addMenu(_tr("cell_size"))
         size_group = QActionGroup(self)
         from beatboard.core.constants import GRID_SIZE_OPTIONS
         for size in GRID_SIZE_OPTIONS:
@@ -288,10 +289,10 @@ class MainWindow(QMainWindow):
             size_group.addAction(size_action)
         self._update_grid_size_check(size_group)
         
-        color_menu = grid_menu.addMenu("Color de cuadrícula")
+        color_menu = grid_menu.addMenu(_tr("grid_color"))
         color_group = QActionGroup(self)
         
-        auto_color_action = color_menu.addAction("Auto")
+        auto_color_action = color_menu.addAction(_tr("auto"))
         auto_color_action.setData("auto")
         auto_color_action.setCheckable(True)
         auto_color_action.triggered.connect(lambda: self._on_grid_color_changed("auto"))
@@ -307,16 +308,39 @@ class MainWindow(QMainWindow):
             color_action.triggered.connect(lambda checked, c=color_value.name(): self._on_grid_color_changed(c))
             color_group.addAction(color_action)
         
+        color_menu.addSeparator()
+        
+        custom_grid_color_action = color_menu.addAction(_tr("custom"))
+        custom_grid_color_action.triggered.connect(self._on_custom_grid_color)
+        
         self._update_grid_color_check(color_group)
         
-        help_menu = menubar.addMenu("A&yuda")
+        view_menu.addSeparator()
         
-        shortcuts_action = help_menu.addAction("Atajos de &teclado")
+        lang_menu = view_menu.addMenu(_tr("language"))
+        lang_group = QActionGroup(self)
+        
+        from beatboard.i18n import get_locale_name, get_available_locales
+        current_locale = self._get_current_locale()
+        
+        for locale_code in get_available_locales():
+            locale_name = get_locale_name(locale_code)
+            lang_action = lang_menu.addAction(locale_name)
+            lang_action.setCheckable(True)
+            lang_action.setData(locale_code)
+            if locale_code == current_locale:
+                lang_action.setChecked(True)
+            lang_action.triggered.connect(lambda checked, lc=locale_code: self._on_language_changed(lc))
+            lang_group.addAction(lang_action)
+        
+        help_menu = menubar.addMenu(_tr("menu_help"))
+        
+        shortcuts_action = help_menu.addAction(_tr("keyboard_shortcuts"))
         shortcuts_action.triggered.connect(self._on_show_shortcuts)
         
         help_menu.addSeparator()
         
-        about_action = help_menu.addAction("&Acerca de")
+        about_action = help_menu.addAction(_tr("about"))
         about_action.triggered.connect(self._on_about)
     
     def _get_toolbar_icon(self, icon_name: str) -> "QIcon":
@@ -342,44 +366,44 @@ class MainWindow(QMainWindow):
     def _setup_toolbar(self) -> None:
         from PySide6.QtGui import QIcon
         
-        toolbar = QToolBar("Barra de herramientas")
+        toolbar = QToolBar(_tr("toolbar"))
         toolbar.setIconSize(QSize(24, 24))
         self.addToolBar(toolbar)
         
-        new_btn = toolbar.addAction(self._get_toolbar_icon("new"), "Nuevo")
-        new_btn.setToolTip("Crear nuevo proyecto (Ctrl+N)")
+        new_btn = toolbar.addAction(self._get_toolbar_icon("new"), _tr("new"))
+        new_btn.setToolTip(_tr("new_tooltip"))
         new_btn.triggered.connect(self._on_new_project)
         
-        open_btn = toolbar.addAction(self._get_toolbar_icon("open"), "Abrir")
-        open_btn.setToolTip("Abrir proyecto existente (Ctrl+O)")
+        open_btn = toolbar.addAction(self._get_toolbar_icon("open"), _tr("open"))
+        open_btn.setToolTip(_tr("open_tooltip"))
         open_btn.triggered.connect(self._on_open_project)
         
-        save_btn = toolbar.addAction(self._get_toolbar_icon("save"), "Guardar")
-        save_btn.setToolTip("Guardar proyecto (Ctrl+S)")
+        save_btn = toolbar.addAction(self._get_toolbar_icon("save"), _tr("save"))
+        save_btn.setToolTip(_tr("save_tooltip"))
         save_btn.triggered.connect(self._on_save_project)
         
         toolbar.addSeparator()
         
-        zoom_in_btn = toolbar.addAction(self._get_toolbar_icon("zoom-in"), "+")
-        zoom_in_btn.setToolTip("Acercar (Ctrl++)")
+        zoom_in_btn = toolbar.addAction(self._get_toolbar_icon("zoom-in"), _tr("zoom_in_toolbar"))
+        zoom_in_btn.setToolTip(_tr("zoom_in_tooltip"))
         zoom_in_btn.triggered.connect(self._beat_board_view.zoom_in)
         
-        zoom_out_btn = toolbar.addAction(self._get_toolbar_icon("zoom-out"), "-")
-        zoom_out_btn.setToolTip("Alejar (Ctrl+-)")
+        zoom_out_btn = toolbar.addAction(self._get_toolbar_icon("zoom-out"), _tr("zoom_out_toolbar"))
+        zoom_out_btn.setToolTip(_tr("zoom_out_tooltip"))
         zoom_out_btn.triggered.connect(self._beat_board_view.zoom_out)
         
-        fit_btn = toolbar.addAction(self._get_toolbar_icon("fit"), "Ajustar")
-        fit_btn.setToolTip("Ajustar a contenido (Ctrl+0)")
+        fit_btn = toolbar.addAction(self._get_toolbar_icon("fit"), _tr("fit"))
+        fit_btn.setToolTip(_tr("fit_tooltip"))
         fit_btn.triggered.connect(self._beat_board_view.fit_to_contents)
         
-        center_btn = toolbar.addAction(self._get_toolbar_icon("center"), "Centrar")
-        center_btn.setToolTip("Centrar vista en el origen (0,0)")
+        center_btn = toolbar.addAction(self._get_toolbar_icon("center"), _tr("center"))
+        center_btn.setToolTip(_tr("center_tooltip"))
         center_btn.triggered.connect(self._beat_board_view.center_on_origin)
         
         toolbar.addSeparator()
         
-        connection_btn = toolbar.addAction(self._get_toolbar_icon("link"), "Conectar")
-        connection_btn.setToolTip("Modo conexión (crear líneas entre beats)")
+        connection_btn = toolbar.addAction(self._get_toolbar_icon("link"), _tr("connect"))
+        connection_btn.setToolTip(_tr("connect_tooltip"))
         connection_btn.triggered.connect(self._beat_board_view.toggle_connection_mode)
     
     def _setup_statusbar(self) -> None:
@@ -394,6 +418,17 @@ class MainWindow(QMainWindow):
         self._beat_board_view.selection_changed.connect(self._on_selection_changed)
         self._beat_board_view.mouse_moved.connect(self._on_mouse_moved)
         self._properties_panel.beat_updated.connect(self._on_beat_updated)
+        
+        app = QApplication.instance()
+        if app and hasattr(app, "locale_manager"):
+            app.locale_manager.locale_changed.connect(self._on_locale_changed)
+    
+    def _on_locale_changed(self, locale: str) -> None:
+        self._rebuild_ui()
+    
+    def _rebuild_ui(self) -> None:
+        self._update_title()
+        self._update_status()
     
     def _load_saved_preferences(self) -> None:
         app = QApplication.instance()
@@ -409,6 +444,9 @@ class MainWindow(QMainWindow):
         
         grid_size = tm.get_grid_size()
         self._beat_board_view._scene.set_grid_size(grid_size)
+        
+        grid_color = tm.get_grid_color()
+        self._beat_board_view._scene.set_grid_color(grid_color)
         
         memorize_enabled = tm.get_memorize_defaults()
         from beatboard.core.beat_defaults import BeatDefaults
@@ -426,9 +464,9 @@ class MainWindow(QMainWindow):
     def _update_status(self, cursor_x: int = 0, cursor_y: int = 0) -> None:
         beat_count = len(self._project.beats)
         zoom_percent = int(self._beat_board_view.zoom_level * 100)
-        modified_text = "Modificado" if self._is_modified else "Guardado"
+        modified_text = _tr("modified") if self._is_modified else _tr("saved")
         self._statusbar.showMessage(
-            f"Beats: {beat_count} | Zoom: {zoom_percent}% | {modified_text} | Cursor: ({cursor_x}, {cursor_y})"
+            f"{_tr('beats_count').format(count=beat_count)} | {_tr('zoom_level').format(percent=zoom_percent)} | {modified_text} | {_tr('cursor_position').format(x=cursor_x, y=cursor_y)}"
         )
     
     def _on_mouse_moved(self, x: int, y: int) -> None:
@@ -458,7 +496,7 @@ class MainWindow(QMainWindow):
         
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            "Abrir proyecto",
+            _tr("open_project"),
             "",
             PROJECT_FILE_FILTER,
         )
@@ -473,11 +511,11 @@ class MainWindow(QMainWindow):
             self._on_save_project_as()
     
     def _on_save_project_as(self) -> None:
-        suggested_name = self._project.name.strip() if self._project.name else "Sin título"
+        suggested_name = self._project.name.strip() if self._project.name else "Untitled"
         
         file_path, _ = QFileDialog.getSaveFileName(
             self,
-            "Guardar proyecto como",
+            _tr("save_project_as"),
             f"{suggested_name}.bbp",
             PROJECT_FILE_FILTER,
         )
@@ -597,7 +635,7 @@ class MainWindow(QMainWindow):
             from beatboard.core.constants import CANVAS_BACKGROUND_COLORS
             current_color = CANVAS_BACKGROUND_COLORS.get(current_key, "#f0f0f0")
         
-        color = QColorDialog.getColor(QColor(current_color), self, "Color de fondo del lienzo")
+        color = QColorDialog.getColor(QColor(current_color), self, _tr("canvas_background_color"))
         if color.isValid():
             hex_color = color.name()
             self._set_custom_canvas_background(hex_color)
@@ -635,9 +673,34 @@ class MainWindow(QMainWindow):
     
     def _on_grid_color_changed(self, color: str) -> None:
         self._beat_board_view._scene.set_grid_color(color)
+        app = QApplication.instance()
+        if app and hasattr(app, "theme_manager"):
+            app.theme_manager.set_grid_color(color)
+    
+    def _on_custom_grid_color(self) -> None:
+        from PySide6.QtWidgets import QColorDialog
+        from PySide6.QtGui import QColor
+        
+        app = QApplication.instance()
+        current_color = "#CCCCCC"
+        if app and hasattr(app, "theme_manager"):
+            current_key = app.theme_manager.get_grid_color()
+            if current_key not in ("auto", "custom") and current_key.startswith("#"):
+                current_color = current_key
+        
+        color = QColorDialog.getColor(QColor(current_color), self, _tr("select_color"))
+        if color.isValid():
+            hex_color = color.name()
+            self._beat_board_view._scene.set_grid_color(hex_color)
+            if app and hasattr(app, "theme_manager"):
+                app.theme_manager.set_grid_color(hex_color)
     
     def _update_grid_color_check(self, color_group: QActionGroup) -> None:
-        current_color = self._beat_board_view._scene.get_grid_color()
+        app = QApplication.instance()
+        if app and hasattr(app, "theme_manager"):
+            current_color = app.theme_manager.get_grid_color()
+        else:
+            current_color = "auto"
         for action in color_group.actions():
             if action.data() == current_color:
                 action.setChecked(True)
@@ -683,15 +746,15 @@ class MainWindow(QMainWindow):
         count = len(beat_ids)
         if count == 0:
             self._properties_panel.clear()
-            self._statusbar.showMessage("Ningún beat seleccionado")
+            self._statusbar.showMessage(_tr("no_beat_selected_status"))
         elif count == 1:
             beat = self._project.get_beat_by_id(beat_ids[0])
             if beat:
                 self._properties_panel.set_beat(beat)
-                self._statusbar.showMessage(f"Seleccionado: {beat.title or 'Sin título'}")
+                self._statusbar.showMessage(_tr("selected_beat_status").format(title=beat.title or _tr("title_placeholder")))
         else:
             self._properties_panel.clear()
-            self._statusbar.showMessage(f"{count} beats seleccionados")
+            self._statusbar.showMessage(_tr("multiple_selected_status").format(count=count))
     
     def _on_beat_updated(self, beat_id: str, title: str, content: str, color: str) -> None:
         beat = self._project.get_beat_by_id(beat_id)
@@ -704,51 +767,51 @@ class MainWindow(QMainWindow):
     def _on_show_shortcuts(self) -> None:
         from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTextEdit
         
-        shortcuts_text = """
-<h2>Atajos de Teclado</h2>
+        shortcuts_text = f"""
+        <h2>{_tr("keyboard_shortcuts")}</h2>
 
-<h3>Archivo</h3>
-<ul>
-<li><b>Ctrl+N</b>: Nuevo proyecto</li>
-<li><b>Ctrl+O</b>: Abrir proyecto</li>
-<li><b>Ctrl+S</b>: Guardar proyecto</li>
-<li><b>Ctrl+Shift+S</b>: Guardar como</li>
-</ul>
+        <h3>{_tr("shortcuts_file")}</h3>
+        <ul>
+        <li><b>Ctrl+N</b>: {_tr("shortcut_new_project")}</li>
+        <li><b>Ctrl+O</b>: {_tr("shortcut_open_project")}</li>
+        <li><b>Ctrl+S</b>: {_tr("shortcut_save_project")}</li>
+        <li><b>Ctrl+Shift+S</b>: {_tr("shortcut_save_as")}</li>
+        </ul>
 
-<h3>Editar</h3>
-<ul>
-<li><b>Ctrl+Z</b>: Deshacer</li>
-<li><b>Ctrl+Y</b>: Rehacer</li>
-<li><b>Ctrl+A</b>: Seleccionar todo</li>
-<li><b>Ctrl+C</b>: Copiar beats seleccionados</li>
-<li><b>Ctrl+X</b>: Cortar beats seleccionados</li>
-<li><b>Ctrl+V</b>: Pegar beats copiados</li>
-<li><b>Ctrl+Home</b>: Traer al frente</li>
-<li><b>Ctrl+End</b>: Enviar al fondo</li>
-<li><b>Ctrl+PageUp</b>: Subir uno</li>
-<li><b>Ctrl+PageDown</b>: Bajar uno</li>
-<li><b>Delete/Supr</b>: Eliminar selección</li>
-</ul>
+        <h3>{_tr("shortcuts_edit")}</h3>
+        <ul>
+        <li><b>Ctrl+Z</b>: {_tr("shortcut_undo")}</li>
+        <li><b>Ctrl+Y</b>: {_tr("shortcut_redo")}</li>
+        <li><b>Ctrl+A</b>: {_tr("shortcut_select_all")}</li>
+        <li><b>Ctrl+C</b>: {_tr("shortcut_copy")}</li>
+        <li><b>Ctrl+X</b>: {_tr("shortcut_cut")}</li>
+        <li><b>Ctrl+V</b>: {_tr("shortcut_paste")}</li>
+        <li><b>Ctrl+Home</b>: {_tr("shortcut_bring_front")}</li>
+        <li><b>Ctrl+End</b>: {_tr("shortcut_send_back")}</li>
+        <li><b>Ctrl+PageUp</b>: {_tr("shortcut_move_up")}</li>
+        <li><b>Ctrl+PageDown</b>: {_tr("shortcut_move_down")}</li>
+        <li><b>Delete/Supr</b>: {_tr("shortcut_delete")}</li>
+        </ul>
 
-<h3>Vista</h3>
-<ul>
-<li><b>Ctrl+0</b>: Ajustar a contenido</li>
-<li><b>Ctrl++</b>: Acercar</li>
-<li><b>Ctrl+-</b>: Alejar</li>
-<li><b>Espacio</b>: Modo paneo (mantener presionado)</li>
-<li><b>Escape</b>: Deseleccionar todo / Cancelar modo conexión</li>
-</ul>
+        <h3>{_tr("shortcuts_view")}</h3>
+        <ul>
+        <li><b>Ctrl+0</b>: {_tr("shortcut_fit")}</li>
+        <li><b>Ctrl++</b>: {_tr("shortcut_zoom_in")}</li>
+        <li><b>Ctrl+-</b>: {_tr("shortcut_zoom_out")}</li>
+        <li><b>Espacio</b>: {_tr("shortcut_pan")}</li>
+        <li><b>Escape</b>: {_tr("shortcut_deselect")}</li>
+        </ul>
 
-<h3>Otros</h3>
-<ul>
-<li><b>1-8</b>: Cambiar color del beat seleccionado</li>
-<li><b>Doble clic (canvas)</b>: Crear nuevo beat</li>
-<li><b>Doble clic (beat)</b>: Editar beat</li>
-</ul>
-"""
+        <h3>{_tr("shortcuts_other")}</h3>
+        <ul>
+        <li><b>1-8</b>: {_tr("shortcut_change_color")}</li>
+        <li><b>{_tr("shortcut_new_beat")}</b></li>
+        <li><b>{_tr("shortcut_edit_beat")}</b></li>
+        </ul>
+        """
         
         dialog = QDialog(self)
-        dialog.setWindowTitle("Atajos de Teclado")
+        dialog.setWindowTitle(_tr("keyboard_shortcuts"))
         dialog.setMinimumSize(400, 500)
         
         layout = QVBoxLayout()
@@ -767,22 +830,22 @@ class MainWindow(QMainWindow):
         from datetime import date
         
         current_year = date.today().year
-        version_date = "27 de Febrero de 2026"
+        version_date = "February 27, 2026"
         
         QMessageBox.about(
             self,
-            f"Acerca de {APP_NAME}",
+            f"{_tr('about')} {APP_NAME}",
             f"<h3>{APP_NAME}</h3>"
-            f"<p><b>Versión {APP_VERSION}</b> - {version_date}</p>"
-            f"<p>Una pizarra virtual para escritores de guiones.</p>"
-            f"<p>Inspirado en Final Draft Beat Board.</p>"
+            f"<p><b>{_tr('version').format(version=APP_VERSION)}</b> - {version_date}</p>"
+            f"<p>{_tr('app_description')}</p>"
+            f"<p>{_tr('inspired_by')}</p>"
             f"<hr>"
-            f"<p><b>Autor:</b> CarlyMx</p>"
-            f"<p><b>Email:</b> <a href='mailto:carlymx@gmail.com'>carlymx@gmail.com</a></p>"
-            f"<p><b>GitHub:</b> <a href='https://github.com/carlymx/BeatBoard'>https://github.com/carlymx/BeatBoard</a></p>"
+            f"<p><b>{_tr('author')}</b> CarlyMx</p>"
+            f"<p><b>{_tr('email')}</b> <a href='mailto:carlymx@gmail.com'>carlymx@gmail.com</a></p>"
+            f"<p><b>{_tr('github')}</b> <a href='https://github.com/carlymx/BeatBoard'>https://github.com/carlymx/BeatBoard</a></p>"
             f"<hr>"
-            f"<p>Licencia: <a href='https://creativecommons.org/licenses/by-nc/4.0/legalcode.es'>Creative Commons BY-NC 4.0</a></p>"
-            f"<p>© {current_year} CarlyMx. Todos los derechos reservados.</p>",
+            f"<p><b>{_tr('license')}:</b> <a href='https://creativecommons.org/licenses/by-nc/4.0/legalcode'>Creative Commons BY-NC 4.0</a></p>"
+            f"<p>{_tr('copyright').format(year=current_year)}</p>",
         )
     
     def closeEvent(self, event) -> None:
@@ -791,8 +854,8 @@ class MainWindow(QMainWindow):
             
             reply = QMessageBox.question(
                 self,
-                "Guardar cambios",
-                "¿Deseas guardar los cambios antes de salir?",
+                _tr("save_changes"),
+                _tr("save_changes_question"),
                 QMessageBox.StandardButton.Save
                 | QMessageBox.StandardButton.Discard
                 | QMessageBox.StandardButton.Cancel,
@@ -807,3 +870,21 @@ class MainWindow(QMainWindow):
                 event.ignore()
         else:
             event.accept()
+    
+    def _get_current_locale(self) -> str:
+        app = QApplication.instance()
+        if app and hasattr(app, "locale_manager"):
+            return app.locale_manager.get_current_locale()
+        return "en"
+    
+    def _on_language_changed(self, locale_code: str) -> None:
+        app = QApplication.instance()
+        if app and hasattr(app, "locale_manager"):
+            app.locale_manager.set_locale(locale_code)
+            
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.information(
+                self,
+                _tr("language_changed"),
+                _tr("language_changed_message"),
+            )

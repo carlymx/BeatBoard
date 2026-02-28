@@ -784,7 +784,8 @@ VERSION 1.1 - "Outline Integration" (Mes 9)
 **Fecha Estimada:** Noviembre 2026
 
 **Características:**
-- [ ] **SpellCheck** - Usu de diccionarios .OXT de LibreOffice (Descargables desde https://extensions.libreoffice.org/en?Tags%5B%5D=50)
+- [ ] **MultiIdioma*** - Traducir menús y textos a los principales idiomas en, sp, fr, ge
+- [ ] **SpellCheck** - Agregar uso de diccionarios .OXT de LibreOffice (Descargables desde https://extensions.libreoffice.org/en?Tags%5B%5D=50)
 - [ ] **Outline Editor** - Vista de esquema jerárquico de beats
 - [ ] **Estructura de actos** - Agrupar beats en actos/secuencias
 - [ ] **Drag to Outline** - Arrastrar beats desde canvas a outline

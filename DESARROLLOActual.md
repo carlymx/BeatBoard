@@ -4,9 +4,32 @@
 
 ## Progreso Actual
 
-### v1.0.1 - RELEASE ✅
+### v1.0.5 - RELEASE ✅
 
-BeatBoard versión 1.0.1 con correcciones de compatibilidad y iconos.
+BeatBoard versión 1.0.5 con soporte multiidioma y mejoras de cuadrícula.
+
+---
+
+### Cambios v1.0.5
+
+#### ✨ Nuevas Funcionalidades
+- [x] **Soporte Multiidioma**: Inglés, Español, Francés, Alemán
+- [x] **Detección de idioma del sistema**: Al primer inicio detecta el idioma del sistema
+- [x] **Preferencia de idioma persistente**: Se guarda en preferences.json
+- [x] **Notificación de reinicio**: Al cambiar idioma avisa que se debe reiniciar
+- [x] **Color de cuadrícula personalizable**: Selector de color en opciones de cuadrícula
+- [x] **Grid size options**: Cambiados a 50, 100, 150, 200, 250
+
+#### 🔧 Correcciones
+- [x] **Iconos de toolbar**: Ahora embebidos en el ejecutable (PyInstaller)
+- [x] **preferences.json**: Se crea automáticamente al primer inicio con valores por defecto
+- [x] **Grid color guardado**: Se guarda y carga correctamente el color de cuadrícula
+
+#### 📦 Archivos Generados v1.0.5
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5_portable` (58 MB)
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5.AppImage` (58 MB)
+
+**Nota**: Compilados con Python 3.10 para máxima compatibilidad (GLIBC 2.31+)
 
 ---
 
@@ -65,6 +88,16 @@ BeatBoard versión 1.0.1 con correcciones de compatibilidad y iconos.
 - [x] Paleta de colores predefinidos para beats
 - [x] Color de fondo del canvas (predefinidos + personalizado)
 - [x] Cuadrícula opcional
+- [x] Tamaño de cuadrícula (50, 100, 150, 200, 250)
+- [x] Color de cuadrícula (auto, predefinidos, personalizado)
+
+#### ✅ Internacionalización (i18n)
+- [x] **Sistema de traducciones**: Estructura en `beatboard/i18n/`
+- [x] **Idiomas disponibles**: Inglés, Español, Francés, Alemán
+- [x] **Detección de idioma del sistema**: QLocale para detectar idioma
+- [x] **Menú de idioma**: En Ver > Idioma
+- [x] **Preferencia persistente**: Se guarda en preferences.json
+- [x] **Notificación de reinicio**: Al cambiar idioma
 
 #### ✅ Deshacer/Rehacer
 - [x] QUndoStack con comandos para:
@@ -114,6 +147,8 @@ BeatBoard versión 1.0.1 con correcciones de compatibilidad y iconos.
 - [x] Color de fondo del canvas
 - [x] Mostrar/ocultar cuadrícula
 - [x] Tamaño de celda de cuadrícula
+- [x] Color de cuadrícula (incluye personalizado)
+- [x] Idioma seleccionado
 - [x] Recordar tamaño y color del último beat
 
 #### ✅ Panel de Propiedades
@@ -133,7 +168,10 @@ BeatBoard versión 1.0.1 con correcciones de compatibilidad y iconos.
 - [x] README.md y README_ES.md creados
 - [x] Archivo .desktop creado
 - [x] AppImage generado
-- [ ] Compilar exe Windows (requiere Windows)
+- [x] Compilación Linux (AppImage/Package)
+- [x] Compilación macOS (build/mac/)
+- [x] Compilación Windows (build/win/)
+- [x] Compilación Flatpak/Flathub (build/flatpak/)
 
 #### 📦 Empaquetado
 - [x] Ejecutable generado con PyInstaller (dist/BeatBoard)
@@ -185,6 +223,16 @@ BeatBoard versión 1.0.1 con correcciones de compatibilidad y iconos.
 | `beatboard/tests/test_undo.py` | 12 tests |
 | **Total** | **34 tests** |
 
+#### i18n (Internacionalización)
+| Archivo | Descripción |
+|---------|-------------|
+| `beatboard/i18n/__init__.py` | Gestor de LocaleManager |
+| `beatboard/i18n/locales/__init__.py` | Funciones de carga de locale |
+| `beatboard/i18n/locales/en.py` | Traducciones inglés |
+| `beatboard/i18n/locales/es.py` | Traducciones español |
+| `beatboard/i18n/locales/fr.py` | Traducciones francés |
+| `beatboard/i18n/locales/de.py` | Traducciones alemán |
+
 ---
 
 ## Cómo Ejecutar
@@ -202,6 +250,72 @@ python -m pytest beatboard/tests/ -v
 
 ---
 
+## Problemas Conocidos y Soluciones
+
+### Error: GLIBC_ABI_GNU2_TLS not found
+
+**Síntoma:**
+```
+[PYI-14896:ERROR] Failed to load Python shared library '/tmp/_MEIxxxxx/libpython3.14.so.1.0': 
+/lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_ABI_GNU2_TLS' not found
+```
+
+**Causa:** Se compiló con Python 3.14 (versión muy reciente), que requiere GLIBC 2.34+.
+
+**Solución:** Usar Python 3.10 o 3.11 para compilar. Actualizar el Dockerfile:
+
+```dockerfile
+# Usar Python 3.10 específico en lugar de python3 del sistema
+RUN apt-get update && apt-get install -y software-properties-common
+RUN add-apt-repository -y ppa:deadsnakes/ppa
+RUN apt-get update && apt-get install -y python3.10 python3.10-venv python3.10-dev
+RUN ln -sf /usr/bin/python3.10 /usr/bin/python3
+```
+
+**Versiones compatibles:**
+- Ubuntu 20.04+: Python 3.8-3.10
+- Ubuntu 22.04: Python 3.10 (RECOMENDADO)
+- Linux Mint 22.2: Python 3.11
+
+**Regla:** Usar siempre Python 3.10 o 3.11 para máxima compatibilidad.
+
+### Icono de AppImage no se muestra en el explorador
+
+**Síntoma:** El icono no aparece en el explorador de archivos (Nemo, Dolphin, Nautilus).
+
+**Solución probable:** Usar `linuxdeploy` en lugar de `appimagetool`:
+```bash
+./linuxdeploy-x86_64.AppImage --appdir AppDir -i beatboard.png -d beatboard.desktop --plugin qt --output appimage
+```
+
+**Estructura requerida del AppDir:**
+```
+AppDir/
+├── AppRun                    # Script que lanza la app
+├── beatboard.desktop         # Archivo de escritorio
+├── beatboard.png             # Icono en raíz (OBLIGATORIO)
+└── usr/share/icons/hicolor/  # Iconos en múltiples resoluciones
+    ├── 256x256/apps/beatboard.png
+    ├── 128x128/apps/beatboard.png
+    ├── 64x64/apps/beatboard.png
+    ├── 32x32/apps/beatboard.png
+    └── 16x16/apps/beatboard.png
+```
+
+**Archivo `.desktop` debe tener:**
+```ini
+[Desktop Entry]
+Name=BeatBoard
+Exec=AppRun %U
+Icon=beatboard
+Type=Application
+Categories=Office;
+```
+
+**Nota:** Algunos gestores de archivos (Nemo, Dolphin) pueden requerir daemon de integración como `appimageaged` o **AppImageLauncher** para mostrar el icono.
+
+---
+
 ## Notas
 
 - Los errores de LSP (type hints) son falsos positivos - el código funciona correctamente
@@ -209,8 +323,11 @@ python -m pytest beatboard/tests/ -v
 - Conexiones entre beats funcionan con líneas curvas bezier
 - El foco de teclado está configurado para capturar Delete/Supr correctamente
 - Configuración de usuario en `~/.config/beatboard/preferences.json`
-- Iconos de toolbar embebidos en el proyecto (`beatboard/ui/icons/toolbar_*`)
+- Iconos de toolbar embebidos en el ejecutable (`beatboard/ui/icons/toolbar_*`)
 - Compilación con Ubuntu 22.04 para compatibilidad máxima
+- Sistema i18n con soporte para EN, ES, FR, DE
+- Idioma del sistema detectado automáticamente
+- Grid color con opción de color personalizado
 
 ---
 
@@ -220,8 +337,11 @@ python -m pytest beatboard/tests/ -v
 
 - **Sistema**: Ubuntu 22.04 LTS (o cualquier distribución con GLIBC 2.31+)
 - **Herramientas**: Docker o Podman (para compilación con compatibilidad máxima)
+- **Python**: 3.10 (IMPORTANTE: No usar 3.12+)
 
-### Método 1: Con Docker/Podman (Recomendado)
+### Linux (AppImage/Package)
+
+#### Método 1: Con Docker/Podman (Recomendado)
 
 Este método garantiza máxima compatibilidad con diferentes distribuciones Linux.
 
@@ -245,12 +365,53 @@ chmod +x appimagetool
 ./appimagetool -s AppDir BeatBoard-x86_64.AppImage
 ```
 
+#### Método 2: Flatpak (para Flathub)
+
+```bash
+# Instalar Flatpak y SDK
+sudo apt install flatpak flatpak-builder
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak install flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+
+# Compilar
+cd BeatBoard/build/flatpak
+flatpak-builder --user --install build com.beatboard.BeatBoard.json
+```
+
+Los archivos de configuración Flatpak están en `build/flatpak/`:
+- `com.beatboard.BeatBoard.json` - Manifiesto
+- `com.beatboard.BeatBoard.desktop` - Entrada de escritorio
+- `com.beatboard.BeatBoard.metainfo.xml` - Metadatos AppStream
+- `README_FLATPAK.md` - Instrucciones completas
+
+### macOS
+
+```bash
+cd BeatBoard/build/mac
+chmod +x build_mac.sh
+./build_mac.sh
+```
+
+Salida: `build/mac/output/BeatBoard.app`
+
+### Windows
+
+```powershell
+cd BeatBoard\build\win
+.\build_win.ps1
+```
+
+Salida: `build\win\output\BeatBoard.exe`
+
 ### Archivos Generados
 
 | Archivo | Descripción |
 |---------|-------------|
-| `build/BeatBoard-portable` | Ejecutable portable (requiere librerías del sistema) |
-| `build/BeatBoard-x86_64.AppImage` | AppImage autocontenido |
+| `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5_portable` | Ejecutable portable Linux (58 MB) |
+| `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5.AppImage` | AppImage Linux (58 MB) |
+| `build/mac/output/BeatBoard.app` | Bundle macOS |
+| `build/win/output/BeatBoard.exe` | Ejecutable Windows |
+| `build/flatpak/` | Archivos para Flatpak/Flathub |
 
 ### Compatibilidad de Binarios
 

@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 
 from beatboard.core.beat import Beat
 from beatboard.core.constants import BEAT_COLORS
+from beatboard.i18n import _tr
 
 if TYPE_CHECKING:
     pass
@@ -37,7 +38,7 @@ class BeatEditorDialog(QDialog):
         self._beat = beat
         self._original_color = beat.color
         
-        self.setWindowTitle("Editar Beat")
+        self.setWindowTitle(_tr("edit_beat"))
         self.setMinimumSize(500, 450)
         self.setModal(True)
         
@@ -47,12 +48,12 @@ class BeatEditorDialog(QDialog):
         
         self._title_edit = QLineEdit()
         self._title_edit.setText(beat.title or "")
-        self._title_edit.setPlaceholderText("Título del beat")
-        form_layout.addRow("Título:", self._title_edit)
+        self._title_edit.setPlaceholderText(_tr("beat_title_placeholder"))
+        form_layout.addRow(_tr("title") + ":", self._title_edit)
         
         layout.addLayout(form_layout)
         
-        content_label = QLabel("Contenido:")
+        content_label = QLabel(_tr("content"))
         content_label.setStyleSheet("font-weight: bold;")
         layout.addWidget(content_label)
         
@@ -61,21 +62,21 @@ class BeatEditorDialog(QDialog):
         layout.addWidget(self._toolbar)
         
         self._bold_btn = self._toolbar.addAction("B")
-        self._bold_btn.setToolTip("Negrita (Ctrl+B)")
+        self._bold_btn.setToolTip(_tr("bold") + " (Ctrl+B)")
         self._bold_btn.triggered.connect(self._toggle_bold)
         
         self._italic_btn = self._toolbar.addAction("I")
         italic_font = QFont()
         italic_font.setItalic(True)
         self._italic_btn.setFont(italic_font)
-        self._italic_btn.setToolTip("Cursiva (Ctrl+I)")
+        self._italic_btn.setToolTip(_tr("italic") + " (Ctrl+I)")
         self._italic_btn.triggered.connect(self._toggle_italic)
         
         self._underline_btn = self._toolbar.addAction("U")
         underline_font = QFont()
         underline_font.setUnderline(True)
         self._underline_btn.setFont(underline_font)
-        self._underline_btn.setToolTip("Subrayado (Ctrl+U)")
+        self._underline_btn.setToolTip(_tr("underline") + " (Ctrl+U)")
         self._underline_btn.triggered.connect(self._toggle_underline)
         
         self._toolbar.addSeparator()
@@ -84,7 +85,7 @@ class BeatEditorDialog(QDialog):
         self._font_size_combo.setFixedWidth(60)
         self._font_size_combo.addItems(["8", "9", "10", "12", "14", "16", "18", "20", "24", "28", "32"])
         self._font_size_combo.setCurrentText("12")
-        self._font_size_combo.setToolTip("Tamaño de letra")
+        self._font_size_combo.setToolTip(_tr("font_size"))
         self._font_size_combo.currentTextChanged.connect(self._change_font_size)
         self._toolbar.addWidget(self._font_size_combo)
         
@@ -95,7 +96,7 @@ class BeatEditorDialog(QDialog):
         h1_font.setBold(True)
         h1_font.setPointSize(18)
         self._h1_btn.setFont(h1_font)
-        self._h1_btn.setToolTip("Título 1")
+        self._h1_btn.setToolTip(_tr("heading1"))
         self._h1_btn.triggered.connect(self._insert_h1)
         
         self._h2_btn = self._toolbar.addAction("H2")
@@ -103,7 +104,7 @@ class BeatEditorDialog(QDialog):
         h2_font.setBold(True)
         h2_font.setPointSize(16)
         self._h2_btn.setFont(h2_font)
-        self._h2_btn.setToolTip("Título 2")
+        self._h2_btn.setToolTip(_tr("heading2"))
         self._h2_btn.triggered.connect(self._insert_h2)
         
         self._h3_btn = self._toolbar.addAction("H3")
@@ -111,41 +112,41 @@ class BeatEditorDialog(QDialog):
         h3_font.setBold(True)
         h3_font.setPointSize(14)
         self._h3_btn.setFont(h3_font)
-        self._h3_btn.setToolTip("Título 3")
+        self._h3_btn.setToolTip(_tr("heading3"))
         self._h3_btn.triggered.connect(self._insert_h3)
         
         self._toolbar.addSeparator()
         
         self._bullet_btn = self._toolbar.addAction("•")
-        self._bullet_btn.setToolTip("Viñetas")
+        self._bullet_btn.setToolTip(_tr("bullet_list"))
         self._bullet_btn.triggered.connect(self._insert_bullet)
         
         self._toolbar.addSeparator()
         
         self._text_color_btn = self._toolbar.addAction("A")
-        self._text_color_btn.setToolTip("Color de texto")
+        self._text_color_btn.setToolTip(_tr("text_color"))
         self._text_color_btn.triggered.connect(self._change_text_color)
         
         self._highlight_btn = self._toolbar.addAction("█")
-        self._highlight_btn.setToolTip("Resaltado")
+        self._highlight_btn.setToolTip(_tr("highlight"))
         self._highlight_btn.triggered.connect(self._change_highlight)
         
         self._toolbar.addSeparator()
         
         self._link_btn = self._toolbar.addAction("[Link]")
-        self._link_btn.setToolTip("Insertar enlace (Ctrl+K)")
+        self._link_btn.setToolTip(_tr("insert_link") + " (Ctrl+K)")
         self._link_btn.triggered.connect(self._insert_link)
         
         self._code_btn = self._toolbar.addAction("[Code]")
-        self._code_btn.setToolTip("Código")
+        self._code_btn.setToolTip(_tr("insert_code"))
         self._code_btn.triggered.connect(self._insert_code)
         
         self._quote_btn = self._toolbar.addAction("[Quote]")
-        self._quote_btn.setToolTip("Cita")
+        self._quote_btn.setToolTip(_tr("insert_quote"))
         self._quote_btn.triggered.connect(self._insert_quote)
         
         self._content_edit = QTextEdit()
-        self._content_edit.setPlaceholderText("Contenido del beat...")
+        self._content_edit.setPlaceholderText(_tr("beat_content_placeholder"))
         self._content_edit.setMinimumHeight(200)
         
         if beat.content and "<" in beat.content:
@@ -239,7 +240,7 @@ class BeatEditorDialog(QDialog):
     def _change_text_color(self) -> None:
         cursor = self._content_edit.textCursor()
         current_color = cursor.charFormat().foreground().color()
-        color = QColorDialog.getColor(current_color, self, "Color de texto")
+        color = QColorDialog.getColor(current_color, self, _tr("text_color_dialog"))
         if color.isValid():
             char_format = cursor.charFormat()
             char_format.setForeground(color)
@@ -249,7 +250,7 @@ class BeatEditorDialog(QDialog):
     def _change_highlight(self) -> None:
         cursor = self._content_edit.textCursor()
         current_color = cursor.charFormat().background().color()
-        color = QColorDialog.getColor(current_color, self, "Color de resaltado")
+        color = QColorDialog.getColor(current_color, self, _tr("highlight_color_dialog"))
         if color.isValid():
             char_format = cursor.charFormat()
             char_format.setBackground(color)
@@ -260,7 +261,7 @@ class BeatEditorDialog(QDialog):
         cursor = self._content_edit.textCursor()
         selected_text = cursor.selectedText()
         
-        link, ok = QInputDialog.getText(self, "Insertar enlace", "URL:")
+        link, ok = QInputDialog.getText(self, _tr("insert_link_title"), _tr("link_url"))
         if ok and link:
             if selected_text:
                 cursor.insertHtml(f'<a href="{link}">{selected_text}</a>')
@@ -300,7 +301,7 @@ class ColorPickerWidget(QWidget):
         
         layout = QVBoxLayout(self)
         
-        label = QLabel("Color:")
+        label = QLabel(_tr("color"))
         layout.addWidget(label)
         
         colors_layout = QHBoxLayout()
@@ -316,7 +317,7 @@ class ColorPickerWidget(QWidget):
         colors_layout.addStretch()
         layout.addLayout(colors_layout)
         
-        self._custom_btn = QPushButton("Más colores...")
+        self._custom_btn = QPushButton(_tr("more_colors"))
         self._custom_btn.clicked.connect(self._select_custom_color)
         layout.addWidget(self._custom_btn)
     
@@ -330,7 +331,7 @@ class ColorPickerWidget(QWidget):
     
     def _select_custom_color(self) -> None:
         current = BEAT_COLORS.get(self._selected_color, BEAT_COLORS["yellow"])
-        color = QColorDialog.getColor(current, self, "Seleccionar color")
+        color = QColorDialog.getColor(current, self, _tr("select_color"))
         if color.isValid():
             self._selected_color = color.name()
     

@@ -166,6 +166,7 @@ class ThemeManager(QObject):
         self._canvas_background: str = CANVAS_BACKGROUND_DEFAULT
         self._grid_enabled: bool = False
         self._grid_size: int = 25
+        self._grid_color: str = "auto"
         self._memorize_defaults: bool = False
         self._app = QApplication.instance()
         self._load_preference()
@@ -185,15 +186,25 @@ class ThemeManager(QObject):
                 self._canvas_background = data.get("canvas_background", CANVAS_BACKGROUND_DEFAULT)
                 self._grid_enabled = data.get("grid_enabled", False)
                 self._grid_size = data.get("grid_size", 25)
+                self._grid_color = data.get("grid_color", "auto")
                 self._memorize_defaults = data.get("memorize_defaults", False)
             except (json.JSONDecodeError, KeyError, ValueError):
                 self._current_mode = ThemeMode.SYSTEM
                 self._canvas_background = CANVAS_BACKGROUND_DEFAULT
                 self._grid_enabled = False
                 self._grid_size = 25
+                self._grid_color = "auto"
                 self._memorize_defaults = False
+        else:
+            self._current_mode = ThemeMode.SYSTEM
+            self._canvas_background = CANVAS_BACKGROUND_DEFAULT
+            self._grid_enabled = False
+            self._grid_size = 25
+            self._grid_color = "auto"
+            self._memorize_defaults = False
+        self._save_preference()
 
-    def _save_preference(self) -> None:
+    def _save_preference(self, language: str | None = None) -> None:
         config_path = self._get_config_path()
         try:
             data = json.loads(config_path.read_text(encoding="utf-8"))
@@ -203,7 +214,10 @@ class ThemeManager(QObject):
         data["canvas_background"] = self._canvas_background
         data["grid_enabled"] = self._grid_enabled
         data["grid_size"] = self._grid_size
+        data["grid_color"] = self._grid_color
         data["memorize_defaults"] = self._memorize_defaults
+        if language is not None:
+            data["language"] = language
         config_path.write_text(json.dumps(data, indent=2))
 
     def get_canvas_background(self) -> str:
@@ -232,6 +246,13 @@ class ThemeManager(QObject):
     
     def set_grid_size(self, size: int) -> None:
         self._grid_size = size
+        self._save_preference()
+    
+    def get_grid_color(self) -> str:
+        return self._grid_color
+    
+    def set_grid_color(self, color: str) -> None:
+        self._grid_color = color
         self._save_preference()
     
     def get_memorize_defaults(self) -> bool:

@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QApplication
 
 from beatboard.core.constants import APP_NAME, APP_ORGANIZATION, APP_VERSION
 from beatboard.ui.theme_manager import ThemeManager, ThemeMode
+from beatboard.i18n import LocaleManager
 
 if TYPE_CHECKING:
     pass
@@ -55,6 +56,7 @@ class Application(QApplication):
         self.setOrganizationName(APP_ORGANIZATION)
         
         self._theme_manager = ThemeManager(self)
+        self._locale_manager = LocaleManager(self)
         
         QTimer.singleShot(0, self._apply_theme_on_start)
     
@@ -67,6 +69,10 @@ class Application(QApplication):
     @property
     def theme_manager(self) -> ThemeManager:
         return self._theme_manager
+    
+    @property
+    def locale_manager(self) -> LocaleManager:
+        return self._locale_manager
     
     @property
     def logger(self) -> logging.Logger:

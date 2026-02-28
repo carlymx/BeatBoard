@@ -4,7 +4,7 @@
 
 <!-- Badges Section -->
 ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.5-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -13,9 +13,9 @@
 
 ## Description
 
-BeatBoard is a virtual beat board desktop application for screenwriters, inspired by Final Draft's Beat Board. It provides an infinite canvas where writers can create, organize, and connect "beats" - the fundamental building blocks of a story.
+BeatBoard is a virtual beat board desktop application for writers, inspired by Final Draft's Beat Board. It provides an infinite canvas where screenwriters, novelists, and short story writers can create, organize, and connect "beats" - the fundamental building blocks of a story.
 
-Whether you're outlining a screenplay, novel, or TV series, BeatBoard helps you visualize your story's structure with colorful cards and flow lines.
+Whether you're outlining a screenplay, novel, short story, or TV series, BeatBoard helps you visualize your story's structure with colorful cards and flow lines.
 
 ## Table of Contents
 
@@ -47,7 +47,12 @@ Whether you're outlining a screenplay, novel, or TV series, BeatBoard helps you 
 - **9 Themes** - Light and dark themes (Nord, Dracula, One Dark, etc.)
 - **8 Beat Colors** - Yellow, Blue, Green, Red, Orange, Purple, Gray
 - **Custom Background** - Choose from preset or custom canvas colors
-- **Optional Grid** - Show/hide alignment grid
+- **Optional Grid** - Show/hide alignment grid with customizable size and color
+
+### Internationalization
+- **Multi-language Support** - Available in English, Spanish, French, and German
+- **System Language Detection** - Automatically detects your system language
+- **Persistent Language Preference** - Remembers your language choice
 
 ### Export & Save
 - **Project Files** - Save and load .bbp project files
@@ -91,8 +96,8 @@ Download from the [Releases](https://github.com/carlymx/BeatBoard/releases) page
 
 | Platform | Type | File |
 |----------|------|------|
-| Linux | AppImage | `BeatBoard-x86_64.AppImage` |
-| Linux | Portable | `BeatBoard-portable` |
+| Linux | AppImage | `BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5.AppImage` |
+| Linux | Portable | `BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5_portable` |
 
 ### System Requirements
 
@@ -242,6 +247,16 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 - NonCommercial — You may not use the material for commercial purposes
 
 ## Changelog
+
+### v1.0.5 (2026-02-27)
+- Added multi-language support (English, Spanish, French, German)
+- Added system language detection on first launch
+- Added customizable grid color with color picker
+- Added custom grid color option in grid settings
+- Changed grid size options to: 50, 100, 150, 200, 250
+- Fixed toolbar icons embedded in the executable
+- Fixed preferences.json creation on first launch
+- Added restart notification when changing language
 
 ### v1.0.1 (2026-02-27)
 - Fixed toolbar icons (now embedded in the app instead of system-dependent)
