@@ -31,9 +31,10 @@ jobs:
           
       - name: Create Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            dist/BeatBoard/BeatBoard.exe
+            dist/BeatBoard.exe
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
