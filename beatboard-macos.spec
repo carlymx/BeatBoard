@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-PyInstaller spec file for BeatBoard v1.0.7 (macOS)
+PyInstaller spec file for BeatBoard v1.0.10 (macOS)
 """
 
 import sys
@@ -9,15 +9,12 @@ from pathlib import Path
 
 block_cipher = None
 
-# Get the directory where this spec file is located
 spec_file = Path(SPECPATH)
 spec_dir = spec_file.parent.resolve()
 
-# Local paths
 script_path = Path(SPECPATH) / 'beatboard' / 'app' / 'main.py'
 beatboard_root = Path(SPECPATH)
 
-# Icons are in beatboard/ui/icons/
 icons_base = beatboard_root / "beatboard"
 
 a = Analysis(
@@ -27,12 +24,15 @@ a = Analysis(
     datas=[
         (str(icons_base / "ui" / "icons" / "toolbar_dark"), "beatboard/ui/icons/toolbar_dark"),
         (str(icons_base / "ui" / "icons" / "toolbar_light"), "beatboard/ui/icons/toolbar_light"),
+        (str(icons_base / "resources" / "dictionaries"), "beatboard/resources/dictionaries"),
     ],
     hiddenimports=[
         "PySide6",
         "PySide6.QtCore",
         "PySide6.QtGui",
         "PySide6.QtWidgets",
+        "spylls",
+        "spylls.hunspell",
     ],
     hookspath=[],
     hooksconfig={},
@@ -47,6 +47,9 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     [],
     name="BeatBoard",
     debug=False,
