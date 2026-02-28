@@ -622,11 +622,12 @@ def test_beat_position():
 ```toml
 [project]
 name = "beatboard"
-version = "1.0.0"
+version = "1.0.10"
 description = "A virtual beat board for screenwriters"
 requires-python = ">=3.10"
 dependencies = [
     "pyside6>=6.5.0",
+    "spylls>=0.0.4",
 ]
 
 [project.optional-dependencies]
@@ -784,8 +785,8 @@ VERSION 1.1 - "Outline Integration" (Mes 9)
 **Fecha Estimada:** Noviembre 2026
 
 **Características:**
-- [ ] **MultiIdioma*** - Traducir menús y textos a los principales idiomas en, sp, fr, ge
-- [ ] **SpellCheck** - Agregar uso de diccionarios .OXT de LibreOffice (Descargables desde https://extensions.libreoffice.org/en?Tags%5B%5D=50)
+- [x] **MultiIdioma** - Traducir menús y textos a los principales idiomas en, sp, fr, ge
+- [x] **SpellCheck** - Agregar uso de diccionarios .OXT de LibreOffice
 - [ ] **Outline Editor** - Vista de esquema jerárquico de beats
 - [ ] **Estructura de actos** - Agrupar beats en actos/secuencias
 - [ ] **Drag to Outline** - Arrastrar beats desde canvas a outline
@@ -803,6 +804,34 @@ VERSION 1.1 - "Outline Integration" (Mes 9)
 
 **dependencias:**
 - Todo lo de v1.0
+- spylls>=0.0.4
+
+---
+
+#### ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSION 1.1.0 - "Outline Integration" (Mes 9)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**Fecha Estimada:** Noviembre 2026
+
+**Características:**
+- [ ] **Outline Editor** - Vista de esquema jerárquico de beats
+- [ ] **Estructura de actos** - Agrupar beats en actos/secuencias
+- [ ] **Drag to Outline** - Arrastrar beats desde canvas a outline
+- [ ] **Send to Script** - Exportar beats como elementos de guión
+- [ ] **Plantillas de estructura** - Save the Cat, Trilogía,etc.
+- [ ] **Page Goals** - Asignar rango de páginas a beats
+- [ ] **Búsqueda avanzada** - Buscar beats por título/contenido/color
+- [ ] **Ajustar a contenido** - Zoom automático para ver todos los beats
+
+**Criterios de Release:**
+- [ ] Outline muestra beats en estructura jerárquica
+- [ ] Beats se pueden arrastrar de canvas a outline
+- [ ] Plantillas predefinidas cargan estructura correcta
+- [ ] Exportación a guión mantiene formato
+
+**dependencias:**
+- Todo lo de v1.0.10
 - (Sin nuevas dependencias)
 
 ---

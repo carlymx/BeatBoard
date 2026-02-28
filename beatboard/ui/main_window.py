@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
 from beatboard.core.constants import APP_NAME, APP_VERSION, PROJECT_FILE_FILTER
 from beatboard.core.project import Project
 from beatboard.services.autosave_service import AutosaveService
+from beatboard.services.spellcheck_service import SpellCheckService
 from beatboard.ui.canvas.beat_board_view import BeatBoardView
 from beatboard.ui.theme_manager import ThemeMode
 from beatboard.ui.widgets.properties_panel import PropertiesPanel
@@ -50,6 +51,11 @@ class MainWindow(QMainWindow):
         
         self._memorize_action = None
         self._grid_action = None
+        self._enable_spellcheck_action = None
+        
+        spell_service = SpellCheckService.instance()
+        from beatboard.core.paths import get_config_dir
+        spell_service.initialize(get_config_dir())
         
         self._setup_ui()
         self._setup_menus()
@@ -333,6 +339,31 @@ class MainWindow(QMainWindow):
             lang_action.triggered.connect(lambda checked, lc=locale_code: self._on_language_changed(lc))
             lang_group.addAction(lang_action)
         
+        view_menu.addSeparator()
+        
+        spellcheck_menu = view_menu.addMenu(_tr("spellcheck"))
+        
+        enable_spellcheck_action = spellcheck_menu.addAction(_tr("enable_spellcheck"))
+        enable_spellcheck_action.setCheckable(True)
+        enable_spellcheck_action.triggered.connect(self._on_spellcheck_enabled_changed)
+        self._enable_spellcheck_action = enable_spellcheck_action
+        
+        dict_menu = spellcheck_menu.addMenu(_tr("dictionary_language"))
+        dict_group = QActionGroup(self)
+        
+        spell_service = SpellCheckService.instance()
+        available_langs = spell_service.get_available_languages()
+        current_dict = spell_service.get_current_language()
+        
+        for lang_code, lang_name in available_langs:
+            dict_action = dict_menu.addAction(lang_name)
+            dict_action.setCheckable(True)
+            dict_action.setData(lang_code)
+            if lang_code == current_dict:
+                dict_action.setChecked(True)
+            dict_action.triggered.connect(lambda checked, lc=lang_code: self._on_spellcheck_language_changed(lc))
+            dict_group.addAction(dict_action)
+        
         help_menu = menubar.addMenu(_tr("menu_help"))
         
         shortcuts_action = help_menu.addAction(_tr("keyboard_shortcuts"))
@@ -453,6 +484,19 @@ class MainWindow(QMainWindow):
         BeatDefaults.set_memorize_enabled(memorize_enabled)
         if self._memorize_action:
             self._memorize_action.setChecked(memorize_enabled)
+        
+        spellcheck_enabled = tm.get_spellcheck_enabled()
+        spell_service = SpellCheckService.instance()
+        
+        config_dir = tm._get_config_path().parent
+        spell_service.initialize(config_dir)
+        
+        spell_service.set_enabled(spellcheck_enabled)
+        spellcheck_dict = tm.get_spellcheck_dictionary()
+        spell_service.set_language(spellcheck_dict)
+        
+        if self._enable_spellcheck_action:
+            self._enable_spellcheck_action.setChecked(spellcheck_enabled)
     
     def _update_title(self) -> None:
         title = f"{self._project.name}"
@@ -657,6 +701,22 @@ class MainWindow(QMainWindow):
         app = QApplication.instance()
         if app and hasattr(app, "theme_manager"):
             app.theme_manager.set_memorize_defaults(checked)
+    
+    def _on_spellcheck_enabled_changed(self, checked: bool) -> None:
+        spell_service = SpellCheckService.instance()
+        spell_service.set_enabled(checked)
+        
+        app = QApplication.instance()
+        if app and hasattr(app, "theme_manager"):
+            app.theme_manager.set_spellcheck_enabled(checked)
+    
+    def _on_spellcheck_language_changed(self, lang_code: str) -> None:
+        spell_service = SpellCheckService.instance()
+        spell_service.set_language(lang_code)
+        
+        app = QApplication.instance()
+        if app and hasattr(app, "theme_manager"):
+            app.theme_manager.set_spellcheck_dictionary(lang_code)
     
     def _on_grid_size_changed(self, size: int) -> None:
         self._beat_board_view._scene.set_grid_size(size)

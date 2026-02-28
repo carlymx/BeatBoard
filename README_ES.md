@@ -4,7 +4,7 @@
 
 <!-- Sección de Badges -->
 ![Licencia](https://img.shields.io/badge/licencia-CC%20BY--NC%204.0-blue.svg)
-![Versión](https://img.shields.io/badge/versión-1.0.7-green.svg)
+![Versión](https://img.shields.io/badge/versión-1.0.10-green.svg)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -248,6 +248,15 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 - NoComercial — No puedes usar el material para fines comerciales
 
 ## Registro de Cambios
+
+### v1.0.10 (2026-02-28)
+- Añadido soporte de corrección ortográfica para el contenido de beats
+- Integrados diccionarios Hunspell (en, es, fr, de)
+- Añadido menú de spellcheck en el menú Ver
+- Añadida opción para diccionarios de usuario en ~/.config/beatboard/dictionaries/
+- Añadido menú contextual con sugerencias al hacer clic derecho
+- Añadido SpellCheckService para gestión de diccionarios
+- Añadido SpellCheckHighlighter para marcado visual de errores
 
 ### v1.0.7 (2026-02-28)
 - Añadido icono de aplicación personalizado para ejecutable Windows

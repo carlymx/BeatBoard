@@ -189,4 +189,9 @@ TRANSLATIONS: dict[str, str] = {
     # Language change
     "language_changed": "Langue modifiée",
     "language_changed_message": "La langue a été modifiée. Veuillez redémarrer l'application pour que les modifications prennent effet.",
+    
+    # Spellcheck
+    "spellcheck": "Vérification orthographique",
+    "enable_spellcheck": "Activer le correcteur",
+    "dictionary_language": "Langue du dictionnaire",
 }

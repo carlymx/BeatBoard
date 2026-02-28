@@ -26,6 +26,8 @@ from PySide6.QtWidgets import (
 from beatboard.core.beat import Beat
 from beatboard.core.constants import BEAT_COLORS
 from beatboard.i18n import _tr
+from beatboard.services.spellcheck_service import SpellCheckService
+from beatboard.ui.widgets.spellcheck_highlighter import SpellCheckTextEdit
 
 if TYPE_CHECKING:
     pass
@@ -46,9 +48,10 @@ class BeatEditorDialog(QDialog):
         
         form_layout = QFormLayout()
         
-        self._title_edit = QLineEdit()
-        self._title_edit.setText(beat.title or "")
+        self._title_edit = SpellCheckTextEdit()
+        self._title_edit.setPlainText(beat.title or "")
         self._title_edit.setPlaceholderText(_tr("beat_title_placeholder"))
+        self._title_edit.setMaximumHeight(30)
         form_layout.addRow(_tr("title") + ":", self._title_edit)
         
         layout.addLayout(form_layout)
@@ -145,7 +148,7 @@ class BeatEditorDialog(QDialog):
         self._quote_btn.setToolTip(_tr("insert_quote"))
         self._quote_btn.triggered.connect(self._insert_quote)
         
-        self._content_edit = QTextEdit()
+        self._content_edit = SpellCheckTextEdit()
         self._content_edit.setPlaceholderText(_tr("beat_content_placeholder"))
         self._content_edit.setMinimumHeight(200)
         
@@ -287,7 +290,7 @@ class BeatEditorDialog(QDialog):
             cursor.insertHtml('<blockquote style="border-left: 3px solid #ccc; padding-left: 10px; margin-left: 0; color: #666; font-style: italic;">Cita</blockquote>')
     
     def get_beat_data(self) -> tuple[str, str, str]:
-        title = self._title_edit.text()
+        title = self._title_edit.toPlainText()
         content = self._content_edit.toHtml()
         color = self._color_widget.get_selected_color()
         return title, content, color

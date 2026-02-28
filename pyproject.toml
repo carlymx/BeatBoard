@@ -1,6 +1,6 @@
 [project]
 name = "beatboard"
-version = "1.0.0"
+version = "1.0.10"
 description = "A virtual beat board for screenwriters - Clone of Final Draft's Beat Board"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -24,6 +24,7 @@ classifiers = [
 
 dependencies = [
     "pyside6>=6.5.0",
+    "spylls>=0.0.4",
 ]
 
 [project.optional-dependencies]

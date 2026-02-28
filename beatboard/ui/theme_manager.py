@@ -10,7 +10,12 @@ from PySide6.QtCore import QObject, Signal, Qt
 from PySide6.QtGui import QPalette, QColor
 from PySide6.QtWidgets import QApplication
 
-from beatboard.core.constants import CANVAS_BACKGROUND_COLORS, CANVAS_BACKGROUND_DEFAULT
+from beatboard.core.constants import (
+    CANVAS_BACKGROUND_COLORS, 
+    CANVAS_BACKGROUND_DEFAULT,
+    SPELLCHECK_ENABLED_DEFAULT,
+    SPELLCHECK_DICTIONARY_DEFAULT,
+)
 from beatboard.core.paths import get_config_dir
 
 
@@ -169,6 +174,8 @@ class ThemeManager(QObject):
         self._grid_size: int = 25
         self._grid_color: str = "auto"
         self._memorize_defaults: bool = False
+        self._spellcheck_enabled: bool = SPELLCHECK_ENABLED_DEFAULT
+        self._spellcheck_dictionary: str = SPELLCHECK_DICTIONARY_DEFAULT
         self._app = QApplication.instance()
         self._load_preference()
 
@@ -189,6 +196,8 @@ class ThemeManager(QObject):
                 self._grid_size = data.get("grid_size", 25)
                 self._grid_color = data.get("grid_color", "auto")
                 self._memorize_defaults = data.get("memorize_defaults", False)
+                self._spellcheck_enabled = data.get("spellcheck_enabled", SPELLCHECK_ENABLED_DEFAULT)
+                self._spellcheck_dictionary = data.get("spellcheck_dictionary", SPELLCHECK_DICTIONARY_DEFAULT)
             except (json.JSONDecodeError, KeyError, ValueError):
                 self._current_mode = ThemeMode.SYSTEM
                 self._canvas_background = CANVAS_BACKGROUND_DEFAULT
@@ -196,6 +205,8 @@ class ThemeManager(QObject):
                 self._grid_size = 25
                 self._grid_color = "auto"
                 self._memorize_defaults = False
+                self._spellcheck_enabled = SPELLCHECK_ENABLED_DEFAULT
+                self._spellcheck_dictionary = SPELLCHECK_DICTIONARY_DEFAULT
         else:
             self._current_mode = ThemeMode.SYSTEM
             self._canvas_background = CANVAS_BACKGROUND_DEFAULT
@@ -203,6 +214,8 @@ class ThemeManager(QObject):
             self._grid_size = 25
             self._grid_color = "auto"
             self._memorize_defaults = False
+            self._spellcheck_enabled = SPELLCHECK_ENABLED_DEFAULT
+            self._spellcheck_dictionary = SPELLCHECK_DICTIONARY_DEFAULT
         self._save_preference()
 
     def _save_preference(self, language: str | None = None) -> None:
@@ -217,6 +230,8 @@ class ThemeManager(QObject):
         data["grid_size"] = self._grid_size
         data["grid_color"] = self._grid_color
         data["memorize_defaults"] = self._memorize_defaults
+        data["spellcheck_enabled"] = self._spellcheck_enabled
+        data["spellcheck_dictionary"] = self._spellcheck_dictionary
         if language is not None:
             data["language"] = language
         config_path.write_text(json.dumps(data, indent=2))
@@ -261,6 +276,20 @@ class ThemeManager(QObject):
     
     def set_memorize_defaults(self, enabled: bool) -> None:
         self._memorize_defaults = enabled
+        self._save_preference()
+    
+    def get_spellcheck_enabled(self) -> bool:
+        return self._spellcheck_enabled
+    
+    def set_spellcheck_enabled(self, enabled: bool) -> None:
+        self._spellcheck_enabled = enabled
+        self._save_preference()
+    
+    def get_spellcheck_dictionary(self) -> str:
+        return self._spellcheck_dictionary
+    
+    def set_spellcheck_dictionary(self, dictionary: str) -> None:
+        self._spellcheck_dictionary = dictionary
         self._save_preference()
 
     def is_dark_mode(self) -> bool:

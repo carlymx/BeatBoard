@@ -4,6 +4,32 @@
 
 ## Progreso Actual
 
+### v1.0.10 - RELEASE ✅
+
+BeatBoard versión 1.0.10 con corrección ortográfica (spellcheck).
+
+---
+
+### Cambios v1.0.10
+
+#### ✨ Nuevas Funcionalidades
+- [x] **Corrección ortográfica**: 
+  - Integración de diccionarios Hunspell (es_ES, en_US, fr_FR, de_DE)
+  - Subrayado rojo en palabras mal escritas
+  - Menú contextual con sugerencias
+  - diccionarios de usuario por idioma
+- [x] **Menú Ver > Corrección ortográfica**:
+  - Habilitar/deshabilitar spellcheck
+  - Selección de idioma de diccionario
+- [x] **Diccionarios de usuario**: 
+  - Ubicación: `~/.config/beatboard/user_dictionary_{idioma}.txt`
+  - Separados por idioma
+
+#### 📦 Archivos Generados v1.0.10
+- Pendiente de compilar
+
+---
+
 ### v1.0.7 - RELEASE ✅
 
 BeatBoard versión 1.0.7 con icono personalizado y rutas cross-platform.

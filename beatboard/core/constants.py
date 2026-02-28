@@ -4,7 +4,7 @@ from PySide6.QtCore import QSizeF, QPointF
 from PySide6.QtGui import QColor
 
 APP_NAME = "BeatBoard"
-APP_VERSION = "1.0.7"
+APP_VERSION = "1.0.10"
 APP_ORGANIZATION = "BeatBoard"
 
 BEAT_DEFAULT_WIDTH = 200.0
@@ -76,3 +76,7 @@ CANVAS_BACKGROUND_COLORS: dict[str, str] = {
 }
 
 CANVAS_BACKGROUND_DEFAULT = "light_gray"
+
+SPELLCHECK_ENABLED_DEFAULT = False
+SPELLCHECK_DICTIONARY_DEFAULT = "es_ES"
+SPELLCHECK_RESOURCES_PATH = "resources/dictionaries"

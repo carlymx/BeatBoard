@@ -27,58 +27,18 @@ jobs:
         run: |
           pyinstaller beatboard-macos.spec --clean
           
-      - name: Create app bundle
-        run: |
-          mkdir -p BeatBoard.app/Contents/MacOS
-          mkdir -p BeatBoard.app/Contents/Resources
-          cp dist/BeatBoard BeatBoard.app/Contents/MacOS/BeatBoard
-          cp beatboard/ui/icons/app_icon.icns BeatBoard.app/Contents/Resources/
-          
-          cat > BeatBoard.app/Contents/Info.plist << 'EOF'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>CFBundleExecutable</key>
-              <string>BeatBoard</string>
-              <key>CFBundleIconFile</key>
-              <string>app_icon.icns</string>
-              <key>CFBundleIdentifier</key>
-              <string>com.beatboard.BeatBoard</string>
-              <key>CFBundleName</key>
-              <string>BeatBoard</string>
-              <key>CFBundlePackageType</key>
-              <string>APPL</string>
-              <key>CFBundleShortVersionString</key>
-              <string>1.0.7</string>
-              <key>CFBundleVersion</key>
-              <string>1.0.7</string>
-              <key>LSMinimumSystemVersion</key>
-              <string>10.13</string>
-              <key>NSPrincipalClass</key>
-              <string>NSApplication</string>
-              <key>NSHighResolutionCapable</key>
-              <true/>
-          </dict>
-          </plist>
-          EOF
-          
-      - name: Create ZIP
-        run: |
-          zip -r BeatBoard-macOS.zip BeatBoard.app
-          
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: BeatBoard-macOS
-          path: BeatBoard-macOS.zip
+          path: dist/BeatBoard
           
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            BeatBoard-macOS.zip
+            dist/BeatBoard
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-PyInstaller spec file for BeatBoard v1.0.7
+PyInstaller spec file for BeatBoard v1.0.10
 """
 
 import sys
@@ -36,12 +36,15 @@ a = Analysis(
     datas=[
         (str(icons_base / "ui" / "icons" / "toolbar_dark"), "beatboard/ui/icons/toolbar_dark"),
         (str(icons_base / "ui" / "icons" / "toolbar_light"), "beatboard/ui/icons/toolbar_light"),
+        (str(icons_base / "resources" / "dictionaries"), "beatboard/resources/dictionaries"),
     ],
     hiddenimports=[
         "PySide6",
         "PySide6.QtCore",
         "PySide6.QtGui",
         "PySide6.QtWidgets",
+        "spylls",
+        "spylls.hunspell",
     ],
     hookspath=[],
     hooksconfig={},

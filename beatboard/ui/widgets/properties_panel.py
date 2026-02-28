@@ -21,6 +21,8 @@ from PySide6.QtWidgets import (
 from beatboard.core.beat import Beat
 from beatboard.core.constants import BEAT_COLORS
 from beatboard.i18n import _tr
+from beatboard.services.spellcheck_service import SpellCheckService
+from beatboard.ui.widgets.spellcheck_highlighter import SpellCheckTextEdit
 
 if TYPE_CHECKING:
     pass
@@ -76,7 +78,7 @@ class PropertiesPanel(QWidget):
         content_label.setStyleSheet("font-weight: bold;")
         props_layout.addWidget(content_label)
         
-        self._content_input = QTextEdit()
+        self._content_input = SpellCheckTextEdit()
         self._content_input.setPlaceholderText(_tr("content_placeholder"))
         self._content_input.setMinimumHeight(150)
         self._content_input.textChanged.connect(self._on_content_changed)
@@ -97,8 +99,9 @@ class PropertiesPanel(QWidget):
         label.setStyleSheet("font-weight: bold;")
         layout.addWidget(label)
         
-        input_field = QLineEdit()
+        input_field = SpellCheckTextEdit()
         input_field.setPlaceholderText(_tr("title_placeholder"))
+        input_field.setMaximumHeight(30)
         input_field.textChanged.connect(self._on_title_changed)
         layout.addWidget(input_field)
         
@@ -136,7 +139,7 @@ class PropertiesPanel(QWidget):
             self._no_selection_label.setVisible(False)
             self._properties_widget.setVisible(True)
             
-            self._title_input.setText(beat.title)
+            self._title_input.setPlainText(beat.title or "")
             
             content = beat.content or ""
             if content and "<" in content and ">" in content:
@@ -150,11 +153,12 @@ class PropertiesPanel(QWidget):
         
         self._updating = False
     
-    def _on_title_changed(self, text: str) -> None:
+    def _on_title_changed(self) -> None:
         if self._updating or not self._current_beat:
             return
         
-        self._current_beat.title = text
+        title = self._title_input.toPlainText()
+        self._current_beat.title = title
         self.beat_updated.emit(
             self._current_beat.id,
             self._current_beat.title,

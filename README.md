@@ -4,7 +4,7 @@
 
 <!-- Badges Section -->
 ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.7-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.10-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -248,6 +248,15 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 - NonCommercial — You may not use the material for commercial purposes
 
 ## Changelog
+
+### v1.0.10 (2026-02-28)
+- Added spell check support for beat content
+- Integrated Hunspell dictionaries (en, es, fr, de)
+- Added spell check menu in View menu
+- Added option for user dictionaries in ~/.config/beatboard/dictionaries/
+- Added right-click context menu for spell suggestions
+- Added SpellCheckService for dictionary management
+- Added SpellCheckHighlighter for visual error marking
 
 ### v1.0.7 (2026-02-28)
 - Added custom application icon for Windows executable
