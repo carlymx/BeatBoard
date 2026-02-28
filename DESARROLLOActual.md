@@ -1,33 +1,29 @@
 # BeatBoard - Estado del Desarrollo
 
-## Fecha: 27 de Febrero 2026
+## Fecha: 28 de Febrero de 2026
 
 ## Progreso Actual
 
-### v1.0.5 - RELEASE ✅
+### v1.0.7 - RELEASE ✅
 
-BeatBoard versión 1.0.5 con soporte multiidioma y mejoras de cuadrícula.
+BeatBoard versión 1.0.7 con icono personalizado y rutas cross-platform.
 
 ---
 
-### Cambios v1.0.5
+### Cambios v1.0.7
 
 #### ✨ Nuevas Funcionalidades
-- [x] **Soporte Multiidioma**: Inglés, Español, Francés, Alemán
-- [x] **Detección de idioma del sistema**: Al primer inicio detecta el idioma del sistema
-- [x] **Preferencia de idioma persistente**: Se guarda en preferences.json
-- [x] **Notificación de reinicio**: Al cambiar idioma avisa que se debe reiniciar
-- [x] **Color de cuadrícula personalizable**: Selector de color en opciones de cuadrícula
-- [x] **Grid size options**: Cambiados a 50, 100, 150, 200, 250
+- [x] **Icono personalizado**: Icono de aplicación embebido en el ejecutable Windows
+- [x] **Rutas cross-platform**: 
+  - Windows: `%APPDATA%\BeatBoard\`
+  - macOS: `~/Library/Application Support/BeatBoard`
+  - Linux: `~/.config/beatboard`
+- [x] **Workflow CI**: Compilación automática de ejecutable Windows con GitHub Actions
 
-#### 🔧 Correcciones
-- [x] **Iconos de toolbar**: Ahora embebidos en el ejecutable (PyInstaller)
-- [x] **preferences.json**: Se crea automáticamente al primer inicio con valores por defecto
-- [x] **Grid color guardado**: Se guarda y carga correctamente el color de cuadrícula
-
-#### 📦 Archivos Generados v1.0.5
-- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5_portable` (58 MB)
-- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5.AppImage` (58 MB)
+#### 📦 Archivos Generados v1.0.7
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.7_portable` (58 MB)
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.7.AppImage` (58 MB)
+- `dist/BeatBoard.exe` (Windows, vía GitHub Actions)
 
 **Nota**: Compilados con Python 3.10 para máxima compatibilidad (GLIBC 2.31+)
 
@@ -328,6 +324,10 @@ Categories=Office;
 - Sistema i18n con soporte para EN, ES, FR, DE
 - Idioma del sistema detectado automáticamente
 - Grid color con opción de color personalizado
+- Rutas cross-platform:
+  - Windows: `%APPDATA%\BeatBoard\`
+  - macOS: `~/Library/Application Support/BeatBoard`
+  - Linux: `~/.config/beatboard`
 
 ---
 

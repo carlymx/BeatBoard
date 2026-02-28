@@ -3,8 +3,6 @@ name: Build Windows Executable
 on:
   workflow_dispatch:
   push:
-    tags:
-      - 'v*'
     branches:
       - main
 
@@ -38,3 +36,9 @@ jobs:
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BeatBoard-Windows
+          path: dist/BeatBoard.exe

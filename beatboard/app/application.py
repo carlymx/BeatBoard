@@ -11,6 +11,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
 from beatboard.core.constants import APP_NAME, APP_ORGANIZATION, APP_VERSION
+from beatboard.core.paths import get_data_dir
 from beatboard.ui.theme_manager import ThemeManager, ThemeMode
 from beatboard.i18n import LocaleManager
 
@@ -33,7 +34,7 @@ def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
     
     logger.addHandler(console_handler)
     
-    log_dir = Path.home() / ".beatboard" / "logs"
+    log_dir = get_data_dir() / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     
     file_handler = logging.FileHandler(log_dir / "beatboard.log")

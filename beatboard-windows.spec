@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-PyInstaller spec file for BeatBoard v1.0.5 (Windows)
+PyInstaller spec file for BeatBoard v1.0.7 (Windows)
 """
 
 import sys
@@ -66,5 +66,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,
+    icon="beatboard/ui/icons/app_icon.ico",
 )

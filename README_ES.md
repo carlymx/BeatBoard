@@ -4,7 +4,7 @@
 
 <!-- Sección de Badges -->
 ![Licencia](https://img.shields.io/badge/licencia-CC%20BY--NC%204.0-blue.svg)
-![Versión](https://img.shields.io/badge/versión-1.0.5-green.svg)
+![Versión](https://img.shields.io/badge/versión-1.0.7-green.svg)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -96,8 +96,9 @@ Descarga desde la página de [Lanzamientos](https://github.com/carlymx/BeatBoard
 
 | Plataforma | Tipo | Archivo |
 |------------|------|---------|
-| Linux | AppImage | `BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5.AppImage` |
-| Linux | Portable | `BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.5_portable` |
+| Linux | AppImage | `BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.7.AppImage` |
+| Linux | Portable | `BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.7_portable` |
+| Windows | Ejecutable | `BeatBoard.exe` (vía GitHub Actions) |
 
 ### Requisitos del Sistema
 
@@ -247,6 +248,11 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 - NoComercial — No puedes usar el material para fines comerciales
 
 ## Registro de Cambios
+
+### v1.0.7 (2026-02-28)
+- Añadido icono de aplicación personalizado para ejecutable Windows
+- Añadidas rutas de configuración cross-platform (Windows: %APPDATA%, macOS: Application Support, Linux: .config)
+- Añadido workflow de GitHub Actions para compilación en Windows
 
 ### v1.0.5 (2026-02-27)
 - Añadido soporte multiidioma (Inglés, Español, Francés, Alemán)

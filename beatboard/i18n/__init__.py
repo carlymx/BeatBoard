@@ -9,6 +9,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QApplication
 
+from beatboard.core.paths import get_config_dir
 from beatboard.i18n.locales import (
     get_locale,
     set_locale,
@@ -27,7 +28,7 @@ class LocaleManager(QObject):
         self._load_preference()
 
     def _get_config_path(self) -> Path:
-        config_dir = Path.home() / ".config" / "beatboard"
+        config_dir = get_config_dir()
         config_dir.mkdir(parents=True, exist_ok=True)
         return config_dir / "preferences.json"
 

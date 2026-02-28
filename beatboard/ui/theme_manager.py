@@ -11,6 +11,7 @@ from PySide6.QtGui import QPalette, QColor
 from PySide6.QtWidgets import QApplication
 
 from beatboard.core.constants import CANVAS_BACKGROUND_COLORS, CANVAS_BACKGROUND_DEFAULT
+from beatboard.core.paths import get_config_dir
 
 
 class ThemeMode(Enum):
@@ -172,7 +173,7 @@ class ThemeManager(QObject):
         self._load_preference()
 
     def _get_config_path(self) -> Path:
-        config_dir = Path.home() / ".config" / "beatboard"
+        config_dir = get_config_dir()
         config_dir.mkdir(parents=True, exist_ok=True)
         return config_dir / "preferences.json"
 
