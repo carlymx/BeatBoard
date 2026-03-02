@@ -1,20 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""
-PyInstaller spec file for BeatBoard v1.0.10 (macOS)
-"""
-
-import sys
-import os
 from pathlib import Path
 
 block_cipher = None
-
-spec_file = Path(SPECPATH)
-spec_dir = spec_file.parent.resolve()
-
-script_path = Path(SPECPATH) / 'beatboard' / 'app' / 'main.py'
-beatboard_root = Path(SPECPATH)
-
+spec_dir = Path(SPECPATH)
+beatboard_root = spec_dir
+script_path = beatboard_root / 'beatboard' / 'app' / 'main.py'
 icons_base = beatboard_root / "beatboard"
 
 a = Analysis(
@@ -24,24 +14,18 @@ a = Analysis(
     datas=[
         (str(icons_base / "ui" / "icons" / "toolbar_dark"), "beatboard/ui/icons/toolbar_dark"),
         (str(icons_base / "ui" / "icons" / "toolbar_light"), "beatboard/ui/icons/toolbar_light"),
-        (str(icons_base / "resources" / "dictionaries"), "beatboard/resources/dictionaries"),
+        (str(icons_base / "resources" / "dictionaries"), "resources/dictionaries"), # Ruta unificada
     ],
     hiddenimports=[
-        "PySide6",
-        "PySide6.QtCore",
-        "PySide6.QtGui",
-        "PySide6.QtWidgets",
-        "spylls",
-        "spylls.hunspell",
+        "PySide6.QtCore", "PySide6.QtGui", "PySide6.QtWidgets",
+        "spylls", "spylls.hunspell" # Importante para el corrector
     ],
     hookspath=[],
-    hooksconfig={},
     runtime_hooks=[],
     excludes=[],
     cipher=block_cipher,
     noarchive=False,
 )
-
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
@@ -51,17 +35,28 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name="BeatBoard",
+    name='BeatBoard',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
-    console=False,
+    console=False, # Cambia a True si necesitas ver errores de terminal en Mac
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='beatboard/ui/icons/app_icon.icns', # macOS prefiere .icns
+)
+
+app = BUNDLE(
+    exe,
+    name='BeatBoard.app',
+    icon='beatboard/ui/icons/app_icon.icns',
+    bundle_identifier='com.beatboard.app',
+    info_plist={
+        'NSHighResolutionCapable': 'True',
+        'LSBackgroundOnly': 'False',
+        'CFBundleShortVersionString': '1.0.10',
+    },
 )

@@ -11,9 +11,10 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
 from beatboard.core.constants import APP_NAME, APP_ORGANIZATION, APP_VERSION
-from beatboard.core.paths import get_data_dir
+from beatboard.core.paths import get_config_dir, get_data_dir
 from beatboard.ui.theme_manager import ThemeManager, ThemeMode
 from beatboard.i18n import LocaleManager
+from beatboard.services.spellcheck_service import spell_check_service
 
 if TYPE_CHECKING:
     pass
@@ -58,6 +59,8 @@ class Application(QApplication):
         
         self._theme_manager = ThemeManager(self)
         self._locale_manager = LocaleManager(self)
+        
+        spell_check_service.initialize(get_config_dir())
         
         QTimer.singleShot(0, self._apply_theme_on_start)
     

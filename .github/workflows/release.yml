@@ -1,0 +1,66 @@
+name: Build Cross-Platform
+
+on:
+  push:
+    tags:
+      - 'v*' # Se activa cuando creas un tag (ej: v1.0.10)
+  workflow_dispatch: # Permite ejecutarlo manualmente
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: BeatBoard-Linux
+            spec_file: beatboard-linux.spec
+          - os: windows-latest
+            artifact_name: BeatBoard-Windows
+            spec_file: beatboard-windows.spec
+          - os: macos-latest
+            artifact_name: BeatBoard-MacOS
+            spec_file: beatboard-macos.spec
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Mantenemos 3.10 para máxima compatibilidad
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyside6 pyinstaller spylls
+
+      # Paso específico para Linux: Usar Podman/Docker para evitar problemas de GLIBC
+      # Si prefieres simplicidad, puedes usar PyInstaller directamente en ubuntu-latest,
+      # pero el binario no funcionará en distros antiguas.
+      - name: Build Linux (Docker/Podman)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          docker build -t builder -f Dockerfile.ubuntu22 .
+          docker run --name extract builder /bin/true
+          docker cp extract:/app/dist/. ./dist/
+          docker rm extract
+
+      # Build para Windows y Mac
+      - name: Build with PyInstaller
+        if: matrix.os != 'ubuntu-latest'
+        run: pyinstaller ${{ matrix.spec_file }} --clean --noconfirm
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            dist/*.exe
+            dist/*.app
+            dist/*.AppImage
+            dist/BeatBoard_portable

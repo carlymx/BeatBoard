@@ -36,7 +36,7 @@ a = Analysis(
     datas=[
         (str(icons_base / "ui" / "icons" / "toolbar_dark"), "beatboard/ui/icons/toolbar_dark"),
         (str(icons_base / "ui" / "icons" / "toolbar_light"), "beatboard/ui/icons/toolbar_light"),
-        (str(icons_base / "resources" / "dictionaries"), "beatboard/resources/dictionaries"),
+        (str(icons_base / "resources" / "dictionaries"), "resources/dictionaries"),
     ],
     hiddenimports=[
         "PySide6",
@@ -58,25 +58,47 @@ a = Analysis(
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
-exe = EXE(
+# 1. DEFINICIÓN PARA EL PORTABLE (Onefile)
+# Aquí metemos TODO dentro del EXE
+exe_portable = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
+    a.binaries,   # <--- Contenido dentro del exe
+    a.zipfiles,   # <--- Contenido dentro del exe
+    a.datas,      # <--- Contenido dentro del exe
     [],
-    name="BeatBoard",
+    name="BeatBoard_portable",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=False,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-    icon=None,
+    icon='beatboard/ui/icons/app_icon.png',
+)
+
+# 2. DEFINICIÓN PARA EL APPDIR (Onedir)
+# Aquí el EXE solo lleva los scripts, las librerías van fuera
+exe_appdir = EXE(
+    pyz,
+    a.scripts,
+    [],           # <--- VACÍO (las librerías irán a la carpeta)
+    exclude_binaries=True, # <--- IMPORTANTE
+    name="BeatBoard_launch", # Un nombre temporal para el ejecutable interno
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=False,
+    icon='beatboard/ui/icons/app_icon.png',
+)
+
+coll = COLLECT(
+    exe_appdir,   # Usamos el exe "ligero"
+    a.binaries,   # Las librerías se copian sueltas aquí
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name="BeatBoard_appdir",
 )
