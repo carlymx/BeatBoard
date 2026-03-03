@@ -14,20 +14,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux x86-64 Python 3.10
           - os: ubuntu-latest
-            spec: beatboard-linux.spec
             artifact: BeatBoard-Linux
+            path: dist/ # Subiremos toda la carpeta que extraigamos de Docker
 
-          # MS Window 7-11 x86-64
           - os: windows-latest
             spec: beatboard-windows.spec
             artifact: BeatBoard-Windows
+            path: dist/*.exe # En Windows solo nos interesa el .exe
 
-          # USAMOS MACOS-14 (Apple Silicon) para compilar AMBOS (Intel y ARM)
           - os: macos-14
             spec: beatboard-macos.spec
             artifact: BeatBoard-MacOS-Universal
+            path: dist/BeatBoard.app # En Mac subimos el bundle .app
 
     steps:
       - name: Checkout code
@@ -39,32 +38,41 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
 
-      # --- LÓGICA LINUX/WINDOWS (Se mantiene igual que antes) ---
-      # ... (Pasos de Docker para Linux y pip para Windows) ...
+      # --- LÓGICA PARA LINUX (DOCKER) ---
+      - name: Build Linux (Ubuntu 22.04 Container)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p dist
+          docker build -t builder -f Dockerfile.ubuntu22 .
+          docker run --name extract builder /bin/true
+          # Copiamos TODO lo que el Dockerfile dejó en /build/output a nuestro dist local
+          docker cp extract:/build/output/. ./dist/
+          docker rm extract
 
-      # --- LÓGICA PARA MAC (SOPORTE TOTAL) ---
+      # --- LÓGICA PARA WINDOWS ---
+      - name: Install Dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        run: pip install pyside6 pyinstaller spylls
+
+      - name: Build with PyInstaller (Windows)
+        if: matrix.os == 'windows-latest'
+        run: pyinstaller ${{ matrix.spec }} --clean --noconfirm
+
+      # --- LÓGICA PARA MAC ---
       - name: Install Dependencies (Mac)
         if: matrix.os == 'macos-14'
-        run: |
-          # Instalamos PySide 6.5.3 que es el último con soporte garantizado para macOS 11
-          pip install pyside6==6.5.3 pyinstaller spylls
+        run: pip install pyside6==6.5.3 pyinstaller spylls
 
       - name: Build with PyInstaller (Mac Universal 2)
         if: matrix.os == 'macos-14'
         env:
-          # Esto es CRÍTICO para que funcione en macOS 11.7.10
           MACOSX_DEPLOYMENT_TARGET: "11.0"
-        run: |
-          # PyInstaller detectará el 'universal2' del archivo .spec
-          pyinstaller ${{ matrix.spec }} --clean --noconfirm
+        run: pyinstaller ${{ matrix.spec }} --clean --noconfirm
 
-      # --- SUBIDA DE RESULTADOS ---
+      # --- SUBIDA DE RESULTADOS (CORREGIDA) ---
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: |
-            dist/*.exe
-            dist/*.AppImage
-            dist/BeatBoard_portable
-            dist/BeatBoard.app
+          path: ${{ matrix.path }}
+          if-no-files-found: error # Esto nos avisará si algo falló realmente en la compilación
