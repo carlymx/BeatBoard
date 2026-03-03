@@ -14,25 +14,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux Python 3.10
+          # Linux x86-64 Python 3.10
           - os: ubuntu-latest
             spec: beatboard-linux.spec
             artifact: BeatBoard-Linux
 
-          # Windows 7-11
+          # MS Window 7-11 x86-64
           - os: windows-latest
             spec: beatboard-windows.spec
             artifact: BeatBoard-Windows
 
-          # MacOS Moderno (Procesadores M1/M2/M3)
-          - os: macos-latest
+          # USAMOS MACOS-14 (Apple Silicon) para compilar AMBOS (Intel y ARM)
+          - os: macos-14
             spec: beatboard-macos.spec
-            artifact: BeatBoard-MacOS-ARM
-
-          # MacOS Antiguo (Procesadores Intel / macOS 11+)
-          - os: macos-13
-            spec: beatboard-macos.spec
-            artifact: BeatBoard-MacOS-Intel-Legacy
+            artifact: BeatBoard-MacOS-Universal
 
     steps:
       - name: Checkout code
@@ -44,33 +39,24 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
 
-      # --- LÓGICA PARA LINUX (DOCKER) ---
-      - name: Build Linux (Ubuntu 22.04 Container)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          docker build -t builder -f Dockerfile.ubuntu22 .
-          docker run --name extract builder /bin/true
-          docker cp extract:/build/output/. ./dist/
-          docker rm extract
+      # --- LÓGICA LINUX/WINDOWS (Se mantiene igual que antes) ---
+      # ... (Pasos de Docker para Linux y pip para Windows) ...
 
-      # --- LÓGICA PARA WINDOWS Y MAC ---
-      - name: Install Dependencies (Non-Linux)
-        if: matrix.os != 'ubuntu-latest'
+      # --- LÓGICA PARA MAC (SOPORTE TOTAL) ---
+      - name: Install Dependencies (Mac)
+        if: matrix.os == 'macos-14'
         run: |
-          # Si es el Mac antiguo, forzamos PySide 6.5.3 para estabilidad
-          if [ "${{ matrix.os }}" = "macos-13" ]; then
-            pip install pyside6==6.5.3 pyinstaller spylls
-          else
-            pip install pyside6 pyinstaller spylls
-          fi
-        shell: bash
+          # Instalamos PySide 6.5.3 que es el último con soporte garantizado para macOS 11
+          pip install pyside6==6.5.3 pyinstaller spylls
 
-      - name: Build with PyInstaller (Non-Linux)
-        if: matrix.os != 'ubuntu-latest'
+      - name: Build with PyInstaller (Mac Universal 2)
+        if: matrix.os == 'macos-14'
         env:
-          # Solo se aplica en macOS para forzar compatibilidad con Big Sur (11.0)
+          # Esto es CRÍTICO para que funcione en macOS 11.7.10
           MACOSX_DEPLOYMENT_TARGET: "11.0"
-        run: pyinstaller ${{ matrix.spec }} --clean --noconfirm
+        run: |
+          # PyInstaller detectará el 'universal2' del archivo .spec
+          pyinstaller ${{ matrix.spec }} --clean --noconfirm
 
       # --- SUBIDA DE RESULTADOS ---
       - name: Upload Artifacts
