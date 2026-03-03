@@ -28,6 +28,7 @@ class Beat:
     image_path: str | None = None
     tags: list[str] = field(default_factory=list)
     z_order: float = 0.0
+    show_title: bool = True
 
     def __post_init__(self) -> None:
         if isinstance(self.position, dict):
@@ -63,6 +64,7 @@ class Beat:
             "image_path": self.image_path,
             "tags": self.tags,
             "z_order": self.z_order,
+            "show_title": self.show_title,
         }
 
     @classmethod
@@ -79,6 +81,7 @@ class Beat:
             image_path=data.get("image_path"),
             tags=data.get("tags", []),
             z_order=data.get("z_order", 0.0),
+            show_title=data.get("show_title", True),
         )
 
     def __repr__(self) -> str:

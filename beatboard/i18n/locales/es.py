@@ -86,6 +86,7 @@ TRANSLATIONS: dict[str, str] = {
     "beat_properties": "Propiedades del Beat",
     "no_beat_selected": "Ningún beat seleccionado",
     "title": "Título",
+    "show_title": "Mostrar título",
     "color": "Color",
     "content": "Contenido",
     "content_placeholder": "Descripción del beat...",
@@ -121,6 +122,7 @@ TRANSLATIONS: dict[str, str] = {
     "no_beat_selected_status": "Ningún beat seleccionado",
     "selected_beat_status": "Seleccionado: {title}",
     "multiple_selected_status": "{count} beats seleccionados",
+    "connection_mode_active": "Modo 'Conexión' Activado. ESC para Salir",
     
     # Dialogs
     "open_project": "Abrir proyecto",

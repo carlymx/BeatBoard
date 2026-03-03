@@ -153,10 +153,11 @@ class EditBeatCommand(QUndoCommand):
             beat.title = data.get("title", beat.title)
             beat.content = data.get("content", beat.content)
             beat.color = data.get("color", beat.color)
+            beat.show_title = data.get("show_title", beat.show_title)
             
             item = self._view._beat_items.get(self._beat_id)
             if item:
-                item.update()
+                item.refresh()
             
             self._view._update_connections_for_beat(self._beat_id)
             self._view.beat_moved.emit(self._beat_id)

@@ -306,12 +306,22 @@ class MainWindow(QMainWindow):
         
         color_menu.addSeparator()
         
-        from beatboard.core.constants import BEAT_COLORS
-        for color_name, color_value in BEAT_COLORS.items():
-            color_action = color_menu.addAction(color_name.capitalize())
-            color_action.setData(color_value.name())
+        # Colores predefinidos para la cuadrícula
+        grid_colors = [
+            ("Amarillo", "#FFF59D"),
+            ("Azul", "#90CAF9"),
+            ("Verde", "#A5D6A7"),
+            ("Rojo", "#EF9A9A"),
+            ("Naranja", "#FFCC80"),
+            ("Púrpura", "#CE93D8"),
+            ("Gris", "#E0E0E0"),
+        ]
+        
+        for color_name, hex_color in grid_colors:
+            color_action = color_menu.addAction(color_name)
+            color_action.setData(hex_color)
             color_action.setCheckable(True)
-            color_action.triggered.connect(lambda checked, c=color_value.name(): self._on_grid_color_changed(c))
+            color_action.triggered.connect(lambda checked, c=hex_color: self._on_grid_color_changed(c))
             color_group.addAction(color_action)
         
         color_menu.addSeparator()
@@ -816,12 +826,16 @@ class MainWindow(QMainWindow):
             self._properties_panel.clear()
             self._statusbar.showMessage(_tr("multiple_selected_status").format(count=count))
     
-    def _on_beat_updated(self, beat_id: str, title: str, content: str, color: str) -> None:
+    def _on_beat_updated(self, beat_id: str, title: str, content: str, color: str, show_title: bool) -> None:
         beat = self._project.get_beat_by_id(beat_id)
         if beat:
+            beat.title = title
+            beat.content = content
+            beat.color = color
+            beat.show_title = show_title
             item = self._beat_board_view._get_item_by_beat_id(beat_id)
             if item:
-                item.update()
+                item.refresh()
             self._beat_board_view.beat_moved.emit(beat_id)
     
     def _on_show_shortcuts(self) -> None:
@@ -890,7 +904,7 @@ class MainWindow(QMainWindow):
         from datetime import date
         
         current_year = date.today().year
-        version_date = "February 27, 2026"
+        version_date = "March 03, 2026"
         
         QMessageBox.about(
             self,

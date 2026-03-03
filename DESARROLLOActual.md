@@ -1,12 +1,128 @@
 # BeatBoard - Estado del Desarrollo
 
-## Fecha: 28 de Febrero de 2026
+## Fecha: 3 de Marzo de 2026
 
 ## Progreso Actual
 
-### v1.0.10 - RELEASE ✅
+### v1.0.14 - RELEASE ✅
 
-BeatBoard versión 1.0.10 con corrección ortográfica (spellcheck).
+BeatBoard versión 1.0.14 con mejoras en el sistema de colores personalizables.
+
+---
+
+### Cambios v1.0.14
+
+#### ✨ Mejoras en la Interfaz de Usuario
+- [x] **Eliminado botón "Más colores"**:
+  - El botón no funcionaba correctamente y ha sido eliminado
+  - Simplificación de la interfaz
+- [x] **Cambiado Alt+Click a Doble-Click**:
+  - Personalizar colores ahora con Doble-Click (mejor UX)
+  - Tooltips actualizados para reflejar el cambio
+- [x] **Etiqueta actualizada**:
+  - "Personalizados:" → "Personalizados (Doble-Click para cambiar):"
+  - Mejor indicación de la funcionalidad
+- [x] **Dropdown del panel de propiedades mejorado**:
+  - Ahora muestra colores personalizados reales con sus valores hexadecimales
+  - Se actualiza dinámicamente cuando los colores cambian
+  - Formato: "Personalizado 1 (#FF5733)"
+
+#### 🔧 Cambios Técnicos
+- [x] **`beat_editor_dialog.py`**:
+  - Eliminado botón "Más colores" y función `_select_any_color`
+  - Cambiado `mousePressEvent` a `mouseDoubleClickEvent`
+  - Actualizados tooltips y etiquetas
+- [x] **`properties_panel.py`**:
+  - Función `_update_custom_colors_in_combo()` para actualización dinámica
+  - ComboBox muestra valores hexadecimales reales
+  - Actualización automática al establecer beat
+
+#### ✨ Nuevas Funcionalidades
+- [x] **Sistema de colores hexadecimales**:
+  - Todos los colores ahora se manejan como hexadecimales (#FFFFFF)
+  - Compatibilidad con beats antiguos (nombres → hexadecimales)
+  - Función `get_valid_beat_color()` para conversión automática
+- [x] **Botón "Más Colores..." corregido**:
+  - Ahora funciona correctamente
+  - Selecciona cualquier color hexadecimal
+  - No guarda como color personalizado (es para color único)
+- [x] **3 colores personalizables (8, 9, 0)**:
+  - Inicialmente blancos (#FFFFFF)
+  - Personalizables con Alt+Click
+  - Guardados en `preferences.json`
+  - Persistencia entre sesiones
+- [x] **Atajos de teclado extendidos (1-0)**:
+  - Teclas 1-7: colores predefinidos
+  - Teclas 8, 9, 0: colores personalizables
+  - Compatible con beats seleccionados múltiples
+- [x] **Sistema de persistencia**:
+  - Colores personalizados guardados en `preferences.json`
+  - Cargados automáticamente al iniciar
+  - Actualizados en tiempo real
+
+#### 🔧 Cambios Técnicos
+- [x] **`constants.py`**: Nuevo sistema de colores hexadecimales
+- [x] **`beat_item.py`**: Renderizado desde hexadecimales
+- [x] **`beat_editor_dialog.py`**: Diálogo con colores personalizables
+- [x] **`beat_board_view.py`**: Atajos de teclado 1-0
+- [x] **`theme_manager.py`**: Manejo de colores personalizados
+- [x] **`properties_panel.py`**: ComboBox actualizado
+- [x] **`beat_defaults.py`**: Color por defecto hexadecimal
+
+#### 📦 Archivos Generados v1.0.14
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.14_portable` (58 MB)
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.14.AppImage` (72 MB)
+- Compilar con GitHub Actions (workflow build-linux.yml) para máxima compatibilidad
+
+---
+
+### v1.0.13 - RELEASE ✅
+
+BeatBoard versión 1.0.13 con indicador visual para modo conexión.
+
+---
+
+### Cambios v1.0.13
+
+#### ✨ Nuevas Funcionalidades
+- [x] **Indicador visual para Modo Conexión**:
+  - Banner translúcido en la parte inferior del lienzo
+  - Muestra mensaje "Modo 'Conexión' Activado. ESC para Salir"
+  - Traducciones en 4 idiomas (ES, EN, FR, DE)
+- [x] **Fix cursor en Modo Conexión**:
+  - Usar `viewport().setCursor()` en lugar de `setCursor()`
+  - El cursor cruz ahora tiene prioridad sobre los cursores de BeatItem
+  - Se muestra correctamente cuando el modo conexión está activo
+
+#### 📦 Archivos Generados v1.0.13
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.13_portable` (58 MB)
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.13.AppImage` (72 MB)
+- Compilar con GitHub Actions (workflow build-linux.yml) para máxima compatibilidad
+
+---
+
+### v1.0.12 - RELEASE ✅
+
+BeatBoard versión 1.0.12 con optimización de spellcheck y checkbox mostrar título.
+
+---
+
+### Cambios v1.0.12
+
+#### ✨ Nuevas Funcionalidades
+- [x] **Optimización de spellcheck**:
+  - Carga diferida de diccionarios (lazy loading)
+  - Los diccionarios solo se cargan cuando se habilita spellcheck
+  - Mejor tiempo de inicio de la aplicación
+- [x] **Checkbox "Mostrar título"**:
+  - Checkbox en el panel de propiedades para mostrar/ocultar título de cada beat
+  - Por defecto está activado
+  - Se guarda con el proyecto
+
+#### 📦 Archivos Generados v1.0.12
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.12_portable` (58 MB)
+- `build/BeatBoard-Linux-x86_64-QT6_PySide6-v1.0.12.AppImage` (72 MB)
+- Compilar con GitHub Actions (workflow build-linux.yml) para máxima compatibilidad
 
 ---
 

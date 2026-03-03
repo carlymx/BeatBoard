@@ -4,7 +4,7 @@ from PySide6.QtCore import QSizeF, QPointF
 from PySide6.QtGui import QColor
 
 APP_NAME = "BeatBoard"
-APP_VERSION = "1.0.10"
+APP_VERSION = "1.0.14"
 APP_ORGANIZATION = "BeatBoard"
 
 BEAT_DEFAULT_WIDTH = 200.0
@@ -12,7 +12,7 @@ BEAT_DEFAULT_HEIGHT = 150.0
 BEAT_MIN_WIDTH = 100.0
 BEAT_MIN_HEIGHT = 80.0
 
-BEAT_COLOR_DEFAULT = "yellow"
+BEAT_COLOR_DEFAULT = "#FFF59D"  # Amarillo por defecto
 
 BEAT_MEMORIZE_LAST = False
 BEAT_LAST_COLOR = BEAT_COLOR_DEFAULT
@@ -24,15 +24,69 @@ BEAT_SHADOW_OPACITY = 0.2
 
 BEAT_DEFAULT_SIZE = QSizeF(BEAT_DEFAULT_WIDTH, BEAT_DEFAULT_HEIGHT)
 
-BEAT_COLORS: dict[str, QColor] = {
-    "yellow": QColor("#FFF59D"),
-    "blue": QColor("#90CAF9"),
-    "green": QColor("#A5D6A7"),
-    "red": QColor("#EF9A9A"),
-    "orange": QColor("#FFCC80"),
-    "purple": QColor("#CE93D8"),
-    "gray": QColor("#E0E0E0"),
+# Colores predefinidos (teclas 1-7)
+BEAT_PREDEFINED_COLORS = [
+    "#FFF59D",  # 1 - Amarillo
+    "#90CAF9",  # 2 - Azul
+    "#A5D6A7",  # 3 - Verde
+    "#EF9A9A",  # 4 - Rojo
+    "#FFCC80",  # 5 - Naranja
+    "#CE93D8",  # 6 - Púrpura
+    "#E0E0E0",  # 7 - Gris
+]
+
+BEAT_PREDEFINED_NAMES = [
+    "Amarillo",  # 1
+    "Azul",      # 2
+    "Verde",     # 3
+    "Rojo",      # 4
+    "Naranja",   # 5
+    "Púrpura",   # 6
+    "Gris",      # 7
+]
+
+# Colores personalizables (teclas 8, 9, 0) - inicialmente blancos
+BEAT_CUSTOM_COLORS = [
+    "#FFFFFF",  # 8 - Personalizado 1
+    "#FFFFFF",  # 9 - Personalizado 2
+    "#FFFFFF",  # 0 - Personalizado 3
+]
+
+# Mapa de compatibilidad para beats antiguos (nombres -> hexadecimal)
+BEAT_COLOR_COMPATIBILITY_MAP: dict[str, str] = {
+    "yellow": "#FFF59D",
+    "blue": "#90CAF9",
+    "green": "#A5D6A7",
+    "red": "#EF9A9A",
+    "orange": "#FFCC80",
+    "purple": "#CE93D8",
+    "gray": "#E0E0E0",
 }
+
+# Función para obtener color válido desde cualquier formato
+def get_valid_beat_color(color_str: str) -> str:
+    """Convert any color string to valid hex color."""
+    # Si ya es hexadecimal válido
+    if color_str.startswith("#") and len(color_str) == 7:
+        try:
+            # Verificar que sea un color válido
+            QColor(color_str)
+            return color_str
+        except:
+            pass
+    
+    # Si es nombre de color antiguo
+    if color_str in BEAT_COLOR_COMPATIBILITY_MAP:
+        return BEAT_COLOR_COMPATIBILITY_MAP[color_str]
+    
+    # Fallback a color por defecto
+    return BEAT_COLOR_DEFAULT
+
+# Función para obtener QColor desde cualquier formato
+def get_beat_qcolor(color_str: str) -> QColor:
+    """Get QColor from any color string format."""
+    hex_color = get_valid_beat_color(color_str)
+    return QColor(hex_color)
 
 CONNECTION_LINE_WIDTH = 2.0
 

@@ -1,66 +1,84 @@
-name: Build Cross-Platform
+name: Cross-Platform Release
 
 on:
   push:
     tags:
-      - 'v*' # Se activa cuando creas un tag (ej: v1.0.10)
-  workflow_dispatch: # Permite ejecutarlo manualmente
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
+    name: Build on ${{ matrix.artifact }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
         include:
+          # Linux Python 3.10
           - os: ubuntu-latest
-            artifact_name: BeatBoard-Linux
-            spec_file: beatboard-linux.spec
+            spec: beatboard-linux.spec
+            artifact: BeatBoard-Linux
+
+          # Windows 7-11
           - os: windows-latest
-            artifact_name: BeatBoard-Windows
-            spec_file: beatboard-windows.spec
+            spec: beatboard-windows.spec
+            artifact: BeatBoard-Windows
+
+          # MacOS Moderno (Procesadores M1/M2/M3)
           - os: macos-latest
-            artifact_name: BeatBoard-MacOS
-            spec_file: beatboard-macos.spec
+            spec: beatboard-macos.spec
+            artifact: BeatBoard-MacOS-ARM
+
+          # MacOS Antiguo (Procesadores Intel / macOS 11+)
+          - os: macos-13
+            spec: beatboard-macos.spec
+            artifact: BeatBoard-MacOS-Intel-Legacy
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Mantenemos 3.10 para máxima compatibilidad
+          python-version: '3.10'
           cache: 'pip'
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyside6 pyinstaller spylls
-
-      # Paso específico para Linux: Usar Podman/Docker para evitar problemas de GLIBC
-      # Si prefieres simplicidad, puedes usar PyInstaller directamente en ubuntu-latest,
-      # pero el binario no funcionará en distros antiguas.
-      - name: Build Linux (Docker/Podman)
+      # --- LÓGICA PARA LINUX (DOCKER) ---
+      - name: Build Linux (Ubuntu 22.04 Container)
         if: matrix.os == 'ubuntu-latest'
         run: |
           docker build -t builder -f Dockerfile.ubuntu22 .
           docker run --name extract builder /bin/true
-          docker cp extract:/app/dist/. ./dist/
+          docker cp extract:/build/output/. ./dist/
           docker rm extract
 
-      # Build para Windows y Mac
-      - name: Build with PyInstaller
+      # --- LÓGICA PARA WINDOWS Y MAC ---
+      - name: Install Dependencies (Non-Linux)
         if: matrix.os != 'ubuntu-latest'
-        run: pyinstaller ${{ matrix.spec_file }} --clean --noconfirm
+        run: |
+          # Si es el Mac antiguo, forzamos PySide 6.5.3 para estabilidad
+          if [ "${{ matrix.os }}" = "macos-13" ]; then
+            pip install pyside6==6.5.3 pyinstaller spylls
+          else
+            pip install pyside6 pyinstaller spylls
+          fi
+        shell: bash
 
+      - name: Build with PyInstaller (Non-Linux)
+        if: matrix.os != 'ubuntu-latest'
+        env:
+          # Solo se aplica en macOS para forzar compatibilidad con Big Sur (11.0)
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
+        run: pyinstaller ${{ matrix.spec }} --clean --noconfirm
+
+      # --- SUBIDA DE RESULTADOS ---
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
+          name: ${{ matrix.artifact }}
           path: |
             dist/*.exe
-            dist/*.app
             dist/*.AppImage
             dist/BeatBoard_portable
+            dist/BeatBoard.app

@@ -21,15 +21,14 @@ from PySide6.QtWidgets import QGraphicsItem, QGraphicsObject
 
 from beatboard.core.beat import Beat
 from beatboard.core.constants import (
-    BEAT_COLORS,
     BEAT_CORNER_RADIUS,
     BEAT_DEFAULT_HEIGHT,
     BEAT_DEFAULT_WIDTH,
     BEAT_MIN_HEIGHT,
     BEAT_MIN_WIDTH,
-    BEAT_SHADOW_BLUR,
     BEAT_SHADOW_OFFSET,
     BEAT_SHADOW_OPACITY,
+    get_beat_qcolor,
 )
 
 if TYPE_CHECKING:
@@ -119,7 +118,7 @@ class BeatItem(QGraphicsObject):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawRoundedRect(shadow_rect, BEAT_CORNER_RADIUS, BEAT_CORNER_RADIUS)
         
-        beat_color = BEAT_COLORS.get(self._beat.color, BEAT_COLORS["yellow"])
+        beat_color = get_beat_qcolor(self._beat.color)
         
         if self.isSelected():
             beat_color = beat_color.lighter(110)
@@ -144,18 +143,21 @@ class BeatItem(QGraphicsObject):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawRoundedRect(color_bar_rect, BEAT_CORNER_RADIUS, BEAT_CORNER_RADIUS)
         
-        title_font = QFont()
-        title_font.setPointSize(11)
-        title_font.setBold(True)
-        painter.setFont(title_font)
-        painter.setPen(QColor("#333333"))
-        
-        title_rect = QRectF(15, 10, size.x() - 25, 25)
-        title = self._beat.title or "Sin título"
-        title_option = QTextOption(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-        painter.drawText(title_rect, title, title_option)
-        
-        content_rect = QRectF(15, 40, size.x() - 25, size.y() - 50)
+        if self._beat.show_title:
+            title_font = QFont()
+            title_font.setPointSize(11)
+            title_font.setBold(True)
+            painter.setFont(title_font)
+            painter.setPen(QColor("#333333"))
+            
+            title_rect = QRectF(15, 10, size.x() - 25, 25)
+            title = self._beat.title or "Sin título"
+            title_option = QTextOption(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            painter.drawText(title_rect, title, title_option)
+            
+            content_rect = QRectF(15, 40, size.x() - 25, size.y() - 50)
+        else:
+            content_rect = QRectF(15, 15, size.x() - 25, size.y() - 30)
         
         content = self._beat.content or ""
         
@@ -296,3 +298,9 @@ class BeatItem(QGraphicsObject):
     def update_from_beat(self) -> None:
         self.setPos(self._beat.position)
         self.update()
+    
+    def refresh(self) -> None:
+        from PySide6.QtWidgets import QApplication
+        self.prepareGeometryChange()
+        self.update()
+        QApplication.processEvents()

@@ -4,7 +4,7 @@
 
 <!-- Badges Section -->
 ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.10-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.14-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -45,7 +45,8 @@ Whether you're outlining a screenplay, novel, short story, or TV series, BeatBoa
 
 ### Customization
 - **9 Themes** - Light and dark themes (Nord, Dracula, One Dark, etc.)
-- **8 Beat Colors** - Yellow, Blue, Green, Red, Orange, Purple, Gray
+- **10 Beat Colors** - 7 predefined colors + 3 customizable colors
+- **Custom Colors** - Double-click to customize personal colors (8, 9, 0 keys)
 - **Custom Background** - Choose from preset or custom canvas colors
 - **Optional Grid** - Show/hide alignment grid with customizable size and color
 
@@ -249,6 +250,11 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 
 ## Changelog
 
+### v1.0.12 (2026-03-03)
+- Optimized spellcheck performance with lazy loading of dictionaries
+- Improved startup time by not loading dictionaries until spellcheck is enabled
+- Added "Show title" checkbox to properties panel for individual beats
+
 ### v1.0.10 (2026-02-28)
 - Added spell check support for beat content
 - Integrated Hunspell dictionaries (en, es, fr, de)
@@ -272,6 +278,25 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 - Fixed toolbar icons embedded in the executable
 - Fixed preferences.json creation on first launch
 - Added restart notification when changing language
+
+### v1.0.14 (2026-03-03)
+- **Complete color system overhaul**: All colors now use hexadecimal format (#FFFFFF)
+- **Fixed "More Colors..." button**: Now works correctly with custom colors
+- **Added 3 customizable colors**: Personalizable colors 8, 9, 0 (initially white)
+- **Extended keyboard shortcuts**: Keys 1-0 now change colors (1-7 predefined, 8-0 customizable)
+- **Backward compatibility**: Old beats with color names (yellow, blue, etc.) still work
+- **Persistent custom colors**: Saved in preferences.json
+- **Color personalization**: Alt+Click on customizable colors to change them
+
+### v1.0.13 (2026-03-03)
+- Added visual indicator for Connection Mode (translucent banner at bottom of canvas)
+- Fixed cursor not showing as cross in Connection Mode (viewport cursor priority fix)
+- Added translations for connection mode banner in all 4 languages
+
+### v1.0.12 (2026-03-03)
+- Added checkbox to show/hide beat titles
+- Fixed spellcheck lazy loading (dictionaries load only when needed)
+- Fixed checkbox state comparison in properties panel
 
 ### v1.0.1 (2026-02-27)
 - Fixed toolbar icons (now embedded in the app instead of system-dependent)

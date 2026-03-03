@@ -11,10 +11,11 @@ from PySide6.QtGui import QPalette, QColor
 from PySide6.QtWidgets import QApplication
 
 from beatboard.core.constants import (
-    CANVAS_BACKGROUND_COLORS, 
+    CANVAS_BACKGROUND_COLORS,
     CANVAS_BACKGROUND_DEFAULT,
     SPELLCHECK_ENABLED_DEFAULT,
     SPELLCHECK_DICTIONARY_DEFAULT,
+    BEAT_CUSTOM_COLORS,
 )
 from beatboard.core.paths import get_config_dir
 
@@ -177,6 +178,10 @@ class ThemeManager(QObject):
         self._spellcheck_enabled: bool = SPELLCHECK_ENABLED_DEFAULT
         self._spellcheck_dictionary: str = SPELLCHECK_DICTIONARY_DEFAULT
         self._app = QApplication.instance()
+        
+        # Colores personalizados
+        self._custom_colors = BEAT_CUSTOM_COLORS.copy()
+        
         self._load_preference()
 
     def _get_config_path(self) -> Path:
@@ -198,6 +203,11 @@ class ThemeManager(QObject):
                 self._memorize_defaults = data.get("memorize_defaults", False)
                 self._spellcheck_enabled = data.get("spellcheck_enabled", SPELLCHECK_ENABLED_DEFAULT)
                 self._spellcheck_dictionary = data.get("spellcheck_dictionary", SPELLCHECK_DICTIONARY_DEFAULT)
+                
+                # Cargar colores personalizados
+                saved_custom_colors = data.get("custom_colors")
+                if isinstance(saved_custom_colors, list) and len(saved_custom_colors) == 3:
+                    self._custom_colors = saved_custom_colors
             except (json.JSONDecodeError, KeyError, ValueError):
                 self._current_mode = ThemeMode.SYSTEM
                 self._canvas_background = CANVAS_BACKGROUND_DEFAULT
@@ -234,6 +244,10 @@ class ThemeManager(QObject):
         data["spellcheck_dictionary"] = self._spellcheck_dictionary
         if language is not None:
             data["language"] = language
+        
+        # Guardar colores personalizados
+        data["custom_colors"] = self._custom_colors
+        
         config_path.write_text(json.dumps(data, indent=2))
 
     def get_canvas_background(self) -> str:
@@ -580,3 +594,22 @@ class ThemeManager(QObject):
         QDialog { background-color: #263238; }
         QSplitter::handle { background-color: #455a64; }
     """
+    
+    # Métodos para colores personalizados
+    def get_custom_colors(self) -> list[str]:
+        """Obtener la lista de colores personalizados."""
+        return self._custom_colors.copy()
+    
+    def set_custom_color(self, index: int, hex_color: str) -> None:
+        """Establecer un color personalizado."""
+        if 0 <= index < 3 and hex_color.startswith("#") and len(hex_color) == 7:
+            self._custom_colors[index] = hex_color
+            self._save_preference()
+    
+    def update_custom_colors(self, colors: list[str]) -> None:
+        """Actualizar todos los colores personalizados."""
+        if len(colors) == 3:
+            for i, color in enumerate(colors):
+                if color.startswith("#") and len(color) == 7:
+                    self._custom_colors[i] = color
+            self._save_preference()

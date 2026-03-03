@@ -4,7 +4,7 @@
 
 <!-- Sección de Badges -->
 ![Licencia](https://img.shields.io/badge/licencia-CC%20BY--NC%204.0-blue.svg)
-![Versión](https://img.shields.io/badge/versión-1.0.10-green.svg)
+![Versión](https://img.shields.io/badge/versión-1.0.14-green.svg)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -45,7 +45,8 @@ Ya sea que estés delineando un guión cinematográfico, novela, relato corto o 
 
 ### Personalización
 - **9 Temas** - Temas claros y oscuros (Nord, Dracula, One Dark, etc.)
-- **8 Colores de Beat** - Amarillo, Azul, Verde, Rojo, Naranja, Púrpura, Gris
+- **10 Colores de Beat** - 7 colores predefinidos + 3 colores personalizables
+- **Colores Personalizados** - Doble-click para personalizar colores (teclas 8, 9, 0)
 - **Fondo Personalizado** - Elige entre colores predefinidos o personalizados
 - **Cuadrícula Opcional** - Mostrar/ocultar cuadrícula de alineación con tamaño y color personalizables
 
@@ -249,6 +250,11 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 
 ## Registro de Cambios
 
+### v1.0.12 (2026-03-03)
+- Optimizado el rendimiento del spellcheck con carga diferida de diccionarios
+- Mejorado el tiempo de inicio al no cargar diccionarios hasta que se habilita el spellcheck
+- Añadido checkbox "Mostrar título" en el panel de propiedades para beats individuales
+
 ### v1.0.10 (2026-02-28)
 - Añadido soporte de corrección ortográfica para el contenido de beats
 - Integrados diccionarios Hunspell (en, es, fr, de)
@@ -272,6 +278,25 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 - Corregidos iconos de toolbar embebidos en el ejecutable
 - Corregida la creación de preferences.json al primer inicio
 - Añadida notificación de reinicio al cambiar de idioma
+
+### v1.0.14 (2026-03-03)
+- **Reestructuración completa del sistema de colores**: Todos los colores ahora usan formato hexadecimal (#FFFFFF)
+- **Corregido botón "Más Colores..."**: Ahora funciona correctamente con colores personalizados
+- **Añadidos 3 colores personalizables**: Colores personalizables 8, 9, 0 (inicialmente blancos)
+- **Atajos de teclado extendidos**: Teclas 1-0 ahora cambian colores (1-7 predefinidos, 8-0 personalizables)
+- **Compatibilidad con versiones anteriores**: Beats antiguos con nombres de color (amarillo, azul, etc.) siguen funcionando
+- **Colores personalizados persistentes**: Guardados en preferences.json
+- **Personalización de colores**: Alt+Click en colores personalizables para cambiarlos
+
+### v1.0.13 (2026-03-03)
+- Añadido indicador visual para Modo Conexión (banner translúcido en la parte inferior del lienzo)
+- Corregido cursor que no se mostraba como cruz en Modo Conexión (prioridad de cursor del viewport)
+- Añadidas traducciones para el banner de modo conexión en los 4 idiomas
+
+### v1.0.12 (2026-03-03)
+- Añadida casilla para mostrar/ocultar títulos de beats
+- Corregida carga diferida del corrector ortográfico (diccionarios se cargan solo cuando se necesitan)
+- Corregida comparación de estado de casillas en panel de propiedades
 
 ### v1.0.1 (2026-02-27)
 - Corregidos iconos de toolbar (ahora embebidos en la app en lugar de depender del sistema)

@@ -1,4 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
+"""
+MS Windows spec file for BeatBoard v1.0.14
+"""
+
 from pathlib import Path
 
 block_cipher = None

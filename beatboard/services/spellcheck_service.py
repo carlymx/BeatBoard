@@ -44,6 +44,7 @@ class SpellCheckService:
         self._available_languages: list[str] = []
         self._user_dict_path: Optional[Path] = None
         self._user_dict_loaded = False
+        self._config_dir: Optional[Path] = None
         
         self._initialized = True
     
@@ -53,10 +54,14 @@ class SpellCheckService:
         return SPYLLS_AVAILABLE
     
     def initialize(self, config_dir: Path) -> None:
-        """Inicializa el servicio con el directorio de configuración."""
+        """Inicializa el servicio con el directorio de configuración.
+        
+        Nota: Los diccionarios se cargan bajo demanda (lazy loading)
+        para mejorar el tiempo de inicio.
+        """
+        self._config_dir = config_dir
         self._user_dict_path = config_dir
-        self._available_languages = self._load_all_dictionaries()
-        self._user_words = self._load_user_dictionary_for_lang(self._current_lang)
+        self._available_languages = self._discover_available_dictionaries()
     
     def _get_base_path(self) -> Path:
         """Obtiene la ruta base del paquete beatboard."""
@@ -102,36 +107,42 @@ class SpellCheckService:
         
         return base / APP_NAME.lower() / "dictionaries"
     
-    def _load_all_dictionaries(self) -> list[str]:
-        """Carga todos los diccionarios disponibles."""
-        loaded = []
+    def _discover_available_dictionaries(self) -> list[str]:
+        """Descubre los diccionarios disponibles sin cargarlos en memoria."""
+        available = []
         
         resources_path = self._get_resources_path()
         if resources_path.exists():
             for lang_dir in resources_path.iterdir():
                 if lang_dir.is_dir():
                     lang_code = lang_dir.name
-                    if self._load_dictionary_from_path(lang_code, lang_dir):
-                        loaded.append(lang_code)
+                    if self._is_valid_dictionary(lang_dir, lang_code):
+                        available.append(lang_code)
         
         user_dicts_path = self._get_user_dicts_path()
         if user_dicts_path.exists():
             for lang_dir in user_dicts_path.iterdir():
                 if lang_dir.is_dir():
                     lang_code = lang_dir.name
-                    if self._load_dictionary_from_path(lang_code, lang_dir):
-                        if lang_code not in loaded:
-                            loaded.append(lang_code)
+                    if self._is_valid_dictionary(lang_dir, lang_code):
+                        if lang_code not in available:
+                            available.append(lang_code)
         
-        if not loaded:
+        if not available:
             import sys
             print(
-                f"Warning: No dictionaries loaded. "
+                f"Warning: No dictionaries found. "
                 f"Searched in: {resources_path} and {user_dicts_path}",
                 file=sys.stderr
             )
         
-        return loaded
+        return available
+    
+    def _is_valid_dictionary(self, dict_path: Path, lang_code: str) -> bool:
+        """Verifica si un directorio contiene un diccionario válido."""
+        aff_file = dict_path / f"{lang_code}.aff"
+        dic_file = dict_path / f"{lang_code}.dic"
+        return aff_file.exists() and dic_file.exists()
     
     def _load_dictionary_from_path(self, lang_code: str, dict_path: Path) -> bool:
         """Carga un diccionario desde una ruta específica."""
@@ -220,12 +231,51 @@ class SpellCheckService:
         return result
     
     def set_language(self, lang_code: str) -> bool:
-        """Establece el idioma activo."""
+        """Establece el idioma activo y carga su diccionario bajo demanda."""
+        if lang_code not in self._available_languages:
+            return False
+        
+        self._current_lang = lang_code
+        self._user_words = self._load_user_dictionary_for_lang(lang_code)
+        
+        self._ensure_dictionary_loaded(lang_code)
+        
+        return True
+    
+    def _ensure_dictionary_loaded(self, lang_code: str) -> bool:
+        """Carga el diccionario de un idioma si no está ya cargado."""
         if lang_code in self._dictionaries:
-            self._current_lang = lang_code
-            self._user_words = self._load_user_dictionary_for_lang(lang_code)
             return True
+        
+        dict_path = self._get_dictionary_path(lang_code)
+        if dict_path and dict_path.exists():
+            return self._load_dictionary_from_path(lang_code, dict_path)
+        
+        resources_path = self._get_resources_path()
+        dict_path = resources_path / lang_code
+        if dict_path.exists():
+            return self._load_dictionary_from_path(lang_code, dict_path)
+        
+        user_dicts_path = self._get_user_dicts_path()
+        dict_path = user_dicts_path / lang_code
+        if dict_path.exists():
+            return self._load_dictionary_from_path(lang_code, dict_path)
+        
         return False
+    
+    def _get_dictionary_path(self, lang_code: str) -> Optional[Path]:
+        """Obtiene la ruta de un diccionario específico."""
+        resources_path = self._get_resources_path()
+        dict_path = resources_path / lang_code
+        if dict_path.exists():
+            return dict_path
+        
+        user_dicts_path = self._get_user_dicts_path()
+        dict_path = user_dicts_path / lang_code
+        if dict_path.exists():
+            return dict_path
+        
+        return None
     
     def get_current_language(self) -> str:
         """Retorna el idioma activo."""
@@ -249,6 +299,8 @@ class SpellCheckService:
         if word_lower in self._user_words:
             return True
         
+        self._ensure_dictionary_loaded(self._current_lang)
+        
         dictionary = self._dictionaries.get(self._current_lang)
         if dictionary is None:
             return True
@@ -261,6 +313,8 @@ class SpellCheckService:
             return []
         
         suggestions = []
+        
+        self._ensure_dictionary_loaded(self._current_lang)
         
         dictionary = self._dictionaries.get(self._current_lang)
         if dictionary is not None:

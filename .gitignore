@@ -6,7 +6,6 @@ __pycache__/
 
 # PyInstaller
 #*.spec
-release/
 build/
 dist/
 output/

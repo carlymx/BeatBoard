@@ -9,7 +9,7 @@ from PySide6.QtCore import QSizeF
 if TYPE_CHECKING:
     from beatboard.core.beat import Beat
 
-_beat_color_default = "yellow"
+_beat_color_default = "#FFF59D"  # Amarillo por defecto
 _beats_default_size = QSizeF(200.0, 150.0)
 
 

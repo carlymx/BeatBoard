@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
+    QCheckBox,
     QColorDialog,
     QComboBox,
     QFrame,
@@ -19,7 +20,11 @@ from PySide6.QtWidgets import (
 )
 
 from beatboard.core.beat import Beat
-from beatboard.core.constants import BEAT_COLORS
+from beatboard.core.constants import (
+    BEAT_PREDEFINED_COLORS,
+    BEAT_PREDEFINED_NAMES,
+    get_valid_beat_color,
+)
 from beatboard.i18n import _tr
 from beatboard.services.spellcheck_service import SpellCheckService
 from beatboard.ui.widgets.spellcheck_highlighter import SpellCheckTextEdit
@@ -29,7 +34,7 @@ if TYPE_CHECKING:
 
 
 class PropertiesPanel(QWidget):
-    beat_updated = Signal(str, str, str, str)
+    beat_updated = Signal(str, str, str, str, bool)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -68,6 +73,10 @@ class PropertiesPanel(QWidget):
         title_field = self._create_field(_tr("title"))
         self._title_input = title_field["input"]
         props_layout.addLayout(title_field["layout"])
+        
+        self._show_title_checkbox = QCheckBox(_tr("show_title"))
+        self._show_title_checkbox.stateChanged.connect(self._on_show_title_changed)
+        props_layout.addWidget(self._show_title_checkbox)
         
         color_field = self._create_color_field(_tr("color"))
         self._color_combo = color_field["combo"]
@@ -119,14 +128,38 @@ class PropertiesPanel(QWidget):
         combo.setMinimumWidth(150)
         
         color_labels = {}
-        for color_key, color_value in BEAT_COLORS.items():
-            color_labels[color_key] = color_key.capitalize()
-            combo.addItem(color_key.capitalize(), color_key)
+        
+        # Agregar colores predefinidos
+        for i, (hex_color, color_name) in enumerate(zip(BEAT_PREDEFINED_COLORS, BEAT_PREDEFINED_NAMES)):
+            color_labels[hex_color] = color_name
+            combo.addItem(color_name, hex_color)
+        
+        # Agregar colores personalizados (se actualizarán dinámicamente)
+        self._update_custom_colors_in_combo(combo, color_labels)
         
         combo.currentIndexChanged.connect(self._on_color_changed)
         layout.addWidget(combo)
         
         return {"layout": layout, "combo": combo, "labels": color_labels}
+    
+    def _update_custom_colors_in_combo(self, combo: QComboBox, color_labels: dict) -> None:
+        """Actualizar los colores personalizados en el combo box."""
+        # Eliminar elementos de colores personalizados existentes (índices 7-9)
+        while combo.count() > 7:
+            combo.removeItem(7)
+        
+        # Obtener colores personalizados actuales
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance()
+        custom_colors = []
+        if app and hasattr(app, 'theme_manager'):
+            custom_colors = app.theme_manager.get_custom_colors()
+        
+        # Agregar colores personalizados actualizados
+        for i, hex_color in enumerate(custom_colors):
+            color_name = f"Personalizado {i+1} ({hex_color})"
+            color_labels[hex_color] = color_name
+            combo.addItem(color_name, hex_color)
     
     def set_beat(self, beat: Beat | None) -> None:
         self._current_beat = beat
@@ -139,6 +172,9 @@ class PropertiesPanel(QWidget):
             self._no_selection_label.setVisible(False)
             self._properties_widget.setVisible(True)
             
+            # Actualizar colores personalizados en el combo box
+            self._update_custom_colors_in_combo(self._color_combo, self._color_labels)
+            
             self._title_input.setPlainText(beat.title or "")
             
             content = beat.content or ""
@@ -150,6 +186,10 @@ class PropertiesPanel(QWidget):
             index = self._color_combo.findData(beat.color)
             if index >= 0:
                 self._color_combo.setCurrentIndex(index)
+            
+            self._show_title_checkbox.blockSignals(True)
+            self._show_title_checkbox.setChecked(beat.show_title)
+            self._show_title_checkbox.blockSignals(False)
         
         self._updating = False
     
@@ -163,7 +203,8 @@ class PropertiesPanel(QWidget):
             self._current_beat.id,
             self._current_beat.title,
             self._current_beat.content,
-            self._current_beat.color
+            self._current_beat.color,
+            self._current_beat.show_title
         )
     
     def _on_content_changed(self) -> None:
@@ -176,7 +217,8 @@ class PropertiesPanel(QWidget):
             self._current_beat.id,
             self._current_beat.title,
             self._current_beat.content,
-            self._current_beat.color
+            self._current_beat.color,
+            self._current_beat.show_title
         )
     
     def _on_color_changed(self, index: int) -> None:
@@ -189,7 +231,22 @@ class PropertiesPanel(QWidget):
             self._current_beat.id,
             self._current_beat.title,
             self._current_beat.content,
-            self._current_beat.color
+            self._current_beat.color,
+            self._current_beat.show_title
+        )
+    
+    def _on_show_title_changed(self, state: int) -> None:
+        if self._updating or not self._current_beat:
+            return
+        
+        show_title = state == Qt.CheckState.Checked.value
+        self._current_beat.show_title = show_title
+        self.beat_updated.emit(
+            self._current_beat.id,
+            self._current_beat.title,
+            self._current_beat.content,
+            self._current_beat.color,
+            show_title
         )
     
     def clear(self) -> None:

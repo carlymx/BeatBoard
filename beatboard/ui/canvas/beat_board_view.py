@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING, Callable
 
 from PySide6.QtCore import QEvent, QPointF, Qt, Signal
 from PySide6.QtGui import QKeyEvent, QMouseEvent, QWheelEvent
-from PySide6.QtWidgets import QGraphicsView, QWidget
+from PySide6.QtWidgets import QGraphicsView, QLabel, QWidget
+from PySide6.QtWidgets import QVBoxLayout
 
 from beatboard.core.beat import Beat
 from beatboard.core.beat_defaults import BeatDefaults
@@ -57,6 +58,8 @@ class BeatBoardView(QGraphicsView):
         
         self._load_beats()
         self._load_connections()
+        
+        self._create_connection_mode_banner()
         
         self.viewport().installEventFilter(self)
     
@@ -116,13 +119,71 @@ class BeatBoardView(QGraphicsView):
     def toggle_connection_mode(self) -> None:
         self._connection_mode = not self._connection_mode
         if self._connection_mode:
-            self.setCursor(Qt.CursorShape.CrossCursor)
+            self.viewport().setCursor(Qt.CursorShape.CrossCursor)
+            self._show_connection_mode_banner()
         else:
-            self.setCursor(Qt.CursorShape.ArrowCursor)
+            self.viewport().setCursor(Qt.CursorShape.ArrowCursor)
+            self._hide_connection_mode_banner()
             self._connection_start_beat = None
     
     def is_connection_mode(self) -> bool:
         return self._connection_mode
+    
+    def _create_connection_mode_banner(self) -> None:
+        self._connection_banner = QLabel(self.viewport())
+        self._connection_banner.setText("Modo 'Conexión' Activado. ESC para Salir")
+        self._connection_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._connection_banner.setStyleSheet("""
+            QLabel {
+                background-color: rgba(33, 150, 243, 220);
+                color: white;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+        """)
+        self._connection_banner.setFixedHeight(40)
+        self._connection_banner.hide()
+    
+    def _show_connection_mode_banner(self) -> None:
+        from PySide6.QtWidgets import QApplication
+        
+        app = QApplication.instance()
+        if app and hasattr(app, 'locale_manager'):
+            from beatboard.i18n.locales import get_locale
+            locale_dict = get_locale()
+            message = locale_dict.get(
+                'connection_mode_active',
+                "Modo 'Conexión' Activado. ESC para Salir"
+            )
+            self._connection_banner.setText(message)
+        else:
+            self._connection_banner.setText("Modo 'Conexión' Activado. ESC para Salir")
+        
+        banner_width = 350
+        self._connection_banner.setFixedWidth(banner_width)
+        x = (self.viewport().width() - banner_width) // 2
+        y = self.viewport().height() - 60
+        self._connection_banner.move(x, y)
+        self._connection_banner.raise_()
+        self._connection_banner.show()
+    
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if hasattr(self, '_connection_banner') and self._connection_banner.isVisible():
+            self._update_banner_position()
+    
+    def _update_banner_position(self):
+        if not hasattr(self, '_connection_banner'):
+            return
+        banner_width = self._connection_banner.width()
+        x = (self.viewport().width() - banner_width) // 2
+        y = self.viewport().height() - 60
+        self._connection_banner.move(x, y)
+    
+    def _hide_connection_mode_banner(self) -> None:
+        self._connection_banner.hide()
     
     def _on_beat_clicked_for_connection(self, beat_id: str) -> None:
         if not self._connection_mode:
@@ -569,8 +630,14 @@ class BeatBoardView(QGraphicsView):
             event.accept()
             return
         
-        if event.key() >= Qt.Key.Key_1 and event.key() <= Qt.Key.Key_8:
+        # Atajos de teclado para colores (1-0)
+        if event.key() >= Qt.Key.Key_1 and event.key() <= Qt.Key.Key_9:
             color_index = event.key() - Qt.Key.Key_1
+            self._change_selected_beat_color(color_index)
+            event.accept()
+            return
+        elif event.key() == Qt.Key.Key_0:
+            color_index = 9  # 0 es el décimo color (índice 9)
             self._change_selected_beat_color(color_index)
             event.accept()
             return
@@ -650,10 +717,23 @@ class BeatBoardView(QGraphicsView):
                     beat.z_order = new_z
     
     def _change_selected_beat_color(self, color_index: int) -> None:
-        from beatboard.core.constants import BEAT_COLORS
-        colors = list(BEAT_COLORS.keys())
+        from beatboard.core.constants import (
+            BEAT_PREDEFINED_COLORS,
+            BEAT_CUSTOM_COLORS,
+            get_valid_beat_color,
+        )
+        from PySide6.QtWidgets import QApplication
         
-        if color_index >= len(colors):
+        # Obtener colores personalizados del ThemeManager
+        custom_colors = BEAT_CUSTOM_COLORS.copy()  # Por defecto
+        app = QApplication.instance()
+        if app and hasattr(app, 'theme_manager'):
+            custom_colors = app.theme_manager.get_custom_colors()
+        
+        # Combinar colores predefinidos y personalizados
+        all_colors = BEAT_PREDEFINED_COLORS + custom_colors
+        
+        if color_index < 0 or color_index >= len(all_colors):
             return
         
         selected_items = self._scene.selectedItems()
@@ -662,7 +742,7 @@ class BeatBoardView(QGraphicsView):
             if isinstance(item, BeatItem):
                 beat = self._project.get_beat_by_id(item.beat_id)
                 if beat:
-                    beat.color = colors[color_index]
+                    beat.color = all_colors[color_index]
                     item.update()
                     self._update_connections_for_beat(beat.id)
         

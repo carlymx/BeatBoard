@@ -24,7 +24,13 @@ from PySide6.QtWidgets import (
 )
 
 from beatboard.core.beat import Beat
-from beatboard.core.constants import BEAT_COLORS
+from beatboard.core.constants import (
+    BEAT_PREDEFINED_COLORS,
+    BEAT_PREDEFINED_NAMES,
+    BEAT_CUSTOM_COLORS,
+    get_valid_beat_color,
+    get_beat_qcolor,
+)
 from beatboard.i18n import _tr
 from beatboard.services.spellcheck_service import SpellCheckService
 from beatboard.ui.widgets.spellcheck_highlighter import SpellCheckTextEdit
@@ -300,43 +306,94 @@ class ColorPickerWidget(QWidget):
     def __init__(self, current_color: str, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         
-        self._selected_color = current_color
+        self._selected_color = get_valid_beat_color(current_color)
+        
+        # Obtener colores personalizados del ThemeManager
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance()
+        if app and hasattr(app, 'theme_manager'):
+            self._custom_colors = app.theme_manager.get_custom_colors()
+        else:
+            self._custom_colors = BEAT_CUSTOM_COLORS.copy()
         
         layout = QVBoxLayout(self)
         
         label = QLabel(_tr("color"))
         layout.addWidget(label)
         
-        colors_layout = QHBoxLayout()
-        
-        for color_name, color_value in BEAT_COLORS.items():
+        # Layout para colores predefinidos (1-7)
+        predefined_layout = QHBoxLayout()
+        for i, (hex_color, color_name) in enumerate(zip(BEAT_PREDEFINED_COLORS, BEAT_PREDEFINED_NAMES)):
             btn = QPushButton()
             btn.setFixedSize(30, 30)
-            btn.setStyleSheet(f"background-color: {color_value.name()}; border: 1px solid #999; border-radius: 3px;")
-            btn.setToolTip(color_name.capitalize())
-            btn.clicked.connect(self._make_color_handler(color_name))
-            colors_layout.addWidget(btn)
+            btn.setStyleSheet(f"background-color: {hex_color}; border: 1px solid #999; border-radius: 3px;")
+            btn.setToolTip(f"{color_name} ({hex_color})")
+            btn.clicked.connect(self._make_color_handler(hex_color))
+            predefined_layout.addWidget(btn)
         
-        colors_layout.addStretch()
-        layout.addLayout(colors_layout)
+        predefined_layout.addStretch()
+        layout.addLayout(predefined_layout)
         
-        self._custom_btn = QPushButton(_tr("more_colors"))
-        self._custom_btn.clicked.connect(self._select_custom_color)
-        layout.addWidget(self._custom_btn)
+        # Layout para colores personalizables (8, 9, 0)
+        custom_layout = QHBoxLayout()
+        custom_label = QLabel("Personalizados (Doble-Click para cambiar):")
+        custom_layout.addWidget(custom_label)
+        
+        for i, hex_color in enumerate(self._custom_colors):
+            btn = QPushButton()
+            btn.setFixedSize(30, 30)
+            btn.setStyleSheet(f"background-color: {hex_color}; border: 1px solid #999; border-radius: 3px;")
+            btn.setToolTip(f"Personalizado {i+1} ({hex_color}) - Click para usar, Doble-Click para personalizar")
+            btn.clicked.connect(self._make_color_handler(hex_color))
+            
+            # Personalizar con Doble-Click
+            def make_customize_handler(index):
+                def handler(event):
+                    if event.type() == event.Type.MouseButtonDblClick:
+                        self._customize_color(index)
+                    else:
+                        self._select_color(self._custom_colors[index])
+                return handler
+            
+            btn.mouseDoubleClickEvent = make_customize_handler(i)
+            custom_layout.addWidget(btn)
+        
+        custom_layout.addStretch()
+        layout.addLayout(custom_layout)
     
-    def _select_color(self, color_name: str) -> None:
-        self._selected_color = color_name
+    def _select_color(self, hex_color: str) -> None:
+        self._selected_color = hex_color
     
-    def _make_color_handler(self, color_name: str):
+    def _make_color_handler(self, hex_color: str):
         def handler():
-            self._selected_color = color_name
+            self._selected_color = hex_color
         return handler
     
-    def _select_custom_color(self) -> None:
-        current = BEAT_COLORS.get(self._selected_color, BEAT_COLORS["yellow"])
-        color = QColorDialog.getColor(current, self, _tr("select_color"))
+    def _customize_color(self, index: int) -> None:
+        """Personalizar uno de los colores personalizables."""
+        current_color = QColor(self._custom_colors[index])
+        color = QColorDialog.getColor(current_color, self, f"Personalizar color {index+1}")
         if color.isValid():
-            self._selected_color = color.name()
+            hex_color = color.name()
+            self._custom_colors[index] = hex_color
+            
+            # Guardar en ThemeManager
+            from PySide6.QtWidgets import QApplication
+            app = QApplication.instance()
+            if app and hasattr(app, 'theme_manager'):
+                app.theme_manager.set_custom_color(index, hex_color)
+            
+            # Actualizar el botón
+            for btn in self.findChildren(QPushButton):
+                if btn.toolTip() and f"Personalizado {index+1}" in btn.toolTip():
+                    btn.setStyleSheet(f"background-color: {hex_color}; border: 1px solid #999; border-radius: 3px;")
+                    btn.setToolTip(f"Personalizado {index+1} ({hex_color}) - Click para usar, Doble-Click para personalizar")
+                    break
+    
+
     
     def get_selected_color(self) -> str:
         return self._selected_color
+    
+    def get_custom_colors(self) -> list[str]:
+        return self._custom_colors.copy()
