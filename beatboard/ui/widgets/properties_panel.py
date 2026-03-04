@@ -129,8 +129,21 @@ class PropertiesPanel(QWidget):
         
         color_labels = {}
         
+        # Mapeo de traducción de colores
+        color_translation_keys = {
+            "#FFF59D": "yellow",
+            "#90CAF9": "blue",
+            "#A5D6A7": "green",
+            "#EF9A9A": "red",
+            "#FFCC80": "orange",
+            "#CE93D8": "purple",
+            "#E0E0E0": "gray",
+        }
+        
         # Agregar colores predefinidos
-        for i, (hex_color, color_name) in enumerate(zip(BEAT_PREDEFINED_COLORS, BEAT_PREDEFINED_NAMES)):
+        for i, hex_color in enumerate(BEAT_PREDEFINED_COLORS):
+            color_key = color_translation_keys.get(hex_color, f"color_{i}")
+            color_name = _tr(color_key)
             color_labels[hex_color] = color_name
             combo.addItem(color_name, hex_color)
         
@@ -157,7 +170,7 @@ class PropertiesPanel(QWidget):
         
         # Agregar colores personalizados actualizados
         for i, hex_color in enumerate(custom_colors):
-            color_name = f"Personalizado {i+1} ({hex_color})"
+            color_name = _tr("custom_color").format(num=i+1, color=hex_color)
             color_labels[hex_color] = color_name
             combo.addItem(color_name, hex_color)
     

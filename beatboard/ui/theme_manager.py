@@ -16,6 +16,7 @@ from beatboard.core.constants import (
     SPELLCHECK_ENABLED_DEFAULT,
     SPELLCHECK_DICTIONARY_DEFAULT,
     BEAT_CUSTOM_COLORS,
+    AUTOSAVE_INTERVAL_MS,
 )
 from beatboard.core.paths import get_config_dir
 
@@ -182,6 +183,12 @@ class ThemeManager(QObject):
         # Colores personalizados
         self._custom_colors = BEAT_CUSTOM_COLORS.copy()
         
+        # Preferencias de backup
+        self._backup_on_open: bool = True
+        self._max_backups: int = 10
+        self._autosave_interval: int = AUTOSAVE_INTERVAL_MS
+        self._autosave_enabled: bool = True
+        
         self._load_preference()
 
     def _get_config_path(self) -> Path:
@@ -208,6 +215,12 @@ class ThemeManager(QObject):
                 saved_custom_colors = data.get("custom_colors")
                 if isinstance(saved_custom_colors, list) and len(saved_custom_colors) == 3:
                     self._custom_colors = saved_custom_colors
+                
+                # Cargar preferencias de backup
+                self._backup_on_open = data.get("backup_on_open", True)
+                self._max_backups = data.get("max_backups", 10)
+                self._autosave_interval = data.get("autosave_interval", AUTOSAVE_INTERVAL_MS)
+                self._autosave_enabled = data.get("autosave_enabled", True)
             except (json.JSONDecodeError, KeyError, ValueError):
                 self._current_mode = ThemeMode.SYSTEM
                 self._canvas_background = CANVAS_BACKGROUND_DEFAULT
@@ -217,6 +230,10 @@ class ThemeManager(QObject):
                 self._memorize_defaults = False
                 self._spellcheck_enabled = SPELLCHECK_ENABLED_DEFAULT
                 self._spellcheck_dictionary = SPELLCHECK_DICTIONARY_DEFAULT
+                self._backup_on_open = True
+                self._max_backups = 10
+                self._autosave_interval = AUTOSAVE_INTERVAL_MS
+                self._autosave_enabled = True
         else:
             self._current_mode = ThemeMode.SYSTEM
             self._canvas_background = CANVAS_BACKGROUND_DEFAULT
@@ -226,6 +243,10 @@ class ThemeManager(QObject):
             self._memorize_defaults = False
             self._spellcheck_enabled = SPELLCHECK_ENABLED_DEFAULT
             self._spellcheck_dictionary = SPELLCHECK_DICTIONARY_DEFAULT
+            self._backup_on_open = True
+            self._max_backups = 10
+            self._autosave_interval = AUTOSAVE_INTERVAL_MS
+            self._autosave_enabled = True
         self._save_preference()
 
     def _save_preference(self, language: str | None = None) -> None:
@@ -247,6 +268,12 @@ class ThemeManager(QObject):
         
         # Guardar colores personalizados
         data["custom_colors"] = self._custom_colors
+        
+        # Guardar preferencias de backup
+        data["backup_on_open"] = self._backup_on_open
+        data["max_backups"] = self._max_backups
+        data["autosave_interval"] = self._autosave_interval
+        data["autosave_enabled"] = self._autosave_enabled
         
         config_path.write_text(json.dumps(data, indent=2))
 
@@ -613,3 +640,32 @@ class ThemeManager(QObject):
                 if color.startswith("#") and len(color) == 7:
                     self._custom_colors[i] = color
             self._save_preference()
+    
+    # Getters y setters para preferencias de backup
+    def get_backup_on_open(self) -> bool:
+        return self._backup_on_open
+    
+    def set_backup_on_open(self, enabled: bool) -> None:
+        self._backup_on_open = enabled
+        self._save_preference()
+    
+    def get_max_backups(self) -> int:
+        return self._max_backups
+    
+    def set_max_backups(self, count: int) -> None:
+        self._max_backups = max(1, min(count, 20))
+        self._save_preference()
+    
+    def get_autosave_interval(self) -> int:
+        return self._autosave_interval
+    
+    def set_autosave_interval(self, interval_ms: int) -> None:
+        self._autosave_interval = interval_ms
+        self._save_preference()
+    
+    def get_autosave_enabled(self) -> bool:
+        return self._autosave_enabled
+    
+    def set_autosave_enabled(self, enabled: bool) -> None:
+        self._autosave_enabled = enabled
+        self._save_preference()

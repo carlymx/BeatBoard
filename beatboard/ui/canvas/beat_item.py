@@ -30,6 +30,7 @@ from beatboard.core.constants import (
     BEAT_SHADOW_OPACITY,
     get_beat_qcolor,
 )
+from beatboard.i18n import _tr
 
 if TYPE_CHECKING:
     pass
@@ -151,7 +152,7 @@ class BeatItem(QGraphicsObject):
             painter.setPen(QColor("#333333"))
             
             title_rect = QRectF(15, 10, size.x() - 25, 25)
-            title = self._beat.title or "Sin título"
+            title = self._beat.title or _tr("no_title")
             title_option = QTextOption(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             painter.drawText(title_rect, title, title_option)
             
@@ -190,7 +191,7 @@ class BeatItem(QGraphicsObject):
             painter.setFont(placeholder_font)
             painter.setPen(QColor("#999999"))
             placeholder_option = QTextOption(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
-            painter.drawText(content_rect, "Contenido del beat...", placeholder_option)
+            painter.drawText(content_rect, _tr("beat_content_placeholder_canvas"), placeholder_option)
         
         if self.isSelected():
             self._draw_resize_handles(painter)

@@ -1,8 +1,82 @@
 # BeatBoard - Estado del Desarrollo
 
-## Fecha: 3 de Marzo de 2026
+## Fecha: 4 de Marzo de 2026
 
 ## Progreso Actual
+
+### v1.0.16 - EN DESARROLLO
+
+BeatBoard versión 1.0.16 con corrección de icono y mejoras varias.
+
+---
+
+### Cambios v1.0.16
+
+#### ✨ Nuevas Funcionalidades
+- [x] **Menú Preferencias**:
+  - Nuevo menú "Preferencias" antes del menú "Ayuda"
+  - Movidas las opciones de Tema, Recordar tamaño y color, Idioma y Corrección Ortográfica
+- [x] **Opciones de Configuración de Backups**:
+  - Backup al abrir proyecto (activado por defecto)
+  - Máximo de backups (1-20, por defecto 10)
+  - Intervalo de auto-guardado configurable (1, 2, 5, 10, 15, 30 minutos)
+  - Auto-guardado habilitado (activado por defecto)
+  - Botón para limpiar backups del proyecto actual
+- [x] **Copias de seguridad diferenciadas**:
+  - Los backups de auto-guardado se nombran con sufijo `_auto_`
+  - Los backups al abrir se nombran con sufijo `_open_`
+  - Persistencia de preferencias entre sesiones
+
+#### 🔧 Cambios Técnicos
+- [x] **`theme_manager.py`**:
+  - Nuevas preferencias: `backup_on_open`, `max_backups`, `autosave_interval`, `autosave_enabled`
+  - Getters y setters para las nuevas preferencias
+  - Valores por defecto: backup_on_open=True, max_backups=10, autosave_interval=10min, autosave_enabled=True
+- [x] **`autosave_service.py`**:
+  - Carga de preferencias desde theme_manager
+  - Métodos: `save_backup_on_open()`, `cleanup_all_backups()`, `set_max_backups()`, `set_backup_on_open()`, `set_enabled()`
+  - Identificadores diferenciados para backups (auto vs open)
+- [x] **`main_window.py`**:
+  - Reestructuración de menús (Ver ahora solo tiene opciones de vista)
+  - Menú Preferencias con todas las opciones
+  - Nuevos métodos: `_load_backup_preferences()`, `_on_backup_on_open_changed()`, `_on_autosave_enabled_changed()`, `_on_autosave_interval_changed()`, `_on_max_backups_changed()`, `_on_cleanup_backups()`
+  - Backup automático al abrir proyecto
+
+#### 🌐 Internacionalización
+- [x] Nuevas traducciones en los 4 idiomas:
+  - `menu_preferences`: "Preferencias" / "Preferences" / "Préférences" / "Einstellungen"
+  - `backup_options`: "Opciones de copia de seguridad" / "Backup Options" / "Options de sauvegarde" / "Sicherungsoptionen"
+  - `backup_on_open`: "Crear backup al abrir proyecto"
+  - `max_backups`: "Máximo de backups"
+  - `autosave_enabled`: "Auto-guardado habilitado"
+  - `autosave_interval`: "Intervalo de auto-guardado"
+  - `cleanup_backups`: "Limpiar backups..."
+  - Intervalos: 1, 2, 5, 10, 15, 30 minutos
+
+#### 🔧 Traducciones de UI
+- [x] **Etiquetas de beats traducidas**:
+  - "Sin título" → "Untitled" / "Sans titre" / "Ohne Titel"
+  - "Contenido del beat..." → "Beat content..." / "Contenu du beat..." / "Beat-Inhalt..."
+- [x] **Etiquetas de colores traducidas**:
+  - Panel de propiedades ahora muestra nombres de colores traducidos
+  - Colores personalizados: "Custom {num} ({color})" en cada idioma
+- [x] **Exportación**:
+  - PDF y texto ahora usan traducciones para "Sin título"
+
+#### 🔧 Icono de aplicación (Cross-platform)
+- [x] **Fix icono en barra de tareas Windows**:
+  - Añadido `AppUserModelID` con `ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID()`
+  - Evita que Windows agrupe la app con otros procesos Python
+- [x] **Carga explícita de icono**:
+  - Nuevo módulo `beatboard/app/resources.py` con funciones `get_resource_path()`, `get_app_icon_path()`, `fix_windows_taskbar_icon()`
+  - `MainWindow` ahora carga el icono explícitamente con `setWindowIcon()`
+  - Funciona en desarrollo y en ejecutable (soporta `sys._MEIPASS`)
+- [x] **Spec files actualizados**:
+  - `beatboard-windows.spec`: Icono .ico y .png en datas
+  - `beatboard-linux.spec`: Icono .png en datas
+  - `beatboard-macos.spec`: Iconos .icns y .png en datas
+
+---
 
 ### v1.0.14 - RELEASE ✅
 

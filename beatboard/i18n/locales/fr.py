@@ -5,6 +5,7 @@ TRANSLATIONS: dict[str, str] = {
     "menu_file": "&Fichier",
     "menu_edit": "&Édition",
     "menu_view": "&Affichage",
+    "menu_preferences": "&Préférences",
     "menu_help": "&Aide",
     
     # File menu
@@ -187,6 +188,9 @@ TRANSLATIONS: dict[str, str] = {
     "orange": "Orange",
     "purple": "Violet",
     "gray": "Gris",
+    "no_title": "Sans titre",
+    "beat_content_placeholder_canvas": "Contenu du beat...",
+    "custom_color": "Personnalisé {num} ({color})",
     
     # Language change
     "language_changed": "Langue modifiée",
@@ -196,4 +200,23 @@ TRANSLATIONS: dict[str, str] = {
     "spellcheck": "Vérification orthographique",
     "enable_spellcheck": "Activer le correcteur",
     "dictionary_language": "Langue du dictionnaire",
+    
+    # Preferences - Backup
+    "backup_options": "Options de sauvegarde",
+    "backup_on_open": "Créer une sauvegarde à l'ouverture",
+    "max_backups": "Nombre maximum de sauvegardes",
+    "max_backups_tooltip": "Nombre total de sauvegardes à conserver (auto + ouverture)",
+    "autosave_enabled": "Sauvegarde automatique activée",
+    "autosave_interval": "Intervalle de sauvegarde automatique",
+    "cleanup_backups": "Nettoyer les sauvegardes...",
+    "cleanup_backups_tooltip": "Supprimer toutes les sauvegardes du projet actuel",
+    "minutes": "minutes",
+    "backups_cleaned": "Sauvegardes supprimées: {count}",
+    "no_backups_to_clean": "Aucune sauvegarde à supprimer",
+    "autosave_interval_1": "1 minute",
+    "autosave_interval_2": "2 minutes",
+    "autosave_interval_5": "5 minutes",
+    "autosave_interval_10": "10 minutes",
+    "autosave_interval_15": "15 minutes",
+    "autosave_interval_30": "30 minutes",
 }

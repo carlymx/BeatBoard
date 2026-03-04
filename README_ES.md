@@ -4,7 +4,7 @@
 
 <!-- Sección de Badges -->
 ![Licencia](https://img.shields.io/badge/licencia-CC%20BY--NC%204.0-blue.svg)
-![Versión](https://img.shields.io/badge/versión-1.0.14-green.svg)
+![Versión](https://img.shields.io/badge/versión-1.0.16-green.svg)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -250,7 +250,13 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 
 ## Registro de Cambios
 
-### v1.0.14 (2026-03-03)
+### v1.0.16 (2026-03-04)
+- **Nuevo menú Preferencias**: Menú reorganizado con opciones de preferencias antes de Ayuda
+- **Opciones de backup configurables**: Backup al abrir proyecto, máximo de backups, intervalo de auto-guardado
+- **Traducciones completas**: Etiquetas de beats y colores traducidas a los 4 idiomas
+- **Icono de aplicación corregido**: Solucionado problema de icono en barra de tareas/título de Windows
+
+### v1.0.15 (2026-03-04)
 - **Reestructuración completa del sistema de colores**: Todos los colores ahora usan formato hexadecimal (#FFFFFF)
 - **Corregido botón "Más Colores..."**: Ahora funciona correctamente con colores personalizados
 - **Añadidos 3 colores personalizables**: Colores personalizables 8, 9, 0 (inicialmente blancos)

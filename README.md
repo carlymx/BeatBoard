@@ -4,7 +4,7 @@
 
 <!-- Badges Section -->
 ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.14-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.16-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -250,7 +250,13 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 
 ## Changelog
 
-### v1.0.14 (2026-03-03)
+### v1.0.16 (2026-03-04)
+- **New Preferences menu**: Reorganized menu with preferences options before Help
+- **Configurable backup options**: Backup on open, max backups, auto-save interval
+- **Complete translations**: Beat labels and colors translated to all 4 languages
+- **Application icon fix**: Fixed issue with icon in Windows taskbar/title bar
+
+### v1.0.15 (2026-03-04)
 - **Complete color system overhaul**: All colors now use hexadecimal format (#FFFFFF)
 - **Fixed "More Colors..." button**: Now works correctly with custom colors
 - **Added 3 customizable colors**: Personalizable colors 8, 9, 0 (initially white)

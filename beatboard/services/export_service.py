@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING
 from PySide6.QtGui import QPdfWriter, QPagedPaintDevice, QTextDocument
 from PySide6.QtWidgets import QApplication, QFileDialog
 
+from beatboard.i18n import _tr
+
 if TYPE_CHECKING:
     from beatboard.core.project import Project
 
@@ -72,7 +74,7 @@ class ExportService:
                 margin: 10px 0;
                 border-left: 4px solid #333;
             ">
-                <h3 style="margin: 0 0 10px 0;">{i}. {beat.title or 'Sin título'}</h3>
+                <h3 style="margin: 0 0 10px 0;">{i}. {beat.title or _tr("no_title")}</h3>
                 <p style="margin: 0; white-space: pre-wrap;">{beat.content or 'Sin contenido'}</p>
             </div>
             """
@@ -129,7 +131,7 @@ class ExportService:
                 target = project.get_beat_by_id(conn.target_beat_id)
                 if source and target:
                     connections_html += f"""
-                    <li>{source.title or 'Sin título'} → {target.title or 'Sin título'}</li>
+                    <li>{source.title or _tr("no_title")} → {target.title or _tr("no_title")}</li>
                     """
             
             html += f"""
@@ -191,7 +193,7 @@ class ExportService:
         ]
         
         for i, beat in enumerate(project.beats, 1):
-            lines.append(f"{i}. {beat.title or 'Sin título'}")
+            lines.append(f"{i}. {beat.title or _tr('no_title')}")
             lines.append("-" * 30)
             lines.append(beat.content or "Sin contenido")
             lines.append("")
@@ -205,6 +207,6 @@ class ExportService:
                 source = project.get_beat_by_id(conn.source_beat_id)
                 target = project.get_beat_by_id(conn.target_beat_id)
                 if source and target:
-                    lines.append(f"  {source.title or 'Sin título'} → {target.title or 'Sin título'}")
+                    lines.append(f"  {source.title or _tr('no_title')} → {target.title or _tr('no_title')}")
         
         return "\n".join(lines)

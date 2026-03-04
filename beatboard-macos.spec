@@ -13,9 +13,11 @@ a = Analysis(
     pathex=[str(beatboard_root)],
     binaries=[],
     datas=[
+        (str(icons_base / "ui" / "icons" / "app_icon.icns"), "beatboard/ui/icons"),
+        (str(icons_base / "ui" / "icons" / "app_icon.png"), "beatboard/ui/icons"),
         (str(icons_base / "ui" / "icons" / "toolbar_dark"), "beatboard/ui/icons/toolbar_dark"),
         (str(icons_base / "ui" / "icons" / "toolbar_light"), "beatboard/ui/icons/toolbar_light"),
-        (str(icons_base / "resources" / "dictionaries"), "resources/dictionaries"), # Ruta unificada
+        (str(icons_base / "resources" / "dictionaries"), "resources/dictionaries"),
     ],
     hiddenimports=[
         "PySide6.QtCore", "PySide6.QtGui", "PySide6.QtWidgets",
@@ -57,7 +59,7 @@ app = BUNDLE(
     icon='beatboard/ui/icons/app_icon.icns',
     bundle_identifier='com.beatboard.app',
     info_plist={
-        'CFBundleShortVersionString': '1.0.14',
+        'CFBundleShortVersionString': '1.0.16',
         'LSMinimumSystemVersion': '11.0', # Aseguramos que el Info.plist también refleje el mínimo
     },
 )

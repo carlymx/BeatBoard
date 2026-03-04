@@ -2,7 +2,7 @@
 
 # Configuración
 APP_NAME="BeatBoard"
-VERSION="1.0.14"
+VERSION="1.0.16"
 IMAGE_NAME="beatboard-builder"
 OUTPUT_DIR="./release"
 APPDIR_NAME="BeatBoard_appdir"

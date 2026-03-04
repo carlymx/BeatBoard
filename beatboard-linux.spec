@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-PyInstaller spec file for BeatBoard v1.0.14
+PyInstaller spec file for BeatBoard v1.0.16
 """
 
 import sys
@@ -34,6 +34,7 @@ a = Analysis(
     pathex=[str(beatboard_root)],
     binaries=[],
     datas=[
+        (str(icons_base / "ui" / "icons" / "app_icon.png"), "beatboard/ui/icons"),
         (str(icons_base / "ui" / "icons" / "toolbar_dark"), "beatboard/ui/icons/toolbar_dark"),
         (str(icons_base / "ui" / "icons" / "toolbar_light"), "beatboard/ui/icons/toolbar_light"),
         (str(icons_base / "resources" / "dictionaries"), "resources/dictionaries"),

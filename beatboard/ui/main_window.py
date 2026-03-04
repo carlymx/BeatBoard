@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable
 
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QAction, QActionGroup, QUndoStack
+from PySide6.QtGui import QAction, QActionGroup, QIcon, QUndoStack
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -63,6 +63,8 @@ class MainWindow(QMainWindow):
         self._setup_statusbar()
         self._connect_signals()
         self._load_saved_preferences()
+        
+        self._set_window_icon()
         
         self._update_title()
     
@@ -175,7 +177,80 @@ class MainWindow(QMainWindow):
         
         view_menu = menubar.addMenu(_tr("menu_view"))
         
-        theme_menu = view_menu.addMenu(_tr("theme"))
+        zoom_in_action = view_menu.addAction(_tr("zoom_in"))
+        zoom_in_action.setShortcut("Ctrl++")
+        zoom_in_action.triggered.connect(self._beat_board_view.zoom_in)
+        
+        zoom_out_action = view_menu.addAction(_tr("zoom_out"))
+        zoom_out_action.setShortcut("Ctrl+-")
+        zoom_out_action.triggered.connect(self._beat_board_view.zoom_out)
+        
+        fit_action = view_menu.addAction(_tr("fit_to_content"))
+        fit_action.setShortcut("Ctrl+0")
+        fit_action.triggered.connect(self._beat_board_view.fit_to_contents)
+        
+        view_menu.addSeparator()
+        
+        grid_action = view_menu.addAction(_tr("show_grid"))
+        grid_action.setCheckable(True)
+        grid_action.triggered.connect(self._on_grid_toggled)
+        self._grid_action = grid_action
+        
+        view_menu.addSeparator()
+        
+        grid_menu = view_menu.addMenu(_tr("grid_options"))
+        
+        size_menu = grid_menu.addMenu(_tr("cell_size"))
+        size_group = QActionGroup(self)
+        from beatboard.core.constants import GRID_SIZE_OPTIONS
+        for size in GRID_SIZE_OPTIONS:
+            size_action = size_menu.addAction(f"{size} px")
+            size_action.setData(size)
+            size_action.setCheckable(True)
+            size_action.triggered.connect(lambda checked, s=size: self._on_grid_size_changed(s))
+            size_group.addAction(size_action)
+        self._update_grid_size_check(size_group)
+        
+        color_menu = grid_menu.addMenu(_tr("grid_color"))
+        color_group = QActionGroup(self)
+        
+        auto_color_action = color_menu.addAction(_tr("auto"))
+        auto_color_action.setData("auto")
+        auto_color_action.setCheckable(True)
+        auto_color_action.triggered.connect(lambda: self._on_grid_color_changed("auto"))
+        color_group.addAction(auto_color_action)
+        
+        color_menu.addSeparator()
+        
+        grid_colors = [
+            ("Amarillo", "#FFF59D"),
+            ("Azul", "#90CAF9"),
+            ("Verde", "#A5D6A7"),
+            ("Rojo", "#EF9A9A"),
+            ("Naranja", "#FFCC80"),
+            ("Púrpura", "#CE93D8"),
+            ("Gris", "#E0E0E0"),
+        ]
+        
+        for color_name, hex_color in grid_colors:
+            color_action = color_menu.addAction(color_name)
+            color_action.setData(hex_color)
+            color_action.setCheckable(True)
+            color_action.triggered.connect(lambda checked, c=hex_color: self._on_grid_color_changed(c))
+            color_group.addAction(color_action)
+        
+        color_menu.addSeparator()
+        
+        custom_grid_color_action = color_menu.addAction(_tr("custom"))
+        custom_grid_color_action.triggered.connect(self._on_custom_grid_color)
+        
+        self._update_grid_color_check(color_group)
+        
+        # Menú Preferencias
+        preferences_menu = menubar.addMenu(_tr("menu_preferences"))
+        
+        # Tema
+        theme_menu = preferences_menu.addMenu(_tr("theme"))
         
         theme_group = QActionGroup(self)
         
@@ -222,9 +297,8 @@ class MainWindow(QMainWindow):
         
         self._update_theme_check(theme_group, light_group, dark_group)
         
-        view_menu.addSeparator()
-        
-        bg_menu = view_menu.addMenu(_tr("canvas_background"))
+        # Color de fondo
+        bg_menu = preferences_menu.addMenu(_tr("canvas_background"))
         
         bg_group = QActionGroup(self)
         
@@ -254,86 +328,15 @@ class MainWindow(QMainWindow):
         
         self._update_canvas_background_check(bg_group)
         
-        view_menu.addSeparator()
+        preferences_menu.addSeparator()
         
-        zoom_in_action = view_menu.addAction(_tr("zoom_in"))
-        zoom_in_action.setShortcut("Ctrl++")
-        zoom_in_action.triggered.connect(self._beat_board_view.zoom_in)
-        
-        zoom_out_action = view_menu.addAction(_tr("zoom_out"))
-        zoom_out_action.setShortcut("Ctrl+-")
-        zoom_out_action.triggered.connect(self._beat_board_view.zoom_out)
-        
-        fit_action = view_menu.addAction(_tr("fit_to_content"))
-        fit_action.setShortcut("Ctrl+0")
-        fit_action.triggered.connect(self._beat_board_view.fit_to_contents)
-        
-        view_menu.addSeparator()
-        
-        memorize_defaults_action = view_menu.addAction(_tr("memorize_defaults"))
+        memorize_defaults_action = preferences_menu.addAction(_tr("memorize_defaults"))
         memorize_defaults_action.setCheckable(True)
         memorize_defaults_action.triggered.connect(self._on_memorize_defaults_toggled)
         self._memorize_action = memorize_defaults_action
         
-        grid_action = view_menu.addAction(_tr("show_grid"))
-        grid_action.setCheckable(True)
-        grid_action.triggered.connect(self._on_grid_toggled)
-        self._grid_action = grid_action
-        
-        view_menu.addSeparator()
-        
-        grid_menu = view_menu.addMenu(_tr("grid_options"))
-        
-        size_menu = grid_menu.addMenu(_tr("cell_size"))
-        size_group = QActionGroup(self)
-        from beatboard.core.constants import GRID_SIZE_OPTIONS
-        for size in GRID_SIZE_OPTIONS:
-            size_action = size_menu.addAction(f"{size} px")
-            size_action.setData(size)
-            size_action.setCheckable(True)
-            size_action.triggered.connect(lambda checked, s=size: self._on_grid_size_changed(s))
-            size_group.addAction(size_action)
-        self._update_grid_size_check(size_group)
-        
-        color_menu = grid_menu.addMenu(_tr("grid_color"))
-        color_group = QActionGroup(self)
-        
-        auto_color_action = color_menu.addAction(_tr("auto"))
-        auto_color_action.setData("auto")
-        auto_color_action.setCheckable(True)
-        auto_color_action.triggered.connect(lambda: self._on_grid_color_changed("auto"))
-        color_group.addAction(auto_color_action)
-        
-        color_menu.addSeparator()
-        
-        # Colores predefinidos para la cuadrícula
-        grid_colors = [
-            ("Amarillo", "#FFF59D"),
-            ("Azul", "#90CAF9"),
-            ("Verde", "#A5D6A7"),
-            ("Rojo", "#EF9A9A"),
-            ("Naranja", "#FFCC80"),
-            ("Púrpura", "#CE93D8"),
-            ("Gris", "#E0E0E0"),
-        ]
-        
-        for color_name, hex_color in grid_colors:
-            color_action = color_menu.addAction(color_name)
-            color_action.setData(hex_color)
-            color_action.setCheckable(True)
-            color_action.triggered.connect(lambda checked, c=hex_color: self._on_grid_color_changed(c))
-            color_group.addAction(color_action)
-        
-        color_menu.addSeparator()
-        
-        custom_grid_color_action = color_menu.addAction(_tr("custom"))
-        custom_grid_color_action.triggered.connect(self._on_custom_grid_color)
-        
-        self._update_grid_color_check(color_group)
-        
-        view_menu.addSeparator()
-        
-        lang_menu = view_menu.addMenu(_tr("language"))
+        # Idioma
+        lang_menu = preferences_menu.addMenu(_tr("language"))
         lang_group = QActionGroup(self)
         
         from beatboard.i18n import get_locale_name, get_available_locales
@@ -349,9 +352,8 @@ class MainWindow(QMainWindow):
             lang_action.triggered.connect(lambda checked, lc=locale_code: self._on_language_changed(lc))
             lang_group.addAction(lang_action)
         
-        view_menu.addSeparator()
-        
-        spellcheck_menu = view_menu.addMenu(_tr("spellcheck"))
+        # Corrección ortográfica
+        spellcheck_menu = preferences_menu.addMenu(_tr("spellcheck"))
         
         enable_spellcheck_action = spellcheck_menu.addAction(_tr("enable_spellcheck"))
         enable_spellcheck_action.setCheckable(True)
@@ -373,6 +375,62 @@ class MainWindow(QMainWindow):
                 dict_action.setChecked(True)
             dict_action.triggered.connect(lambda checked, lc=lang_code: self._on_spellcheck_language_changed(lc))
             dict_group.addAction(dict_action)
+        
+        preferences_menu.addSeparator()
+        
+        # Opciones de backup
+        backup_menu = preferences_menu.addMenu(_tr("backup_options"))
+        
+        self._backup_on_open_action = backup_menu.addAction(_tr("backup_on_open"))
+        self._backup_on_open_action.setCheckable(True)
+        self._backup_on_open_action.triggered.connect(self._on_backup_on_open_changed)
+        
+        self._autosave_enabled_action = backup_menu.addAction(_tr("autosave_enabled"))
+        self._autosave_enabled_action.setCheckable(True)
+        self._autosave_enabled_action.triggered.connect(self._on_autosave_enabled_changed)
+        
+        backup_menu.addSeparator()
+        
+        autosave_interval_menu = backup_menu.addMenu(_tr("autosave_interval"))
+        autosave_interval_group = QActionGroup(self)
+        
+        autosave_intervals = [
+            (60000, "autosave_interval_1"),
+            (120000, "autosave_interval_2"),
+            (300000, "autosave_interval_5"),
+            (600000, "autosave_interval_10"),
+            (900000, "autosave_interval_15"),
+            (1800000, "autosave_interval_30"),
+        ]
+        
+        self._autosave_interval_combo = {}
+        for interval_ms, label_key in autosave_intervals:
+            interval_action = autosave_interval_menu.addAction(_tr(label_key))
+            interval_action.setData(interval_ms)
+            interval_action.setCheckable(True)
+            interval_action.triggered.connect(lambda checked, i=interval_ms: self._on_autosave_interval_changed(i))
+            autosave_interval_group.addAction(interval_action)
+            self._autosave_interval_combo[interval_ms] = interval_action
+        
+        backup_menu.addSeparator()
+        
+        max_backups_menu = backup_menu.addMenu(_tr("max_backups"))
+        max_backups_group = QActionGroup(self)
+        
+        for count in range(1, 21):
+            max_action = max_backups_menu.addAction(str(count))
+            max_action.setData(count)
+            max_action.setCheckable(True)
+            max_action.triggered.connect(lambda checked, c=count: self._on_max_backups_changed(c))
+            max_backups_group.addAction(max_action)
+        
+        backup_menu.addSeparator()
+        
+        cleanup_backups_action = backup_menu.addAction(_tr("cleanup_backups"))
+        cleanup_backups_action.triggered.connect(self._on_cleanup_backups)
+        
+        # Cargar estado de preferencias de backup
+        self._load_backup_preferences()
         
         help_menu = menubar.addMenu(_tr("menu_help"))
         
@@ -508,6 +566,12 @@ class MainWindow(QMainWindow):
         if self._enable_spellcheck_action:
             self._enable_spellcheck_action.setChecked(spellcheck_enabled)
     
+    def _set_window_icon(self) -> None:
+        from beatboard.app.resources import get_app_icon_path
+        icon_path = get_app_icon_path()
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
+    
     def _update_title(self) -> None:
         title = f"{self._project.name}"
         if self._is_modified:
@@ -605,6 +669,10 @@ class MainWindow(QMainWindow):
             self._is_modified = False
             self._beat_board_view.set_project(self._project)
             self._start_autosave()
+            
+            if self._autosave_service:
+                self._autosave_service.save_backup_on_open()
+            
             self._update_title()
             self._update_status()
             
@@ -944,6 +1012,86 @@ class MainWindow(QMainWindow):
                 event.ignore()
         else:
             event.accept()
+    
+    def _load_backup_preferences(self) -> None:
+        app = QApplication.instance()
+        if not app or not hasattr(app, "theme_manager"):
+            return
+        
+        tm = app.theme_manager
+        
+        backup_on_open = tm.get_backup_on_open()
+        if self._backup_on_open_action:
+            self._backup_on_open_action.setChecked(backup_on_open)
+        
+        autosave_enabled = tm.get_autosave_enabled()
+        if self._autosave_enabled_action:
+            self._autosave_enabled_action.setChecked(autosave_enabled)
+        
+        autosave_interval = tm.get_autosave_interval()
+        for interval_ms, action in self._autosave_interval_combo.items():
+            if action:
+                action.setChecked(interval_ms == autosave_interval)
+        
+        max_backups = tm.get_max_backups()
+        
+        if self._autosave_service:
+            self._autosave_service.set_max_backups(max_backups)
+            self._autosave_service.set_backup_on_open(backup_on_open)
+            self._autosave_service.set_enabled(autosave_enabled)
+            if autosave_enabled:
+                self._autosave_service.set_interval(autosave_interval)
+    
+    def _on_backup_on_open_changed(self, checked: bool) -> None:
+        app = QApplication.instance()
+        if app and hasattr(app, "theme_manager"):
+            app.theme_manager.set_backup_on_open(checked)
+        if self._autosave_service:
+            self._autosave_service.set_backup_on_open(checked)
+    
+    def _on_autosave_enabled_changed(self, checked: bool) -> None:
+        app = QApplication.instance()
+        if app and hasattr(app, "theme_manager"):
+            app.theme_manager.set_autosave_enabled(checked)
+        if self._autosave_service:
+            self._autosave_service.set_enabled(checked)
+            if checked:
+                interval = app.theme_manager.get_autosave_interval() if app and hasattr(app, "theme_manager") else 600000
+                self._autosave_service.set_interval(interval)
+                self._autosave_service.start()
+            else:
+                self._autosave_service.stop()
+    
+    def _on_autosave_interval_changed(self, interval_ms: int) -> None:
+        app = QApplication.instance()
+        if app and hasattr(app, "theme_manager"):
+            app.theme_manager.set_autosave_interval(interval_ms)
+        if self._autosave_service:
+            self._autosave_service.set_interval(interval_ms)
+    
+    def _on_max_backups_changed(self, count: int) -> None:
+        app = QApplication.instance()
+        if app and hasattr(app, "theme_manager"):
+            app.theme_manager.set_max_backups(count)
+        if self._autosave_service:
+            self._autosave_service.set_max_backups(count)
+    
+    def _on_cleanup_backups(self) -> None:
+        if self._autosave_service:
+            count = self._autosave_service.cleanup_all_backups()
+            from PySide6.QtWidgets import QMessageBox
+            if count > 0:
+                QMessageBox.information(
+                    self,
+                    _tr("cleanup_backups"),
+                    _tr("backups_cleaned").format(count=count)
+                )
+            else:
+                QMessageBox.information(
+                    self,
+                    _tr("cleanup_backups"),
+                    _tr("no_backups_to_clean")
+                )
     
     def _get_current_locale(self) -> str:
         app = QApplication.instance()
