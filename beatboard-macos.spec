@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 from pathlib import Path
+import os
 
 block_cipher = None
 spec_dir = Path(SPECPATH)
@@ -40,13 +41,14 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False, # Cambia a True si necesitas ver errores de terminal en Mac
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
-    target_arch='universal2',
+
+    target_arch=os.environ.get('MACOS_ARCH', 'arm64'),
     codesign_identity=None,
     entitlements_file=None,
-    icon='beatboard/ui/icons/app_icon.icns', # macOS prefiere .icns
+    icon='beatboard/ui/icons/app_icon.icns',
 )
 
 app = BUNDLE(
@@ -55,8 +57,7 @@ app = BUNDLE(
     icon='beatboard/ui/icons/app_icon.icns',
     bundle_identifier='com.beatboard.app',
     info_plist={
-        'NSHighResolutionCapable': 'True',
-        'LSBackgroundOnly': 'False',
         'CFBundleShortVersionString': '1.0.14',
+        'LSMinimumSystemVersion': '11.0', # Aseguramos que el Info.plist también refleje el mínimo
     },
 )

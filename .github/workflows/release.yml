@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build on ${{ matrix.artifact }}
+    name: Build ${{ matrix.artifact }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -16,17 +16,26 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact: BeatBoard-Linux
-            path: dist/ # Subiremos toda la carpeta que extraigamos de Docker
+            path: dist/
 
           - os: windows-latest
             spec: beatboard-windows.spec
             artifact: BeatBoard-Windows
-            path: dist/*.exe # En Windows solo nos interesa el .exe
+            path: dist/*.exe
 
+          # VERSIÓN MODERNA (Nativa para M1/M2/M3)
           - os: macos-14
             spec: beatboard-macos.spec
-            artifact: BeatBoard-MacOS-Universal
-            path: dist/BeatBoard.app # En Mac subimos el bundle .app
+            artifact: BeatBoard-MacOS-ARM
+            arch: arm64
+            path: dist/BeatBoard.app
+
+          # VERSIÓN LEGACY (Nativa para Intel y macOS 11+)
+          - os: macos-14
+            spec: beatboard-macos.spec
+            artifact: BeatBoard-MacOS-Intel-Legacy
+            arch: x86_64
+            path: dist/BeatBoard.app
 
     steps:
       - name: Checkout code
@@ -38,41 +47,45 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
 
-      # --- LÓGICA PARA LINUX (DOCKER) ---
-      - name: Build Linux (Ubuntu 22.04 Container)
+      # --- LÓGICA LINUX/WINDOWS ---
+      # (Se mantienen tus pasos de Docker y pip Windows igual que antes)
+      - name: Build Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
           mkdir -p dist
           docker build -t builder -f Dockerfile.ubuntu22 .
           docker run --name extract builder /bin/true
-          # Copiamos TODO lo que el Dockerfile dejó en /build/output a nuestro dist local
           docker cp extract:/build/output/. ./dist/
           docker rm extract
 
-      # --- LÓGICA PARA WINDOWS ---
-      - name: Install Dependencies (Windows)
+      - name: Build Windows
         if: matrix.os == 'windows-latest'
-        run: pip install pyside6 pyinstaller spylls
+        run: |
+          pip install pyside6 pyinstaller spylls
+          pyinstaller ${{ matrix.spec }} --clean --noconfirm
 
-      - name: Build with PyInstaller (Windows)
-        if: matrix.os == 'windows-latest'
-        run: pyinstaller ${{ matrix.spec }} --clean --noconfirm
-
-      # --- LÓGICA PARA MAC ---
+      # --- LÓGICA MAC (Doble arquitectura separada) ---
       - name: Install Dependencies (Mac)
         if: matrix.os == 'macos-14'
-        run: pip install pyside6==6.5.3 pyinstaller spylls
+        run: |
+          if [ "${{ matrix.arch }}" = "x86_64" ]; then
+            # Para Intel usamos la versión que corregía el error de memoria en macOS 11
+            pip install pyside6==6.5.2 pyinstaller spylls
+          else
+            # Para ARM usamos la última versión estable
+            pip install pyside6 pyinstaller spylls
+          fi
 
-      - name: Build with PyInstaller (Mac Universal 2)
+      - name: Build with PyInstaller (Mac)
         if: matrix.os == 'macos-14'
         env:
           MACOSX_DEPLOYMENT_TARGET: "11.0"
+          MACOS_ARCH: ${{ matrix.arch }} # Pasamos la arquitectura al archivo .spec
         run: pyinstaller ${{ matrix.spec }} --clean --noconfirm
 
-      # --- SUBIDA DE RESULTADOS (CORREGIDA) ---
+      # --- SUBIDA DE RESULTADOS SEPARADA ---
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.path }}
-          if-no-files-found: error # Esto nos avisará si algo falló realmente en la compilación

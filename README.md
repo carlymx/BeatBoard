@@ -250,7 +250,26 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 
 ## Changelog
 
+### v1.0.14 (2026-03-03)
+- **Complete color system overhaul**: All colors now use hexadecimal format (#FFFFFF)
+- **Fixed "More Colors..." button**: Now works correctly with custom colors
+- **Added 3 customizable colors**: Personalizable colors 8, 9, 0 (initially white)
+- **Extended keyboard shortcuts**: Keys 1-0 now change colors (1-7 predefined, 8-0 customizable)
+- **Backward compatibility**: Old beats with color names (yellow, blue, etc.) still work
+- **Persistent custom colors**: Saved in preferences.json
+- **Color personalization**: Alt+Click on customizable colors to change them
+
+### v1.0.13 (2026-03-03)
+- Added visual indicator for Connection Mode (translucent banner at bottom of canvas)
+- Fixed cursor not showing as cross in Connection Mode (viewport cursor priority fix)
+- Added translations for connection mode banner in all 4 languages
+
 ### v1.0.12 (2026-03-03)
+- Added checkbox to show/hide beat titles
+- Fixed spellcheck lazy loading (dictionaries load only when needed)
+- Fixed checkbox state comparison in properties panel
+
+### v1.0.11 (2026-03-03)
 - Optimized spellcheck performance with lazy loading of dictionaries
 - Improved startup time by not loading dictionaries until spellcheck is enabled
 - Added "Show title" checkbox to properties panel for individual beats
@@ -278,25 +297,6 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 - Fixed toolbar icons embedded in the executable
 - Fixed preferences.json creation on first launch
 - Added restart notification when changing language
-
-### v1.0.14 (2026-03-03)
-- **Complete color system overhaul**: All colors now use hexadecimal format (#FFFFFF)
-- **Fixed "More Colors..." button**: Now works correctly with custom colors
-- **Added 3 customizable colors**: Personalizable colors 8, 9, 0 (initially white)
-- **Extended keyboard shortcuts**: Keys 1-0 now change colors (1-7 predefined, 8-0 customizable)
-- **Backward compatibility**: Old beats with color names (yellow, blue, etc.) still work
-- **Persistent custom colors**: Saved in preferences.json
-- **Color personalization**: Alt+Click on customizable colors to change them
-
-### v1.0.13 (2026-03-03)
-- Added visual indicator for Connection Mode (translucent banner at bottom of canvas)
-- Fixed cursor not showing as cross in Connection Mode (viewport cursor priority fix)
-- Added translations for connection mode banner in all 4 languages
-
-### v1.0.12 (2026-03-03)
-- Added checkbox to show/hide beat titles
-- Fixed spellcheck lazy loading (dictionaries load only when needed)
-- Fixed checkbox state comparison in properties panel
 
 ### v1.0.1 (2026-02-27)
 - Fixed toolbar icons (now embedded in the app instead of system-dependent)

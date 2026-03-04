@@ -250,7 +250,26 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 
 ## Registro de Cambios
 
+### v1.0.14 (2026-03-03)
+- **Reestructuración completa del sistema de colores**: Todos los colores ahora usan formato hexadecimal (#FFFFFF)
+- **Corregido botón "Más Colores..."**: Ahora funciona correctamente con colores personalizados
+- **Añadidos 3 colores personalizables**: Colores personalizables 8, 9, 0 (inicialmente blancos)
+- **Atajos de teclado extendidos**: Teclas 1-0 ahora cambian colores (1-7 predefinidos, 8-0 personalizables)
+- **Compatibilidad con versiones anteriores**: Beats antiguos con nombres de color (amarillo, azul, etc.) siguen funcionando
+- **Colores personalizados persistentes**: Guardados en preferences.json
+- **Personalización de colores**: Alt+Click en colores personalizables para cambiarlos
+
+### v1.0.13 (2026-03-03)
+- Añadido indicador visual para Modo Conexión (banner translúcido en la parte inferior del lienzo)
+- Corregido cursor que no se mostraba como cruz en Modo Conexión (prioridad de cursor del viewport)
+- Añadidas traducciones para el banner de modo conexión en los 4 idiomas
+
 ### v1.0.12 (2026-03-03)
+- Añadida casilla para mostrar/ocultar títulos de beats
+- Corregida carga diferida del corrector ortográfico (diccionarios se cargan solo cuando se necesitan)
+- Corregida comparación de estado de casillas en panel de propiedades
+
+### v1.0.11 (2026-03-03)
 - Optimizado el rendimiento del spellcheck con carga diferida de diccionarios
 - Mejorado el tiempo de inicio al no cargar diccionarios hasta que se habilita el spellcheck
 - Añadido checkbox "Mostrar título" en el panel de propiedades para beats individuales
@@ -278,25 +297,6 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 - Corregidos iconos de toolbar embebidos en el ejecutable
 - Corregida la creación de preferences.json al primer inicio
 - Añadida notificación de reinicio al cambiar de idioma
-
-### v1.0.14 (2026-03-03)
-- **Reestructuración completa del sistema de colores**: Todos los colores ahora usan formato hexadecimal (#FFFFFF)
-- **Corregido botón "Más Colores..."**: Ahora funciona correctamente con colores personalizados
-- **Añadidos 3 colores personalizables**: Colores personalizables 8, 9, 0 (inicialmente blancos)
-- **Atajos de teclado extendidos**: Teclas 1-0 ahora cambian colores (1-7 predefinidos, 8-0 personalizables)
-- **Compatibilidad con versiones anteriores**: Beats antiguos con nombres de color (amarillo, azul, etc.) siguen funcionando
-- **Colores personalizados persistentes**: Guardados en preferences.json
-- **Personalización de colores**: Alt+Click en colores personalizables para cambiarlos
-
-### v1.0.13 (2026-03-03)
-- Añadido indicador visual para Modo Conexión (banner translúcido en la parte inferior del lienzo)
-- Corregido cursor que no se mostraba como cruz en Modo Conexión (prioridad de cursor del viewport)
-- Añadidas traducciones para el banner de modo conexión en los 4 idiomas
-
-### v1.0.12 (2026-03-03)
-- Añadida casilla para mostrar/ocultar títulos de beats
-- Corregida carga diferida del corrector ortográfico (diccionarios se cargan solo cuando se necesitan)
-- Corregida comparación de estado de casillas en panel de propiedades
 
 ### v1.0.1 (2026-02-27)
 - Corregidos iconos de toolbar (ahora embebidos en la app en lugar de depender del sistema)
