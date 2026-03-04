@@ -151,7 +151,18 @@ class PropertiesPanel(QWidget):
         self._update_custom_colors_in_combo(combo, color_labels)
         
         combo.currentIndexChanged.connect(self._on_color_changed)
-        layout.addWidget(combo)
+        
+        # Crear indicador de color seleccionado
+        color_indicator_layout = QHBoxLayout()
+        color_indicator_layout.setSpacing(8)
+        color_indicator_layout.addWidget(combo)
+        
+        self._color_indicator = QFrame()
+        self._color_indicator.setFixedSize(30, 24)
+        self._color_indicator.setStyleSheet("background-color: #FFF59D; border: 2px solid #333333; border-radius: 4px;")
+        color_indicator_layout.addWidget(self._color_indicator)
+        
+        layout.addLayout(color_indicator_layout)
         
         return {"layout": layout, "combo": combo, "labels": color_labels}
     
@@ -200,6 +211,8 @@ class PropertiesPanel(QWidget):
             if index >= 0:
                 self._color_combo.setCurrentIndex(index)
             
+            self._update_color_indicator(beat.color)
+            
             self._show_title_checkbox.blockSignals(True)
             self._show_title_checkbox.setChecked(beat.show_title)
             self._show_title_checkbox.blockSignals(False)
@@ -240,6 +253,7 @@ class PropertiesPanel(QWidget):
         
         color_key = self._color_combo.itemData(index)
         self._current_beat.color = color_key
+        self._update_color_indicator(color_key)
         self.beat_updated.emit(
             self._current_beat.id,
             self._current_beat.title,
@@ -247,6 +261,12 @@ class PropertiesPanel(QWidget):
             self._current_beat.color,
             self._current_beat.show_title
         )
+    
+    def _update_color_indicator(self, hex_color: str) -> None:
+        if hasattr(self, '_color_indicator') and self._color_indicator:
+            self._color_indicator.setStyleSheet(
+                f"background-color: {hex_color}; border: 2px solid #333333; border-radius: 4px;"
+            )
     
     def _on_show_title_changed(self, state: int) -> None:
         if self._updating or not self._current_beat:
@@ -264,3 +284,15 @@ class PropertiesPanel(QWidget):
     
     def clear(self) -> None:
         self.set_beat(None)
+    
+    def update_selected_color(self, hex_color: str) -> None:
+        if self._current_beat and self._color_combo:
+            # Bloquear señales para evitar ciclo
+            self._updating = True
+            
+            index = self._color_combo.findData(hex_color)
+            if index >= 0:
+                self._color_combo.setCurrentIndex(index)
+            self._update_color_indicator(hex_color)
+            
+            self._updating = False

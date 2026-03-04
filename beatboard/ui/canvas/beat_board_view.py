@@ -745,9 +745,8 @@ class BeatBoardView(QGraphicsView):
                     beat.color = all_colors[color_index]
                     item.update()
                     self._update_connections_for_beat(beat.id)
-        
-        if selected_items:
-            self.beat_moved.emit("")
+                    # Emitir señal para actualizar panel de propiedades
+                    self.beat_moved.emit(beat.id)
     
     def keyReleaseEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():

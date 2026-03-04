@@ -852,6 +852,13 @@ class MainWindow(QMainWindow):
     
     def _on_beat_moved(self, beat_id: str) -> None:
         self._set_modified(True)
+        
+        # Actualizar indicador de color en el panel si el beat afectado está seleccionado
+        if beat_id and self._properties_panel._current_beat:
+            if self._properties_panel._current_beat.id == beat_id:
+                beat = self._project.get_beat_by_id(beat_id)
+                if beat:
+                    self._properties_panel.update_selected_color(beat.color)
     
     def _on_delete_selected(self) -> None:
         self._beat_board_view.delete_selected_beats()
@@ -903,6 +910,7 @@ class MainWindow(QMainWindow):
             beat.show_title = show_title
             item = self._beat_board_view._get_item_by_beat_id(beat_id)
             if item:
+                item.auto_resize_to_content()
                 item.refresh()
             self._beat_board_view.beat_moved.emit(beat_id)
     
@@ -972,7 +980,7 @@ class MainWindow(QMainWindow):
         from datetime import date
         
         current_year = date.today().year
-        version_date = "March 03, 2026"
+        version_date = "March 04, 2026"
         
         QMessageBox.about(
             self,

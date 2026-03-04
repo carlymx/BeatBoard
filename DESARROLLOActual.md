@@ -4,7 +4,48 @@
 
 ## Progreso Actual
 
-### v1.0.16 - EN DESARROLLO
+### v1.0.17 - EN DESARROLLO
+
+BeatBoard versión 1.0.17 con mejoras de visibilidad y contenido.
+
+---
+
+### Cambios v1.0.17
+
+#### ✨ Mejoras en la Interfaz de Usuario
+- [x] **Fix truncamiento de contenido en beats**:
+  - Los beats ahora expanden su altura automáticamente para mostrar todo el contenido
+  - Eliminada restricción de altura fija que causaba que el texto se cortara
+  - La altura se ajusta dinámicamente al contenido del beat
+- [x] **Bordes de selección más gruesos**:
+  - Aumentado grosor de borde de selección de beats de 2px a 4px
+  - Aumentado grosor de borde de selección de conexiones de 2px a 5px
+  - Mejor visibilidad de elementos seleccionados
+- [x] **Indicador de color en panel de propiedades**:
+  - Nuevo widget que muestra el color actualmente seleccionado
+  - Se actualiza en tiempo real al cambiar color con teclas numéricas
+  - Ubicado junto al selector de color en el panel de propiedades
+
+#### 🔧 Cambios Técnicos
+- [x] **`beat_item.py`**:
+  - Eliminada restricción de altura fija en `boundingRect()` y `paint()`
+  - Ajuste dinámico de altura basado en contenido y título
+  - Borde de selección más grueso (4px)
+- [x] **`connection_item.py`**:
+  - Borde de selección más grueso (5px) para mejor visibilidad
+- [x] **`properties_panel.py`**:
+  - Añadido widget indicador de color (`color_indicator`)
+  - Función `_update_color_indicator()` para actualización en tiempo real
+  - Conexión con señal de cambio de color del beat
+- [x] **`beat_board_view.py`**:
+  - Emitir señal `beat_color_changed` cuando se cambia color con teclas 1-0
+  - Permite que el panel de propiedades actualice el indicador
+- [x] **`main_window.py`**:
+  - Conectar señal `beat_color_changed` al panel de propiedades
+
+---
+
+### v1.0.16 - RELEASE ✅
 
 BeatBoard versión 1.0.16 con corrección de icono y mejoras varias.
 

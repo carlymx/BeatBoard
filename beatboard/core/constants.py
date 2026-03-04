@@ -4,7 +4,7 @@ from PySide6.QtCore import QSizeF, QPointF
 from PySide6.QtGui import QColor
 
 APP_NAME = "BeatBoard"
-APP_VERSION = "1.0.16"
+APP_VERSION = "1.0.17"
 APP_ORGANIZATION = "BeatBoard"
 
 BEAT_DEFAULT_WIDTH = 200.0

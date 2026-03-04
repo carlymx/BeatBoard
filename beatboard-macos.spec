@@ -59,7 +59,7 @@ app = BUNDLE(
     icon='beatboard/ui/icons/app_icon.icns',
     bundle_identifier='com.beatboard.app',
     info_plist={
-        'CFBundleShortVersionString': '1.0.16',
+        'CFBundleShortVersionString': '1.0.17',
         'LSMinimumSystemVersion': '11.0', # Aseguramos que el Info.plist también refleje el mínimo
     },
 )

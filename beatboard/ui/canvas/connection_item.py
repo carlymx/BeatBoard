@@ -75,7 +75,7 @@ class ConnectionItem(QGraphicsPathItem):
     def paint(self, painter: QPainter, option, widget=None) -> None:
         if self.isSelected():
             pen = self.pen()
-            pen.setWidth(CONNECTION_LINE_WIDTH + 1)
+            pen.setWidth(CONNECTION_LINE_WIDTH + 3)
             pen.setColor(QColor("#1976D2"))
             painter.setPen(pen)
         else:

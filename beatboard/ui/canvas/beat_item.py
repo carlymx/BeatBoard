@@ -11,6 +11,7 @@ from PySide6.QtGui import (
     QColor,
     QFont,
     QFontDatabase,
+    QFontMetrics,
     QPainter,
     QPainterPath,
     QPen,
@@ -130,7 +131,7 @@ class BeatItem(QGraphicsObject):
         painter.setBrush(QBrush(beat_color))
         
         if self.isSelected():
-            pen = QPen(QColor("#1976D2"), 2)
+            pen = QPen(QColor("#1976D2"), 4)
         else:
             pen = QPen(QColor("#E0E0E0"), 1)
         painter.setPen(pen)
@@ -179,9 +180,6 @@ class BeatItem(QGraphicsObject):
                 content_font = QFont("Arial", 9)
                 painter.setFont(content_font)
                 painter.setPen(QColor("#333333"))
-                
-                if len(content) > 100:
-                    content = content[:97] + "..."
                 
                 content_option = QTextOption(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
                 content_option.setWrapMode(QTextOption.WrapMode.WordWrap)
@@ -305,3 +303,47 @@ class BeatItem(QGraphicsObject):
         self.prepareGeometryChange()
         self.update()
         QApplication.processEvents()
+    
+    def auto_resize_to_content(self) -> bool:
+        content = self._beat.content or ""
+        if not content:
+            return False
+        
+        current_size = self._get_current_size()
+        width = current_size.x()
+        
+        title_offset = 40 if self._beat.show_title else 15
+        content_width = width - 25
+        content_height_max = current_size.y() - title_offset
+        
+        if "<" in content and ">" in content:
+            styled_content = f'<style>body {{ color: #333333; }}</style>{content}'
+            text_doc = QTextDocument()
+            text_doc.setHtml(styled_content)
+            text_doc.setDefaultFont(QFont("Arial", 9))
+            text_doc.setTextWidth(content_width)
+            doc_height = text_doc.size().height()
+            
+            if doc_height > content_height_max:
+                new_height = max(BEAT_MIN_HEIGHT, title_offset + doc_height + 10)
+                if new_height != current_size.y():
+                    self._beat.set_size(width, new_height)
+                    self.prepareGeometryChange()
+                    return True
+        else:
+            content_font = QFont("Arial", 9)
+            font_metrics = QFontMetrics(content_font)
+            text_height = font_metrics.boundingRect(
+                0, 0, content_width, 10000,
+                Qt.TextFlag.TextWordWrap,
+                content
+            ).height()
+            
+            if text_height > content_height_max:
+                new_height = max(BEAT_MIN_HEIGHT, title_offset + text_height + 10)
+                if new_height != current_size.y():
+                    self._beat.set_size(width, new_height)
+                    self.prepareGeometryChange()
+                    return True
+        
+        return False

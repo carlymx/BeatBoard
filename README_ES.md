@@ -4,7 +4,7 @@
 
 <!-- Sección de Badges -->
 ![Licencia](https://img.shields.io/badge/licencia-CC%20BY--NC%204.0-blue.svg)
-![Versión](https://img.shields.io/badge/versión-1.0.16-green.svg)
+![Versión](https://img.shields.io/badge/versión-1.0.17-green.svg)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -249,6 +249,12 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 - NoComercial — No puedes usar el material para fines comerciales
 
 ## Registro de Cambios
+
+### v1.0.17 (2026-03-04)
+- **Mejor visibilidad de selección**: Bordes de selección más gruesos (4px beats, 5px conexiones) para mejor visibilidad
+- **Contenido completo visible**: Los beats ahora expanden su altura automáticamente para mostrar todo el contenido sin truncar
+- **Indicador de color en propiedades**: Nuevo widget que muestra el color actualmente seleccionado en tiempo real
+- **Fix actualización de indicador**: El indicador de color se actualiza correctamente al usar teclas numéricas (1-0)
 
 ### v1.0.16 (2026-03-04)
 - **Nuevo menú Preferencias**: Menú reorganizado con opciones de preferencias antes de Ayuda
