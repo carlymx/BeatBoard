@@ -17,6 +17,7 @@ from beatboard.core.constants import (
     SPELLCHECK_DICTIONARY_DEFAULT,
     BEAT_CUSTOM_COLORS,
     AUTOSAVE_INTERVAL_MS,
+    CONNECTION_OFFSET_PERCENT,
 )
 from beatboard.core.paths import get_config_dir
 
@@ -189,6 +190,9 @@ class ThemeManager(QObject):
         self._autosave_interval: int = AUTOSAVE_INTERVAL_MS
         self._autosave_enabled: bool = True
         
+        # Preferencias de conexión
+        self._connection_offset_percent: float = CONNECTION_OFFSET_PERCENT
+        
         self._load_preference()
 
     def _get_config_path(self) -> Path:
@@ -221,6 +225,9 @@ class ThemeManager(QObject):
                 self._max_backups = data.get("max_backups", 10)
                 self._autosave_interval = data.get("autosave_interval", AUTOSAVE_INTERVAL_MS)
                 self._autosave_enabled = data.get("autosave_enabled", True)
+                
+                # Cargar preferencias de conexión
+                self._connection_offset_percent = data.get("connection_offset_percent", CONNECTION_OFFSET_PERCENT)
             except (json.JSONDecodeError, KeyError, ValueError):
                 self._current_mode = ThemeMode.SYSTEM
                 self._canvas_background = CANVAS_BACKGROUND_DEFAULT
@@ -234,6 +241,7 @@ class ThemeManager(QObject):
                 self._max_backups = 10
                 self._autosave_interval = AUTOSAVE_INTERVAL_MS
                 self._autosave_enabled = True
+                self._connection_offset_percent = CONNECTION_OFFSET_PERCENT
         else:
             self._current_mode = ThemeMode.SYSTEM
             self._canvas_background = CANVAS_BACKGROUND_DEFAULT
@@ -247,6 +255,7 @@ class ThemeManager(QObject):
             self._max_backups = 10
             self._autosave_interval = AUTOSAVE_INTERVAL_MS
             self._autosave_enabled = True
+            self._connection_offset_percent = CONNECTION_OFFSET_PERCENT
         self._save_preference()
 
     def _save_preference(self, language: str | None = None) -> None:
@@ -274,6 +283,9 @@ class ThemeManager(QObject):
         data["max_backups"] = self._max_backups
         data["autosave_interval"] = self._autosave_interval
         data["autosave_enabled"] = self._autosave_enabled
+        
+        # Guardar preferencias de conexión
+        data["connection_offset_percent"] = self._connection_offset_percent
         
         config_path.write_text(json.dumps(data, indent=2))
 
@@ -331,6 +343,13 @@ class ThemeManager(QObject):
     
     def set_spellcheck_dictionary(self, dictionary: str) -> None:
         self._spellcheck_dictionary = dictionary
+        self._save_preference()
+    
+    def get_connection_offset_percent(self) -> float:
+        return self._connection_offset_percent
+    
+    def set_connection_offset_percent(self, percent: float) -> None:
+        self._connection_offset_percent = max(0.0, min(1.0, percent))
         self._save_preference()
 
     def is_dark_mode(self) -> bool:

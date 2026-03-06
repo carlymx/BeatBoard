@@ -84,8 +84,8 @@ TRANSLATIONS: dict[str, str] = {
     "connect_tooltip": "Connection mode (create lines between beats)",
     
     # Properties panel
-    "beat_properties": "Beat Properties",
-    "no_beat_selected": "No beat selected",
+    "beat_properties": "Properties",
+    "no_beat_selected": "Nothing selected",
     "title": "Title",
     "show_title": "Show title",
     "color": "Color",
@@ -120,7 +120,7 @@ TRANSLATIONS: dict[str, str] = {
     "modified": "Modified",
     "saved": "Saved",
     "cursor_position": "Cursor: ({x}, {y})",
-    "no_beat_selected_status": "No beat selected",
+    "no_beat_selected_status": "Nothing selected",
     "selected_beat_status": "Selected: {title}",
     "multiple_selected_status": "{count} beats selected",
     "connection_mode_active": "Connection Mode Active. ESC to Exit",
@@ -219,4 +219,13 @@ TRANSLATIONS: dict[str, str] = {
     "autosave_interval_10": "10 minutes",
     "autosave_interval_15": "15 minutes",
     "autosave_interval_30": "30 minutes",
+    
+    # Connections
+    "connection_offset": "Connection Point",
+    "connection_offset_tooltip": "Distance from edge where connections enter/exit",
+    
+    # Status bar selection messages
+    "selected_connection_status": "Connection selected",
+    "multiple_connections_status": "Connections selected: {count}",
+    "mixed_objects_status": "Objects selected: {count}",
 }

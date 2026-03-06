@@ -4,7 +4,7 @@
 
 <!-- Badges Section -->
 ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.17-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.19-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -249,6 +249,13 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 - NonCommercial — You may not use the material for commercial purposes
 
 ## Changelog
+
+### v1.0.19 (2026-03-06)
+- **Z-Order system fixed**: Each new beat is created with z = total number of beats + 1
+- **Unique consecutive Z positions**: Beats occupy unique positions (1, 2, 3...)
+- **Improved Z movement**: Moving beats up/down now swaps positions with adjacent beats
+- **Bring to front/send to back**: Correctly reorders the entire beat stack
+- **Z debug visual**: Shows "z:X" on each object (DEBUG_SHOW_Z_ORDER constant in constants.py)
 
 ### v1.0.17 (2026-03-04)
 - **Better selection visibility**: Thicker selection borders (4px beats, 5px connections) for improved visibility

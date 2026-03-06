@@ -4,7 +4,7 @@ from PySide6.QtCore import QSizeF, QPointF
 from PySide6.QtGui import QColor
 
 APP_NAME = "BeatBoard"
-APP_VERSION = "1.0.17"
+APP_VERSION = "1.0.19"
 APP_ORGANIZATION = "BeatBoard"
 
 BEAT_DEFAULT_WIDTH = 200.0
@@ -90,6 +90,9 @@ def get_beat_qcolor(color_str: str) -> QColor:
 
 CONNECTION_LINE_WIDTH = 2.0
 
+CONNECTION_OFFSET_PERCENT = 0.25
+CONNECTION_OFFSET_MIN = 20.0
+
 CONNECTION_COLORS: dict[str, QColor] = {
     "red": QColor("#EF5350"),
     "blue": QColor("#42A5F5"),
@@ -134,3 +137,5 @@ CANVAS_BACKGROUND_DEFAULT = "light_gray"
 SPELLCHECK_ENABLED_DEFAULT = False
 SPELLCHECK_DICTIONARY_DEFAULT = "es_ES"
 SPELLCHECK_RESOURCES_PATH = "resources/dictionaries"
+
+DEBUG_SHOW_Z_ORDER = False

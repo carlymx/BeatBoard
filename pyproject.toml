@@ -1,6 +1,6 @@
 [project]
 name = "beatboard"
-version = "1.0.17"
+version = "1.0.19"
 description = "A virtual beat board for screenwriters - Clone of Final Draft's Beat Board"
 readme = "README.md"
 requires-python = ">=3.10"

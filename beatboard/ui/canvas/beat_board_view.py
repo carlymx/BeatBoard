@@ -23,9 +23,9 @@ from beatboard.core.constants import (
 from beatboard.core.project import Project
 from beatboard.ui.canvas.beat_board_scene import BeatBoardScene
 from beatboard.ui.canvas.beat_item import BeatItem
+from beatboard.ui.canvas.connection_item import ConnectionItem
 
 if TYPE_CHECKING:
-    from beatboard.ui.canvas.connection_item import ConnectionItem
     pass
 
 
@@ -33,7 +33,7 @@ class BeatBoardView(QGraphicsView):
     beat_created = Signal(str)
     beat_deleted = Signal(str)
     beat_moved = Signal(str)
-    selection_changed = Signal(list)
+    selection_changed = Signal(dict)
     zoom_changed = Signal(float)
     mouse_moved = Signal(int, int)
 
@@ -96,7 +96,12 @@ class BeatBoardView(QGraphicsView):
     def _load_beats(self) -> None:
         for beat in self._project.beats:
             item = self._add_beat_item(beat)
-            item.setZValue(beat.z_order)
+        
+        self._normalize_z_order()
+        for beat in self._project.beats:
+            item = self._beat_items.get(beat.id)
+            if item:
+                item.setZValue(beat.z_order)
     
     def _load_connections(self) -> None:
         for connection in self._project.connections:
@@ -210,6 +215,9 @@ class BeatBoardView(QGraphicsView):
             self._add_connection_item(connection)
     
     def _on_beat_move_started(self, beat_id: str, x: float, y: float) -> None:
+        self._move_start_positions = getattr(self, '_move_start_positions', {})
+        self._move_start_positions[beat_id] = QPointF(x, y)
+        
         if self._undo_stack:
             from beatboard.ui.undo_commands import MoveBeatCommand
             
@@ -223,6 +231,10 @@ class BeatBoardView(QGraphicsView):
         self._scene.addItem(item)
         self._beat_items[beat.id] = item
         
+        max_z = self._get_max_z_order()
+        beat.z_order = max_z + 1
+        item.setZValue(beat.z_order)
+        
         item.item_moved.connect(self._on_beat_moved)
         item.item_move_started.connect(self._on_beat_move_started)
         item.item_move_ended.connect(self._on_beat_move_ended)
@@ -233,9 +245,26 @@ class BeatBoardView(QGraphicsView):
         
         return item
     
+    def _get_max_z_order(self) -> int:
+        if not self._project.beats:
+            return 0
+        return max(beat.z_order for beat in self._project.beats)
+    
+    def _get_beat_by_z_order(self, z_order: int) -> Beat | None:
+        for beat in self._project.beats:
+            if beat.z_order == z_order:
+                return beat
+        return None
+    
+    def _normalize_z_order(self) -> None:
+        beats_sorted = sorted(self._project.beats, key=lambda b: b.z_order)
+        for i, beat in enumerate(beats_sorted, start=1):
+            beat.z_order = i
+    
     def _on_beat_resized(self, beat_id: str, width: float, height: float) -> None:
         if BeatDefaults.is_memorize_enabled():
             BeatDefaults.set_last_size(width, height)
+        self._update_connections_for_beat(beat_id)
     
     def _get_item_by_beat_id(self, beat_id: str) -> BeatItem | None:
         return self._beat_items.get(beat_id)
@@ -246,22 +275,33 @@ class BeatBoardView(QGraphicsView):
     def _on_selection_changed(self) -> None:
         selected_items = self._scene.selectedItems()
         beat_ids = []
+        connection_ids = []
         for item in selected_items:
             if isinstance(item, BeatItem):
                 beat_ids.append(item.beat_id)
-        self.selection_changed.emit(beat_ids)
+            elif isinstance(item, ConnectionItem):
+                connection_ids.append(item._connection.id)
+        self.selection_changed.emit({
+            'beats': beat_ids,
+            'connections': connection_ids
+        })
     
     def _on_beat_moved(self, beat_id: str, x: float, y: float) -> None:
+        new_pos = QPointF(x, y)
+        
         if self._undo_stack and hasattr(self, '_current_move_command'):
             cmd = self._current_move_command
             if cmd and cmd._beat_id == beat_id:
                 old_pos = cmd._new_pos
-                cmd._new_pos = QPointF(x, y)
+                cmd._new_pos = new_pos
                 beat = self._project.get_beat_by_id(beat_id)
                 if beat:
                     beat.set_position(x, y)
         
-        self._update_connections_for_beat(beat_id)
+        start_positions = getattr(self, '_move_start_positions', {})
+        old_pos = start_positions.get(beat_id)
+        
+        self._update_connections_for_beat(beat_id, old_pos, new_pos)
         self.beat_moved.emit(beat_id)
     
     def _on_beat_move_ended(self, beat_id: str) -> None:
@@ -271,8 +311,17 @@ class BeatBoardView(QGraphicsView):
                 self._undo_stack.push(cmd)
             self._current_move_command = None
     
-    def _update_connections_for_beat(self, beat_id: str) -> None:
+    def _update_connections_for_beat(self, beat_id: str, old_pos: QPointF | None = None, new_pos: QPointF | None = None) -> None:
         for conn_id, item in self._connection_items.items():
+            connection = self._project.get_connection_by_id(conn_id)
+            if not connection:
+                continue
+            
+            if old_pos and new_pos:
+                delta = new_pos - old_pos
+                if hasattr(item, 'apply_delta_to_custom_points'):
+                    item.apply_delta_to_custom_points(beat_id, delta)
+            
             if hasattr(item, 'update_positions'):
                 item.update_positions()
     
@@ -314,7 +363,7 @@ class BeatBoardView(QGraphicsView):
                     item.update()
                 
                 self.beat_moved.emit(beat_id)
-                self.selection_changed.emit([beat_id])
+                self.selection_changed.emit({'beats': [beat_id], 'connections': []})
     
     def set_project(self, project: Project) -> None:
         self._project = project
@@ -674,47 +723,123 @@ class BeatBoardView(QGraphicsView):
         
         super().keyPressEvent(event)
     
+    def _get_current_selection(self) -> dict:
+        selected_items = self._scene.selectedItems()
+        beat_ids = []
+        connection_ids = []
+        for item in selected_items:
+            if isinstance(item, BeatItem):
+                beat_ids.append(item.beat_id)
+            elif isinstance(item, ConnectionItem):
+                connection_ids.append(item._connection.id)
+        return {'beats': beat_ids, 'connections': connection_ids}
+    
     def bring_selected_beats_to_front(self) -> None:
         selected_items = self._scene.selectedItems()
         
-        for item in selected_items:
-            if isinstance(item, BeatItem):
-                item.setZValue(100)
-                beat = self._project.get_beat_by_id(item.beat_id)
-                if beat:
-                    beat.z_order = 100
+        beats_to_move = [item for item in selected_items if isinstance(item, BeatItem)]
+        if not beats_to_move:
+            return
+        
+        max_z = self._get_max_z_order()
+        
+        for item in beats_to_move:
+            beat = self._project.get_beat_by_id(item.beat_id)
+            if beat:
+                beat.z_order = max_z + 1
+                item.setZValue(beat.z_order)
+        
+        self._normalize_z_order()
+        
+        for beat in self._project.beats:
+            item = self._beat_items.get(beat.id)
+            if item:
+                item.setZValue(beat.z_order)
+        
+        self.selection_changed.emit(self._get_current_selection())
     
     def send_selected_beats_to_back(self) -> None:
         selected_items = self._scene.selectedItems()
         
-        for item in selected_items:
-            if isinstance(item, BeatItem):
-                item.setZValue(-100)
-                beat = self._project.get_beat_by_id(item.beat_id)
-                if beat:
-                    beat.z_order = -100
+        beats_to_move = [item for item in selected_items if isinstance(item, BeatItem)]
+        if not beats_to_move:
+            return
+        
+        min_z = 1
+        
+        for item in beats_to_move:
+            beat = self._project.get_beat_by_id(item.beat_id)
+            if beat:
+                beat.z_order = min_z
+                item.setZValue(beat.z_order)
+        
+        self._normalize_z_order()
+        
+        for beat in self._project.beats:
+            item = self._beat_items.get(beat.id)
+            if item:
+                item.setZValue(beat.z_order)
+        
+        self.selection_changed.emit(self._get_current_selection())
     
     def move_selected_beats_up(self) -> None:
         selected_items = self._scene.selectedItems()
         
-        for item in selected_items:
-            if isinstance(item, BeatItem):
-                new_z = item.zValue() + 1
-                item.setZValue(new_z)
-                beat = self._project.get_beat_by_id(item.beat_id)
-                if beat:
-                    beat.z_order = new_z
+        beats_to_move = [item for item in selected_items if isinstance(item, BeatItem)]
+        if not beats_to_move:
+            return
+        
+        current_z_orders = sorted([item.zValue() for item in beats_to_move], reverse=True)
+        
+        for item in beats_to_move:
+            beat = self._project.get_beat_by_id(item.beat_id)
+            if not beat:
+                continue
+            
+            current_z = beat.z_order
+            next_z = current_z + 1
+            
+            other_beat = self._get_beat_by_z_order(next_z)
+            if other_beat:
+                other_beat.z_order = current_z
+                other_item = self._beat_items.get(other_beat.id)
+                if other_item:
+                    other_item.setZValue(current_z)
+            
+            beat.z_order = next_z
+            item.setZValue(next_z)
+        
+        self.selection_changed.emit(self._get_current_selection())
     
     def move_selected_beats_down(self) -> None:
         selected_items = self._scene.selectedItems()
         
-        for item in selected_items:
-            if isinstance(item, BeatItem):
-                new_z = item.zValue() - 1
-                item.setZValue(new_z)
-                beat = self._project.get_beat_by_id(item.beat_id)
-                if beat:
-                    beat.z_order = new_z
+        beats_to_move = [item for item in selected_items if isinstance(item, BeatItem)]
+        if not beats_to_move:
+            return
+        
+        for item in beats_to_move:
+            beat = self._project.get_beat_by_id(item.beat_id)
+            if not beat:
+                continue
+            
+            current_z = beat.z_order
+            if current_z <= 1:
+                continue
+            
+            prev_z = current_z - 1
+            
+            other_beat = self._get_beat_by_z_order(prev_z)
+            if other_beat:
+                other_beat.z_order = current_z
+                other_item = self._beat_items.get(other_beat.id)
+                if other_item:
+                    other_item.setZValue(current_z)
+            
+            beat.z_order = prev_z
+            item.setZValue(prev_z)
+        
+        self.selection_changed.emit(self._get_current_selection())
     
     def _change_selected_beat_color(self, color_index: int) -> None:
         from beatboard.core.constants import (

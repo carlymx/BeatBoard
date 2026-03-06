@@ -52,6 +52,9 @@ class MainWindow(QMainWindow):
         self._memorize_action = None
         self._grid_action = None
         self._enable_spellcheck_action = None
+        self._selection_message = ""
+        self._cursor_x = 0
+        self._cursor_y = 0
         
         spell_service = SpellCheckService.instance()
         from beatboard.core.paths import get_config_dir
@@ -432,6 +435,34 @@ class MainWindow(QMainWindow):
         # Cargar estado de preferencias de backup
         self._load_backup_preferences()
         
+        # Opciones de conexiones
+        connections_menu = preferences_menu.addMenu(_tr("connection_offset"))
+        
+        offset_group = QActionGroup(self)
+        offset_options = [
+            (0.0, "0%"),
+            (0.1, "10%"),
+            (0.15, "15%"),
+            (0.2, "20%"),
+            (0.25, "25%"),
+            (0.3, "30%"),
+            (0.35, "35%"),
+            (0.4, "40%"),
+            (0.5, "50%"),
+        ]
+        
+        app = QApplication.instance()
+        current_offset = app.theme_manager.get_connection_offset_percent() if app and hasattr(app, "theme_manager") else 0.25
+        
+        for percent, label in offset_options:
+            action = connections_menu.addAction(label)
+            action.setData(percent)
+            action.setCheckable(True)
+            if abs(percent - current_offset) < 0.01:
+                action.setChecked(True)
+            action.triggered.connect(lambda checked, p=percent: self._on_connection_offset_changed(p))
+            offset_group.addAction(action)
+        
         help_menu = menubar.addMenu(_tr("menu_help"))
         
         shortcuts_action = help_menu.addAction(_tr("keyboard_shortcuts"))
@@ -579,15 +610,25 @@ class MainWindow(QMainWindow):
         title += f" - {APP_NAME}"
         self.setWindowTitle(title)
     
-    def _update_status(self, cursor_x: int = 0, cursor_y: int = 0) -> None:
+    def _update_status(self, cursor_x: int | None = None, cursor_y: int | None = None) -> None:
         beat_count = len(self._project.beats)
         zoom_percent = int(self._beat_board_view.zoom_level * 100)
         modified_text = _tr("modified") if self._is_modified else _tr("saved")
-        self._statusbar.showMessage(
-            f"{_tr('beats_count').format(count=beat_count)} | {_tr('zoom_level').format(percent=zoom_percent)} | {modified_text} | {_tr('cursor_position').format(x=cursor_x, y=cursor_y)}"
-        )
+        status_parts = []
+        if self._selection_message:
+            status_parts.append(self._selection_message)
+        status_parts.append(_tr('beats_count').format(count=beat_count))
+        status_parts.append(_tr('zoom_level').format(percent=zoom_percent))
+        status_parts.append(modified_text)
+        # Usar coordenadas proporcionadas o las guardadas
+        x = cursor_x if cursor_x is not None else self._cursor_x
+        y = cursor_y if cursor_y is not None else self._cursor_y
+        status_parts.append(_tr('cursor_position').format(x=x, y=y))
+        self._statusbar.showMessage(" | ".join(status_parts))
     
     def _on_mouse_moved(self, x: int, y: int) -> None:
+        self._cursor_x = x
+        self._cursor_y = y
         self._update_status(x, y)
     
     def _set_modified(self, modified: bool = True) -> None:
@@ -605,6 +646,7 @@ class MainWindow(QMainWindow):
         self._undo_stack.clear()
         self._beat_board_view.set_project(self._project)
         self._stop_autosave()
+        self._selection_message = ""
         self._update_title()
         self._update_status()
     
@@ -673,6 +715,7 @@ class MainWindow(QMainWindow):
             if self._autosave_service:
                 self._autosave_service.save_backup_on_open()
             
+            self._selection_message = ""
             self._update_title()
             self._update_status()
             
@@ -887,19 +930,76 @@ class MainWindow(QMainWindow):
     def _on_select_all(self) -> None:
         self._beat_board_view.select_all_beats()
     
-    def _on_selection_changed(self, beat_ids: list[str]) -> None:
-        count = len(beat_ids)
-        if count == 0:
+    def _on_selection_changed(self, selection: dict) -> None:
+        beat_ids = selection.get('beats', [])
+        connection_ids = selection.get('connections', [])
+        total_beats = len(beat_ids)
+        total_connections = len(connection_ids)
+        total_selected = total_beats + total_connections
+        
+        if total_selected == 0:
             self._properties_panel.clear()
-            self._statusbar.showMessage(_tr("no_beat_selected_status"))
-        elif count == 1:
-            beat = self._project.get_beat_by_id(beat_ids[0])
-            if beat:
-                self._properties_panel.set_beat(beat)
-                self._statusbar.showMessage(_tr("selected_beat_status").format(title=beat.title or _tr("title_placeholder")))
+            self._selection_message = ""
+            self._update_status()
+            return
+        
+        # Obtener beats y conexiones para calcular alturas Z
+        beats = [self._project.get_beat_by_id(bid) for bid in beat_ids]
+        beats = [b for b in beats if b is not None]
+        
+        # Obtener items gráficos para zValue de conexiones
+        view = self._beat_board_view
+        connection_z_values = []
+        for cid in connection_ids:
+            conn_item = view._connection_items.get(cid)
+            if conn_item:
+                connection_z_values.append(conn_item.zValue())
+        
+        beat_z_values = [b.z_order for b in beats]
+        all_z_values = beat_z_values + connection_z_values
+        
+        min_z = min(all_z_values) if all_z_values else None
+        max_z = max(all_z_values) if all_z_values else None
+        
+        # Construir mensaje según tipo de selección
+        if total_beats == 1 and total_connections == 0:
+            # Un solo beat seleccionado
+            beat = beats[0]
+            self._properties_panel.set_beat(beat)
+            self._selection_message = (
+                _tr("selected_beat_status").format(title=beat.title or _tr("title_placeholder")) +
+                f" | Altura: {beat.z_order}"
+            )
+        elif total_beats > 1 and total_connections == 0:
+            # Múltiples beats seleccionados
+            self._properties_panel.clear()
+            self._selection_message = (
+                _tr("multiple_selected_status").format(count=total_beats) +
+                f" ({min_z}, {max_z})"
+            )
+        elif total_connections == 1 and total_beats == 0:
+            # Una sola conexión seleccionada
+            self._properties_panel.clear()
+            self._selection_message = (
+                _tr("selected_connection_status") + f" | Altura: {min_z}"
+            )
+        elif total_connections > 1 and total_beats == 0:
+            # Múltiples conexiones seleccionadas
+            self._properties_panel.clear()
+            self._selection_message = (
+                _tr("multiple_connections_status").format(count=total_connections) +
+                f" ({min_z}, {max_z})"
+            )
         else:
+            # Mezcla de beats y conexiones
             self._properties_panel.clear()
-            self._statusbar.showMessage(_tr("multiple_selected_status").format(count=count))
+            self._selection_message = (
+                _tr("mixed_objects_status").format(count=total_selected) +
+                f" ({min_z}, {max_z})"
+            )
+        
+        # Actualizar barra de estado con el mensaje de selección
+        self._update_status()
     
     def _on_beat_updated(self, beat_id: str, title: str, content: str, color: str, show_title: bool) -> None:
         beat = self._project.get_beat_by_id(beat_id)
@@ -980,7 +1080,7 @@ class MainWindow(QMainWindow):
         from datetime import date
         
         current_year = date.today().year
-        version_date = "March 04, 2026"
+        version_date = "March 05, 2026"
         
         QMessageBox.about(
             self,
@@ -1100,6 +1200,19 @@ class MainWindow(QMainWindow):
                     _tr("cleanup_backups"),
                     _tr("no_backups_to_clean")
                 )
+    
+    def _on_connection_offset_changed(self, percent: float) -> None:
+        app = QApplication.instance()
+        if app and hasattr(app, "theme_manager"):
+            app.theme_manager.set_connection_offset_percent(percent)
+        
+        if hasattr(self, '_beat_board_view') and self._beat_board_view:
+            from beatboard.ui.canvas.beat_board_view import BeatBoardView
+            view = self._beat_board_view
+            for conn_id in view._connection_items:
+                item = view._connection_items[conn_id]
+                if hasattr(item, 'update_positions'):
+                    item.update_positions()
     
     def _get_current_locale(self) -> str:
         app = QApplication.instance()

@@ -30,6 +30,7 @@ from beatboard.core.constants import (
     BEAT_SHADOW_OFFSET,
     BEAT_SHADOW_OPACITY,
     get_beat_qcolor,
+    DEBUG_SHOW_Z_ORDER,
 )
 from beatboard.i18n import _tr
 
@@ -193,6 +194,14 @@ class BeatItem(QGraphicsObject):
         
         if self.isSelected():
             self._draw_resize_handles(painter)
+        
+        if DEBUG_SHOW_Z_ORDER:
+            z = int(self.zValue())
+            debug_font = QFont("Arial", 8)
+            debug_font.setBold(True)
+            painter.setFont(debug_font)
+            painter.setPen(QColor("#FF0000"))
+            painter.drawText(QRectF(5, 2, 30, 15), f"z:{z}")
     
     def _draw_resize_handles(self, painter: QPainter) -> None:
         size = self._get_current_size()
