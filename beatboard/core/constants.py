@@ -4,7 +4,7 @@ from PySide6.QtCore import QSizeF, QPointF
 from PySide6.QtGui import QColor
 
 APP_NAME = "BeatBoard"
-APP_VERSION = "1.0.19"
+APP_VERSION = "1.0.25"
 APP_ORGANIZATION = "BeatBoard"
 
 BEAT_DEFAULT_WIDTH = 200.0
@@ -89,6 +89,11 @@ def get_beat_qcolor(color_str: str) -> QColor:
     return QColor(hex_color)
 
 CONNECTION_LINE_WIDTH = 2.0
+CONNECTION_LINE_WIDTH_OPTIONS = [1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
+CONNECTION_LINE_WIDTH_DEFAULT = 2.0
+
+CONNECTION_NODE_SHAPES = ["circle", "square", "arrow", "none"]
+CONNECTION_NODE_SHAPE_DEFAULT = "circle"
 
 CONNECTION_OFFSET_PERCENT = 0.25
 CONNECTION_OFFSET_MIN = 20.0
@@ -133,6 +138,20 @@ CANVAS_BACKGROUND_COLORS: dict[str, str] = {
 }
 
 CANVAS_BACKGROUND_DEFAULT = "light_gray"
+
+# Colores de fondo y grid asociados a cada tema
+THEME_CANVAS_COLORS: dict[str, dict[str, str]] = {
+    "system": {"background": "light_gray", "grid": "auto"},
+    "light": {"background": "#f5f5f5", "grid": "#CCCCCC"},
+    "dark": {"background": "#1e1e1e", "grid": "#444444"},
+    "solarized_light": {"background": "#fdf6e3", "grid": "#d5c4a1"},
+    "github_light": {"background": "#ffffff", "grid": "#d0d7de"},
+    "papercolor": {"background": "#eeeeee", "grid": "#bbbbbb"},
+    "dracula": {"background": "#282a36", "grid": "#44475a"},
+    "nord": {"background": "#2e3440", "grid": "#434c5e"},
+    "one_dark": {"background": "#282c34", "grid": "#3e4451"},
+    "material_dark": {"background": "#263238", "grid": "#455a64"},
+}
 
 SPELLCHECK_ENABLED_DEFAULT = False
 SPELLCHECK_DICTIONARY_DEFAULT = "es_ES"

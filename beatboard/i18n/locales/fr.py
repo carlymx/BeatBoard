@@ -15,6 +15,12 @@ TRANSLATIONS: dict[str, str] = {
     "save_project_as": "Enregistrer &sous...",
     "export_pdf": "Exporter en &PDF...",
     "export_text": "Exporter en &texte...",
+    "close_project": "&Fermer",
+    "recent_files": "Fichiers récents",
+    "no_recent_files": "Aucun fichier récent",
+    "file_not_found": "Fichier introuvable",
+    "file_not_found_msg": "Le fichier \"{path}\" n'a pas été trouvé. Voulez-vous le supprimer de la liste des fichiers récents ?",
+    "unsaved_changes_msg": "Le projet a des modifications non enregistrées. Voulez-vous enregistrer avant de continuer ?",
     "exit": "&Quitter",
     
     # Edit menu
@@ -53,6 +59,8 @@ TRANSLATIONS: dict[str, str] = {
     "dark": "Sombre",
     "black": "Noir",
     "custom": "Personnalisé...",
+    "reset_theme_colors": "Réinitialiser les couleurs du thème",
+    "open_full_editor": "Ouvrir l'éditeur complet",
     "zoom_in": "Zoom avant",
     "zoom_out": "Zoom arrière",
     "fit_to_content": "Ajuster au contenu",
@@ -123,6 +131,8 @@ TRANSLATIONS: dict[str, str] = {
     "no_beat_selected_status": "Rien sélectionné",
     "selected_beat_status": "Sélectionné: {title}",
     "multiple_selected_status": "{count} beats sélectionnés",
+    "multiple_selected_beats": "{count} beats sélectionnés",
+    "multiple_selected_connections": "{count} connexions sélectionnées",
     "connection_mode_active": "Mode 'Connexion' Activé. Échap pour Quitter",
     
     # Dialogs
@@ -223,9 +233,36 @@ TRANSLATIONS: dict[str, str] = {
     # Connections
     "connection_offset": "Point de connexion",
     "connection_offset_tooltip": "Distance du bord où les connexions entrent/sortent",
+    "connection_color": "Couleur de connexion",
+    "line_width": "Épaisseur de ligne",
+    "node_shape": "Forme des nœuds",
+    "connection_color_red": "Rouge",
+    "connection_color_blue": "Bleu",
+    "connection_color_green": "Vert",
+    "connection_color_yellow": "Jaune",
+    "connection_color_orange": "Orange",
+    "connection_color_purple": "Violet",
+    "node_shape_circle": "Cercle",
+    "node_shape_square": "Carré",
+    "node_shape_arrow": "Flèche",
+    "node_shape_none": "Aucun",
     
     # Status bar selection messages
     "selected_connection_status": "Connexion sélectionnée",
     "multiple_connections_status": "Connexions sélectionnées: {count}",
     "mixed_objects_status": "Objets sélectionnés: {count}",
+    
+    # File associations
+    "file_association_title": "Associations de fichiers",
+    "file_association_desc": "Enregistrer BeatBoard comme application par défaut pour ouvrir les fichiers .bbp (projets BeatBoard).",
+    "file_association_linux_title": "Options Linux",
+    "file_association_register_mime": "Enregistrer le type MIME (nécessite les droits admin)",
+    "file_association_create_desktop": "Créer une entrée dans le menu applications",
+    "file_association_windows_title": "Options Windows",
+    "file_association_windows_info": "Sous Windows, les associations de fichiers sont configurées automatiquement pendant l'installation. Réinstallez l'application pour mettre à jour les associations.",
+    "file_association_macos_title": "Options macOS",
+    "file_association_macos_info": "Sous macOS, les associations de fichiers sont configurées automatiquement pendant l'installation. Réinstallez l'application pour mettre à jour les associations.",
+    "file_association_unsupported": "Système d'exploitation non pris en charge pour les associations de fichiers automatiques.",
+    "register_file_association": "Enregistrer les associations de fichiers...",
+    "menu_tools": "Outils",
 }

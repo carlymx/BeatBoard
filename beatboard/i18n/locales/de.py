@@ -15,6 +15,12 @@ TRANSLATIONS: dict[str, str] = {
     "save_project_as": "Speichern &unter...",
     "export_pdf": "Als &PDF exportieren...",
     "export_text": "Als &Text exportieren...",
+    "close_project": "&Schließen",
+    "recent_files": "Zuletzt verwendet",
+    "no_recent_files": "Keine zuletzt verwendeten Dateien",
+    "file_not_found": "Datei nicht gefunden",
+    "file_not_found_msg": "Die Datei \"{path}\" wurde nicht gefunden. Möchten Sie sie aus der Liste der zuletzt verwendeten Dateien entfernen?",
+    "unsaved_changes_msg": "Das Projekt hat ungespeicherte Änderungen. Möchten Sie vor dem Fortfahren speichern?",
     "exit": "&Beenden",
     
     # Edit menu
@@ -53,6 +59,8 @@ TRANSLATIONS: dict[str, str] = {
     "dark": "Dunkel",
     "black": "Schwarz",
     "custom": "Benutzerdefiniert...",
+    "reset_theme_colors": "Auf Theme-Farben zurücksetzen",
+    "open_full_editor": "Vollständigen Editor öffnen",
     "zoom_in": "Vergrößern",
     "zoom_out": "Verkleinern",
     "fit_to_content": "An Inhalt anpassen",
@@ -123,6 +131,8 @@ TRANSLATIONS: dict[str, str] = {
     "no_beat_selected_status": "Nichts ausgewählt",
     "selected_beat_status": "Ausgewählt: {title}",
     "multiple_selected_status": "{count} Beats ausgewählt",
+    "multiple_selected_beats": "{count} Beats ausgewählt",
+    "multiple_selected_connections": "{count} Verbindungen ausgewählt",
     "connection_mode_active": "Verbindungsmodus Aktiviert. ESC zum Beenden",
     
     # Dialogs
@@ -223,9 +233,36 @@ TRANSLATIONS: dict[str, str] = {
     # Connections
     "connection_offset": "Verbindungspunkt",
     "connection_offset_tooltip": "Abstand vom Rand, donde Verbindungen ein-/austreten",
+    "connection_color": "Verbindungsfarbe",
+    "line_width": "Linienbreite",
+    "node_shape": "Knotenform",
+    "connection_color_red": "Rot",
+    "connection_color_blue": "Blau",
+    "connection_color_green": "Grün",
+    "connection_color_yellow": "Gelb",
+    "connection_color_orange": "Orange",
+    "connection_color_purple": "Lila",
+    "node_shape_circle": "Kreis",
+    "node_shape_square": "Quadrat",
+    "node_shape_arrow": "Pfeil",
+    "node_shape_none": "Keine",
     
     # Status bar selection messages
     "selected_connection_status": "Verbindung ausgewählt",
     "multiple_connections_status": "Verbindungen ausgewählt: {count}",
     "mixed_objects_status": "Objekte ausgewählt: {count}",
+    
+    # File associations
+    "file_association_title": "Dateizuordnungen",
+    "file_association_desc": "BeatBoard als Standardanwendung für .bbp-Dateien (BeatBoard-Projekte) registrieren.",
+    "file_association_linux_title": "Linux-Optionen",
+    "file_association_register_mime": "MIME-Typ registrieren (erfordert Admin-Rechte)",
+    "file_association_create_desktop": "Eintrag im Anwendungsmenü erstellen",
+    "file_association_windows_title": "Windows-Optionen",
+    "file_association_windows_info": "Unter Windows werden Dateizuordnungen automatisch während der Installation konfiguriert. Installieren Sie die App erneut, um die Zuordnungen zu aktualisieren.",
+    "file_association_macos_title": "macOS-Optionen",
+    "file_association_macos_info": "Unter macOS werden Dateizuordnungen automatisch während der Installation konfiguriert. Installieren Sie die App erneut, um die Zuordnungen zu aktualisieren.",
+    "file_association_unsupported": "Betriebssystem nicht für automatische Dateizuordnungen unterstützt.",
+    "register_file_association": "Dateizuordnungen registrieren...",
+    "menu_tools": "Werkzeuge",
 }

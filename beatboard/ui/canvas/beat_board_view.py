@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable
 
 from PySide6.QtCore import QEvent, QPointF, Qt, Signal
-from PySide6.QtGui import QKeyEvent, QMouseEvent, QWheelEvent
+from PySide6.QtGui import QDragEnterEvent, QKeyEvent, QMouseEvent, QWheelEvent
 from PySide6.QtWidgets import QGraphicsView, QLabel, QWidget
 from PySide6.QtWidgets import QVBoxLayout
 
@@ -89,6 +89,7 @@ class BeatBoardView(QGraphicsView):
         self.setResizeAnchor(self.ViewportAnchor.AnchorViewCenter)
         self.setDragMode(self.DragMode.RubberBandDrag)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setAcceptDrops(True)
         
         half_size = CANVAS_SCENE_SIZE / 2
         self.centerOn(0, 0)
@@ -881,3 +882,32 @@ class BeatBoardView(QGraphicsView):
             return
         
         super().keyReleaseEvent(event)
+    
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()
+            if urls and urls[0].toLocalFile().endswith('.bbp'):
+                event.acceptProposedAction()
+                return
+        super().dragEnterEvent(event)
+    
+    def dragMoveEvent(self, event) -> None:
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()
+            if urls and urls[0].toLocalFile().endswith('.bbp'):
+                event.acceptProposedAction()
+                return
+        super().dragMoveEvent(event)
+    
+    def dropEvent(self, event) -> None:
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()
+            if urls:
+                file_path = urls[0].toLocalFile()
+                if file_path.endswith('.bbp'):
+                    main_window = self.window()
+                    if hasattr(main_window, '_load_project'):
+                        main_window._load_project(file_path)
+                    event.acceptProposedAction()
+                    return
+        super().dropEvent(event)

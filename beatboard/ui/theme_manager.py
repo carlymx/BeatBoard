@@ -18,6 +18,7 @@ from beatboard.core.constants import (
     BEAT_CUSTOM_COLORS,
     AUTOSAVE_INTERVAL_MS,
     CONNECTION_OFFSET_PERCENT,
+    THEME_CANVAS_COLORS,
 )
 from beatboard.core.paths import get_config_dir
 
@@ -168,6 +169,7 @@ THEME_PALETTES = {
 class ThemeManager(QObject):
     theme_changed = Signal(str)
     canvas_background_changed = Signal(str)
+    grid_color_changed = Signal(str)
 
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
@@ -180,6 +182,10 @@ class ThemeManager(QObject):
         self._spellcheck_enabled: bool = SPELLCHECK_ENABLED_DEFAULT
         self._spellcheck_dictionary: str = SPELLCHECK_DICTIONARY_DEFAULT
         self._app = QApplication.instance()
+        
+        # Banderas de personalización del usuario
+        self._user_customized_background: bool = False
+        self._user_customized_grid: bool = False
         
         # Colores personalizados
         self._custom_colors = BEAT_CUSTOM_COLORS.copy()
@@ -215,48 +221,41 @@ class ThemeManager(QObject):
                 self._spellcheck_enabled = data.get("spellcheck_enabled", SPELLCHECK_ENABLED_DEFAULT)
                 self._spellcheck_dictionary = data.get("spellcheck_dictionary", SPELLCHECK_DICTIONARY_DEFAULT)
                 
-                # Cargar colores personalizados
                 saved_custom_colors = data.get("custom_colors")
                 if isinstance(saved_custom_colors, list) and len(saved_custom_colors) == 3:
                     self._custom_colors = saved_custom_colors
                 
-                # Cargar preferencias de backup
                 self._backup_on_open = data.get("backup_on_open", True)
                 self._max_backups = data.get("max_backups", 10)
                 self._autosave_interval = data.get("autosave_interval", AUTOSAVE_INTERVAL_MS)
                 self._autosave_enabled = data.get("autosave_enabled", True)
                 
-                # Cargar preferencias de conexión
                 self._connection_offset_percent = data.get("connection_offset_percent", CONNECTION_OFFSET_PERCENT)
+                
+                self._user_customized_background = data.get("user_customized_background", False)
+                self._user_customized_grid = data.get("user_customized_grid", False)
             except (json.JSONDecodeError, KeyError, ValueError):
-                self._current_mode = ThemeMode.SYSTEM
-                self._canvas_background = CANVAS_BACKGROUND_DEFAULT
-                self._grid_enabled = False
-                self._grid_size = 25
-                self._grid_color = "auto"
-                self._memorize_defaults = False
-                self._spellcheck_enabled = SPELLCHECK_ENABLED_DEFAULT
-                self._spellcheck_dictionary = SPELLCHECK_DICTIONARY_DEFAULT
-                self._backup_on_open = True
-                self._max_backups = 10
-                self._autosave_interval = AUTOSAVE_INTERVAL_MS
-                self._autosave_enabled = True
-                self._connection_offset_percent = CONNECTION_OFFSET_PERCENT
+                self._set_default_preferences()
         else:
-            self._current_mode = ThemeMode.SYSTEM
-            self._canvas_background = CANVAS_BACKGROUND_DEFAULT
-            self._grid_enabled = False
-            self._grid_size = 25
-            self._grid_color = "auto"
-            self._memorize_defaults = False
-            self._spellcheck_enabled = SPELLCHECK_ENABLED_DEFAULT
-            self._spellcheck_dictionary = SPELLCHECK_DICTIONARY_DEFAULT
-            self._backup_on_open = True
-            self._max_backups = 10
-            self._autosave_interval = AUTOSAVE_INTERVAL_MS
-            self._autosave_enabled = True
-            self._connection_offset_percent = CONNECTION_OFFSET_PERCENT
+            self._set_default_preferences()
         self._save_preference()
+
+    def _set_default_preferences(self) -> None:
+        self._current_mode = ThemeMode.SYSTEM
+        self._canvas_background = CANVAS_BACKGROUND_DEFAULT
+        self._grid_enabled = False
+        self._grid_size = 25
+        self._grid_color = "auto"
+        self._memorize_defaults = False
+        self._spellcheck_enabled = SPELLCHECK_ENABLED_DEFAULT
+        self._spellcheck_dictionary = SPELLCHECK_DICTIONARY_DEFAULT
+        self._backup_on_open = True
+        self._max_backups = 10
+        self._autosave_interval = AUTOSAVE_INTERVAL_MS
+        self._autosave_enabled = True
+        self._connection_offset_percent = CONNECTION_OFFSET_PERCENT
+        self._user_customized_background = False
+        self._user_customized_grid = False
 
     def _save_preference(self, language: str | None = None) -> None:
         config_path = self._get_config_path()
@@ -287,6 +286,10 @@ class ThemeManager(QObject):
         # Guardar preferencias de conexión
         data["connection_offset_percent"] = self._connection_offset_percent
         
+        # Guardar banderas de personalización
+        data["user_customized_background"] = self._user_customized_background
+        data["user_customized_grid"] = self._user_customized_grid
+        
         config_path.write_text(json.dumps(data, indent=2))
 
     def get_canvas_background(self) -> str:
@@ -295,11 +298,13 @@ class ThemeManager(QObject):
     def set_canvas_background(self, color_key: str) -> None:
         if color_key in CANVAS_BACKGROUND_COLORS:
             self._canvas_background = color_key
+            self._user_customized_background = True
             self._save_preference()
             self.canvas_background_changed.emit(color_key)
     
     def set_custom_canvas_background(self, hex_color: str) -> None:
         self._canvas_background = hex_color
+        self._user_customized_background = True
         self._save_preference()
         self.canvas_background_changed.emit(hex_color)
     
@@ -322,6 +327,7 @@ class ThemeManager(QObject):
     
     def set_grid_color(self, color: str) -> None:
         self._grid_color = color
+        self._user_customized_grid = True
         self._save_preference()
     
     def get_memorize_defaults(self) -> bool:
@@ -379,6 +385,7 @@ class ThemeManager(QObject):
         self._current_mode = mode
         self._save_preference()
         self.apply_theme()
+        self._apply_theme_canvas_colors()
 
     def apply_theme(self) -> None:
         if not self._app:
@@ -398,6 +405,35 @@ class ThemeManager(QObject):
                 self._apply_theme_palette(theme_key, True)
 
         self.theme_changed.emit(self._current_mode.value)
+
+    def _apply_theme_canvas_colors(self) -> None:
+        theme_key = self._current_mode.value
+        
+        if theme_key in THEME_CANVAS_COLORS:
+            theme_colors = THEME_CANVAS_COLORS[theme_key]
+            
+            if not self._user_customized_background:
+                bg_value = theme_colors.get("background", CANVAS_BACKGROUND_DEFAULT)
+                self._canvas_background = bg_value
+                self.canvas_background_changed.emit(bg_value)
+            
+            if not self._user_customized_grid:
+                grid_value = theme_colors.get("grid", "auto")
+                self._grid_color = grid_value
+                self.grid_color_changed.emit(grid_value)
+            
+            self._save_preference()
+
+    def reset_to_theme_colors(self) -> None:
+        self._user_customized_background = False
+        self._user_customized_grid = False
+        self._apply_theme_canvas_colors()
+
+    def is_background_customized(self) -> bool:
+        return self._user_customized_background
+
+    def is_grid_color_customized(self) -> bool:
+        return self._user_customized_grid
 
     def _apply_light_theme(self) -> None:
         self._apply_theme_palette(ThemeMode.LIGHT, False)

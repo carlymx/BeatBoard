@@ -15,6 +15,12 @@ TRANSLATIONS: dict[str, str] = {
     "save_project_as": "Save &as...",
     "export_pdf": "Export to &PDF...",
     "export_text": "Export to &text...",
+    "close_project": "&Close",
+    "recent_files": "Open recent",
+    "no_recent_files": "No recent files",
+    "file_not_found": "File not found",
+    "file_not_found_msg": "The file \"{path}\" was not found. Do you want to remove it from the recent files list?",
+    "unsaved_changes_msg": "The project has unsaved changes. Do you want to save before continuing?",
     "exit": "&Exit",
     
     # Edit menu
@@ -53,6 +59,8 @@ TRANSLATIONS: dict[str, str] = {
     "dark": "Dark",
     "black": "Black",
     "custom": "Custom...",
+    "reset_theme_colors": "Reset to theme colors",
+    "open_full_editor": "Open full editor",
     "zoom_in": "Zoom in",
     "zoom_out": "Zoom out",
     "fit_to_content": "Fit to content",
@@ -123,6 +131,8 @@ TRANSLATIONS: dict[str, str] = {
     "no_beat_selected_status": "Nothing selected",
     "selected_beat_status": "Selected: {title}",
     "multiple_selected_status": "{count} beats selected",
+    "multiple_selected_beats": "{count} beats selected",
+    "multiple_selected_connections": "{count} connections selected",
     "connection_mode_active": "Connection Mode Active. ESC to Exit",
     
     # Dialogs
@@ -223,9 +233,36 @@ TRANSLATIONS: dict[str, str] = {
     # Connections
     "connection_offset": "Connection Point",
     "connection_offset_tooltip": "Distance from edge where connections enter/exit",
+    "connection_color": "Connection Color",
+    "line_width": "Line Width",
+    "node_shape": "Node Shape",
+    "connection_color_red": "Red",
+    "connection_color_blue": "Blue",
+    "connection_color_green": "Green",
+    "connection_color_yellow": "Yellow",
+    "connection_color_orange": "Orange",
+    "connection_color_purple": "Purple",
+    "node_shape_circle": "Circle",
+    "node_shape_square": "Square",
+    "node_shape_arrow": "Arrow",
+    "node_shape_none": "None",
     
     # Status bar selection messages
     "selected_connection_status": "Connection selected",
     "multiple_connections_status": "Connections selected: {count}",
     "mixed_objects_status": "Objects selected: {count}",
+    
+    # File associations
+    "file_association_title": "File Associations",
+    "file_association_desc": "Register BeatBoard as the default application to open .bbp files (BeatBoard projects).",
+    "file_association_linux_title": "Linux Options",
+    "file_association_register_mime": "Register MIME type (requires admin permissions)",
+    "file_association_create_desktop": "Create entry in applications menu",
+    "file_association_windows_title": "Windows Options",
+    "file_association_windows_info": "On Windows, file associations are configured automatically during installation. Reinstall the app to update associations.",
+    "file_association_macos_title": "macOS Options",
+    "file_association_macos_info": "On macOS, file associations are configured automatically during installation. Reinstall the app to update associations.",
+    "file_association_unsupported": "Unsupported operating system for automatic file associations.",
+    "register_file_association": "Register file associations...",
+    "menu_tools": "Tools",
 }

@@ -5,8 +5,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from PySide6.QtCore import QPointF, QRectF, Signal, Qt
-from PySide6.QtGui import QPainterPath, QPainterPathStroker, QPen, QColor, QPainter, QBrush
+from PySide6.QtGui import (QPainterPath, QPainterPathStroker, QPen, QColor, 
+                          QPainter, QBrush, QTransform, QPolygonF)
 from PySide6.QtWidgets import QGraphicsPathItem, QGraphicsItem, QApplication
+import math
 
 from beatboard.core.connection import Connection
 from beatboard.core.constants import (
@@ -54,6 +56,11 @@ class ConnectionItem(QGraphicsPathItem):
         
         self._update_pen()
         self._update_path()
+        
+        if connection.control_factor1 is not None:
+            self._custom_factor1 = connection.control_factor1
+        if connection.control_factor2 is not None:
+            self._custom_factor2 = connection.control_factor2
     
     def _get_offset_percent(self) -> float:
         app = QApplication.instance()
@@ -68,7 +75,8 @@ class ConnectionItem(QGraphicsPathItem):
     
     def _update_pen(self) -> None:
         color = CONNECTION_COLORS.get(self._connection.color, CONNECTION_COLORS["blue"])
-        pen = QPen(QColor(color), CONNECTION_LINE_WIDTH)
+        line_width = self._connection.line_width if hasattr(self._connection, 'line_width') else CONNECTION_LINE_WIDTH
+        pen = QPen(QColor(color), line_width)
         pen.setStyle(Qt.PenStyle.SolidLine)
         self.setPen(pen)
     
@@ -119,6 +127,101 @@ class ConnectionItem(QGraphicsPathItem):
             target_z = self._target_item.zValue()
             max_z = max(source_z, target_z)
             self.setZValue(max_z + 1)
+    
+    def refresh(self) -> None:
+        """Actualizar apariencia después de cambios en propiedades."""
+        self._update_pen()
+        self._update_path()
+        self.update()
+    
+    def _draw_terminations(self, painter: QPainter) -> None:
+        """Dibujar formas en las terminaciones de la línea (flechas, círculos, cuadrados)."""
+        if not self._source_item or not self._target_item:
+            return
+        
+        # Obtener forma de nodos de la conexión
+        node_shape = self._connection.node_shape if hasattr(self._connection, 'node_shape') else "circle"
+        if node_shape == "none":
+            return
+        
+        path = self.path()
+        if path.isEmpty():
+            return
+        
+        # Obtener puntos de inicio y fin
+        start_point = path.pointAtPercent(0.0)
+        end_point = path.pointAtPercent(1.0)
+        
+        # Calcular ángulos de tangente en los extremos
+        # Usar puntos cercanos para estimar la dirección
+        start_angle = self._get_angle_at_percent(path, 0.0)
+        end_angle = self._get_angle_at_percent(path, 1.0)
+        
+        # Grosor de línea para dimensionar las formas
+        line_width = self._connection.line_width if hasattr(self._connection, 'line_width') else 2.0
+        size = max(8.0, line_width * 3)  # Tamaño base proporcional al grosor
+        
+        # Color de la línea
+        color = self.pen().color()
+        
+        # Dibujar terminación inicial (opcional, podríamos solo dibujar la final)
+        # Por ahora dibujamos ambas
+        self._draw_termination_shape(painter, start_point, start_angle, size, color, node_shape)
+        self._draw_termination_shape(painter, end_point, end_angle, size, color, node_shape)
+    
+    def _get_angle_at_percent(self, path: QPainterPath, percent: float) -> float:
+        """Calcular ángulo de la tangente en un punto del path."""
+        # Usar un delta pequeño para calcular derivada
+        delta = 0.01
+        if percent == 0.0:
+            p1 = path.pointAtPercent(percent)
+            p2 = path.pointAtPercent(percent + delta)
+        elif percent == 1.0:
+            p1 = path.pointAtPercent(percent - delta)
+            p2 = path.pointAtPercent(percent)
+        else:
+            p1 = path.pointAtPercent(percent - delta/2)
+            p2 = path.pointAtPercent(percent + delta/2)
+        
+        dx = p2.x() - p1.x()
+        dy = p2.y() - p1.y()
+        
+        # Calcular ángulo en radianes, luego convertir a grados
+        angle_rad = math.atan2(dy, dx)
+        angle_deg = math.degrees(angle_rad)
+        return angle_deg
+    
+    def _draw_termination_shape(self, painter: QPainter, point: QPointF, angle: float, 
+                               size: float, color: QColor, shape: str) -> None:
+        """Dibujar una forma geométrica en un punto con orientación."""
+        painter.save()
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        
+        # Mover al punto y rotar según el ángulo
+        painter.translate(point)
+        painter.rotate(angle)
+        
+        # Configurar pincel y lapiz
+        painter.setBrush(QBrush(color))
+        painter.setPen(QPen(color.darker(150), 1))
+        
+        half = size / 2
+        
+        if shape == "circle":
+            painter.drawEllipse(QPointF(0, 0), half, half)
+        elif shape == "square":
+            painter.drawRect(QRectF(-half, -half, size, size))
+        elif shape == "arrow":
+            # Triángulo apuntando hacia la dirección positiva del eje X
+            arrow_size = size * 1.2
+            arrow_height = arrow_size * 0.6
+            polygon = QPolygonF()
+            polygon.append(QPointF(arrow_size/2, 0))  # Punta
+            polygon.append(QPointF(-arrow_size/2, -arrow_height/2))
+            polygon.append(QPointF(-arrow_size/2, arrow_height/2))
+            painter.drawPolygon(polygon)
+        
+        painter.restore()
     
     def _get_connection_geometry(self) -> tuple[float, float, float, float, float, float, float]:
         """Returns (start_x, end_x, source_center_y, target_center_y, dx, dy, curvature)."""
@@ -230,9 +333,11 @@ class ConnectionItem(QGraphicsPathItem):
         if handle_num == 1:
             self._custom_factor1 = (factor_x, factor_y)
             self._custom_cp1 = scene_pos  # cache
+            self._connection.control_factor1 = (factor_x, factor_y)
         else:
             self._custom_factor2 = (factor_x, factor_y)
             self._custom_cp2 = scene_pos  # cache
+            self._connection.control_factor2 = (factor_x, factor_y)
     
     def set_source_item(self, item: BeatItem) -> None:
         self._source_item = item
@@ -283,6 +388,8 @@ class ConnectionItem(QGraphicsPathItem):
         self._custom_factor2 = None
         self._custom_cp1 = None
         self._custom_cp2 = None
+        self._connection.control_factor1 = None
+        self._connection.control_factor2 = None
         self._update_path()
     
     def _get_handle_position(self, handle_num: int) -> QPointF:
@@ -428,7 +535,7 @@ class ConnectionItem(QGraphicsPathItem):
     def paint(self, painter: QPainter, option, widget=None) -> None:
         if self.isSelected():
             pen = self.pen()
-            pen.setWidth(int(CONNECTION_LINE_WIDTH + 3))
+            pen.setWidth(int(pen.widthF() + 3))
             pen.setColor(QColor("#1976D2"))
             painter.setPen(pen)
         else:
@@ -436,12 +543,17 @@ class ConnectionItem(QGraphicsPathItem):
         
         painter.drawPath(self.path())
         
+        # Dibujar terminaciones (flechas, círculos, cuadrados)
+        self._draw_terminations(painter)
+        
         if self.isSelected():
             self._draw_control_handles(painter)
     
     def _draw_control_handles(self, painter: QPainter) -> None:
         if not self._source_item or not self._target_item:
             return
+        
+        # Los handles de control siempre son círculos (independientes de node_shape)
         
         source_rect = self._source_item.boundingRect()
         target_rect = self._target_item.boundingRect()
@@ -481,14 +593,17 @@ class ConnectionItem(QGraphicsPathItem):
             else:
                 color = self.HANDLE_COLOR
             
+            half = self.HANDLE_SIZE / 2
+            rect = QRectF(cp_pos.x() - half, cp_pos.y() - half, self.HANDLE_SIZE, self.HANDLE_SIZE)
+            
+            # Dibujar handle de control (siempre círculo)
             painter.setPen(QPen(color, 2))
             painter.setBrush(QBrush(QColor(255, 255, 255, 220)))
-            painter.drawEllipse(cp_pos, self.HANDLE_SIZE / 2, self.HANDLE_SIZE / 2)
+            painter.drawEllipse(cp_pos, half, half)
             
             painter.setPen(QPen(color, 1))
             painter.setBrush(Qt.BrushStyle.NoBrush)
-            half = self.HANDLE_SIZE / 2
-            painter.drawRect(QRectF(cp_pos.x() - half, cp_pos.y() - half, self.HANDLE_SIZE, self.HANDLE_SIZE))
+            painter.drawRect(rect)
             
             # DEBUG: dibujar zona de colisión (transparente, 30x30)
             debug_size = 30

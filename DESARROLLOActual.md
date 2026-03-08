@@ -1,7 +1,143 @@
 # BeatBoard - Estado del Desarrollo
 
-**Fecha**: 6 Marzo 2026  
-**Versión**: 1.0.19 - RELEASE ✅
+**Fecha**: 8 Marzo 2026  
+**Versión**: 1.0.25 - RELEASE ✅
+
+---
+
+## v1.0.24 - RELEASE ✅
+
+### Cambios
+- ✅ **Reorganizado menú Archivo**:
+  - "Abrir recientes" ahora aparece debajo de "Abrir proyecto"
+  - "Cerrar" con atajo Ctrl+W
+
+### Archivos modificados
+- `beatboard/ui/main_window.py`
+
+---
+
+## v1.0.25 - RELEASE ✅
+
+### Cambios
+- ✅ **Columna de propiedades general**:
+  - Panel de propiedades ahora funciona para beats, conexiones y selección múltiple
+  - Nuevos campos para conexiones: color, grosor de línea (0.5-10px), forma de terminadores (círculo, cuadrado, flecha, ninguno)
+  - Soporte para cambiar propiedades comunes en selección múltiple (beats y conexiones)
+  - Estados mixtos cuando valores difieren (combo sin selección, checkbox tri-state)
+  - Actualización en tiempo real al usar atajos de teclado (1-0)
+
+- ✅ **Renderizado de terminadores en conexiones**:
+  - Terminadores visuales en extremos de líneas según forma seleccionada
+  - Flechas, círculos, cuadrados o ninguno
+  - Tamaño proporcional al grosor de línea
+
+- ✅ **Persistencia de propiedades de conexión**:
+  - Los campos `line_width` y `node_shape` se guardan en archivos .bbp
+  - Compatibilidad con versiones anteriores (valores por defecto)
+
+### Archivos modificados
+- `beatboard/core/constants.py` – añadidas constantes para grosores y formas de nodo
+- `beatboard/core/connection.py` – nuevos campos `line_width` y `node_shape`
+- `beatboard/ui/widgets/properties_panel.py` – **REFACTOR COMPLETO**: widgets separados para beats, conexiones, múltiples beats, múltiples conexiones
+- `beatboard/ui/main_window.py` – handlers para selección múltiple, actualización de colores
+- `beatboard/ui/canvas/connection_item.py` – método `_draw_terminations()`
+- `beatboard/i18n/locales/*.py` – nuevas traducciones para propiedades de conexión
+
+---
+
+## v1.0.23 - RELEASE ✅
+
+### Cambios
+- ✅ **Menú Archivo > Cerrar (Ctrl+W)**:
+  - Cierra el proyecto actual
+  - Pregunta si desea guardar cambios sin guardar
+  
+- ✅ **Menú Archivo > Abrir recientes**:
+  - Lista de los 10 últimos archivos abiertos
+  - Guarda la lista en config/recent_files.json
+  - Si un archivo no existe, muestra diálogo para eliminarlo de la lista
+
+- ✅ **Arreglado: Guardado de forma de conexiones**:
+  - Ahora se guardan los puntos de control personalizados de las conexiones
+  - Los factores de control (control_factor1, control_factor2) se almacenan en el JSON
+  - Al cargar un proyecto, las conexiones mantienen la forma de curva personalizada
+
+### Archivos modificados
+- `beatboard/core/connection.py`: nuevos campos control_factor1 y control_factor2
+- `beatboard/ui/canvas/connection_item.py`: carga y guardado de factores de control
+- `beatboard/ui/main_window.py`: nuevos menús y métodos para archivos recientes
+- `beatboard/i18n/locales/*.py`: nuevas traducciones
+
+---
+
+## v1.0.22 - RELEASE ✅
+
+### Cambios
+- ✅ **Asociación de archivos .bbp**:
+  - Soporte para CLI args: `beatboard archivo.bbp` abre el proyecto
+  - Drag & drop de archivos .bbp al canvas carga el proyecto
+  - Nuevo menú "Herramientas > Registrar asociaciones de archivo..."
+  - Diálogo que permite configurar asociaciones según el SO detectado
+  - Archivo .desktop para Linux (en tools/) con MimeType
+
+### Archivos modificados
+- `beatboard/app/main.py`: manejo de argumentos CLI
+- `beatboard/ui/main_window.py`: 
+  - Nuevo parámetro `file_to_open_on_start` en constructor
+  - Nuevo menú Herramientas
+  - Drag & drop habilitado
+- `beatboard/ui/canvas/beat_board_view.py`:
+  - Métodos dragEnterEvent, dragMoveEvent, dropEvent
+  - setAcceptDrops(True)
+- Nuevo `beatboard/ui/dialogs/file_association_dialog.py`: diálogo de configuración
+- `beatboard/i18n/locales/*.py`: nuevas traducciones
+- `tools/beatboard.desktop`: archivo .desktop para Linux
+
+### Pendiente (futura versión)
+- Formato .bbp como ZIP para soportar imágenes/archivos adjuntos
+
+---
+
+## v1.0.21 - RELEASE ✅
+
+### Cambios
+- ✅ **Botón "Abrir editor completo" en Panel de Propiedades**:
+  - Nuevo botón debajo del campo de contenido en el panel de propiedades
+  - Solo visible cuando hay un beat seleccionado
+  - Abre el diálogo de edición completa (igual que doble clic)
+  - Los cambios se aplican automáticamente al beat
+  - Traducciones en los 4 idiomas
+
+### Archivos modificados
+- `beatboard/ui/widgets/properties_panel.py`:
+  - Añadido QPushButton "_open_editor_btn"
+  - Nuevo método "_open_full_editor()"
+  - set_beat() muestra/oculta el botón según selección
+- `beatboard/i18n/locales/*.py`: nueva traducción "open_full_editor"
+
+---
+
+## v1.0.20 - RELEASE ✅
+
+### Cambios
+- ✅ **Color de fondo con Tema**:
+  - Cada tema ahora tiene colores de fondo y cuadrícula asociados
+  - Al cambiar de tema se aplican automáticamente los colores del tema (solo si el usuario no los ha personalizado)
+  - Banderas para rastrear si el usuario ha personalizado fondo/grid
+  - Nueva opción "Restablecer colores del tema" en menú Preferencias > Fondo del Canvas
+  - Traducciones en los 4 idiomas
+
+### Archivos modificados
+- `beatboard/core/constants.py`: añadido THEME_CANVAS_COLORS con colores por tema
+- `beatboard/ui/theme_manager.py`:
+  - Nuevas señales: grid_color_changed
+  - Banderas: _user_customized_background, _user_customized_grid
+  - Métodos: reset_to_theme_colors(), is_background_customized(), is_grid_color_customized()
+  - _apply_theme_canvas_colors() aplicado en set_theme()
+- `beatboard/ui/canvas/beat_board_scene.py`: conexión de señal grid_color_changed
+- `beatboard/ui/main_window.py`: nueva opción de menú y handler
+- `beatboard/i18n/locales/*.py`: nueva traducción "reset_theme_colors"
 
 ---
 
@@ -174,6 +310,43 @@
 - Persistencia (.bbp), auto-guardado
 - Export PDF/texto
 - 34 tests
+
+---
+
+## 📋 Tareas Pendientes (Futuras Versiones)
+
+### Formato .bbp como ZIP (para imágenes/archivos adjuntos)
+**Descripción**: Cambiar el formato de archivo .bbp de JSON plano a carpeta comprimida (ZIP) renombrada, permitiendo:
+- Almacenar imágenes embebidas en beats
+- Adjuntar archivos adicionales a beats
+- Mejor organización de recursos
+
+**Implementación sugerida**:
+1. Crear clase `ProjectPackager` con métodos:
+   - `pack(project: Project, output_path: Path)`: comprime proyecto a ZIP
+   - `unpack(zip_path: Path) -> Project`: descomprime y carga proyecto
+2. Estructura interna del ZIP:
+   ```
+   proyecto.bbp/
+   ├── project.json      # Datos del proyecto
+   ├── beats/
+   │   ├── {beat_id}/
+   │   │   ├── image.png
+   │   │   └── attachments/
+   │   │       └── file.pdf
+   └── thumbnails/       # (opcional) miniaturas
+   ```
+3. Detectar formato al cargar (JSON plano vs ZIP)
+4. Guardar siempre en nuevo formato ZIP
+5. Migración automática de archivos antiguos
+
+**Archivos a crear**:
+- `beatboard/core/project_packager.py` (nuevo)
+
+**Archivos a modificar**:
+- `beatboard/ui/main_window.py`: lógica de carga/guardado
+- `beatboard/core/project.py`: integración con packager
+- Spec files: actualizar para incluir recursos
 
 ---
 

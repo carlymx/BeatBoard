@@ -4,7 +4,7 @@
 
 <!-- Badges Section -->
 ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.19-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.25-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -249,6 +249,20 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 - NonCommercial — You may not use the material for commercial purposes
 
 ## Changelog
+
+### v1.0.25 (2026-03-08)
+- **General properties column**: Properties panel now works for beats, connections, and multiple selection
+- **Connection properties**: New fields for line color, width (0.5-10px), and terminator shapes (circle, square, arrow, none)
+- **Multiple selection support**: Change common properties for multiple beats or connections simultaneously
+- **Mixed state display**: Combos show no selection and checkboxes show partially checked when values differ
+- **Terminator rendering**: Visual terminators at line ends based on selected shape
+- **Real-time updates**: Color indicators update when using keyboard shortcuts (1-0)
+
+### v1.0.21 (2026-03-08)
+- **"Open full editor" button**: New button in properties panel to open full beat editor with rich formatting
+
+### v1.0.20 (2026-03-08)
+- **Theme background color**: Each theme now has associated background and grid colors that are applied automatically
 
 ### v1.0.19 (2026-03-06)
 - **Z-Order system fixed**: Each new beat is created with z = total number of beats + 1

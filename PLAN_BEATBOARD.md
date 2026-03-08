@@ -29,7 +29,7 @@
 
 ### 🏗️ ARQUITECTURA (Base para otras features)
 
-#### 3. Columna de Propiedades General
+#### 3. Columna de Propiedades General ✅ COMPLETADO
 **Descripción**: Transformar el panel lateral de propiedades específico de beats en una columna de propiedades genérica que funcione para cualquier tipo de elemento seleccionado (beats, conexiones, shapes, imágenes). Mostrar opciones únicas según el tipo de elemento seleccionado.  
 **Cambios**:
 - beats → título, contenido, color, mostrar título
@@ -43,31 +43,33 @@
 
 ### 🎨 MEJORAS UI/UX
 
-#### 4. Botón "Más Opciones" en Editor de Beats
+#### 4. Botón "Más Opciones" en Editor de Beats ✅ COMPLETADO
 **Descripción**: Añadir un botón debajo del campo de texto "Contenido" en el diálogo de edición de beats que abra el Editor de Beats completo (igual que hace el doble clic). útil para usuarios que prefieran editar desde el panel de propiedades.  
-**Archivo relacionado**: `beat_editor_dialog.py`
+**Archivos relacionados**: `properties_panel.py`, `beat_editor_dialog.py`
 
-#### 5. Color de Fondo con Tema
+#### 5. Color de Fondo con Tema ✅ COMPLETADO
 **Descripción**: Cada tema debe tener asociado un color de fondo y color de cuadrícula coherentes. Al seleccionar un tema, automáticamente cambiar el fondo del canvas y el color de la cuadrícula a los valores definidos para ese tema.  
-**Archivos relacionados**: `theme_manager.py`, `beat_board_view.py`
+**Archivos relacionados**: `theme_manager.py`, `beat_board_view.py`, `constants.py`
 
 ---
 
 ### 🔗 FEATURES DE CONEXIONES
 
-#### 6. Grosor y Color de Líneas de Conexión ⚠️ PARCIAL
+#### 6. Grosor y Color de Líneas de Conexión ✅ COMPLETADO
 **Descripción**: Permitir personalizar cada línea de conexión de forma independiente.  
 **Implementado**:
 - ✅ Nodos editables (arrastrar puntos de control)
 - ✅ Porcentage de conexión configurable (default 25%)
-- ✅ Ajuste proporcional al mover beats  
-**Pendiente**:
-- Panel propiedades: grosor, color, forma nodos
-- Guardar última configuración como predeterminada  
-**Archivos relacionados**: `connection_item.py`, `properties_panel.py`, `constants.py`
+- ✅ Ajuste proporcional al mover beats
+- ✅ Panel propiedades: grosor, color, forma nodos
+- ✅ Soporte para múltiples conexiones seleccionadas
+- ✅ Renderizado de terminadores (arrows, circles, squares, none)
+- ✅ Persistencia de configuración (guardar/cargar)
 
-#### 7. Texto en Conexiones
-**Descripción**: Añadir la posibilidad de mostrar texto en el medio de las líneas de conexión.  
+**Archivos relacionados**: `connection_item.py`, `properties_panel.py`, `constants.py`, `main_window.py`
+
+#### 7. Texto en Conexiones ⚠️ PARCIAL
+**Descripción**: Añadir la posibilidad de mostrar texto en el medio de las líneas de conexión. ⚠️ **Parcialmente implementado**: campo 'label' añadido en panel de propiedades y modelo Connection, pendiente renderizado en canvas.  
 **Implementación**:
 - Doble clic en conexión → abre diálogo de edición (como beats)
 - Panel propiedades → campo de texto, configuración del contenedor:
@@ -125,16 +127,55 @@
 **Prepara para**: diagramas, storyboards, annotaciones  
 **Archivos relacionados**: nuevo `shape_item.py`, toolbar en `main_window.py`
 
-#### 11. Asociación de Tipo de Archivo
+#### 11. Asociación de Tipo de Archivo ✅ COMPLETADO (v1.0.22)
 **Descripción**: Registrar la aplicación como handler de archivos .bbp en el sistema operativo.  
-**Funcionalidades**:
-- Abrir archivo al invocar: `beatboard.exe proyecto.bbp`
+**Funcionalidades implementadas**:
+- Abrir archivo al invocar: `beatboard proyecto.bbp` (CLI args)
 - Drag & drop de archivo .bbp a la ventana → cargar proyecto
-- Doble clic en archivo .bbp → abrir con BeatBoard
-- Windows: asociación en installer/registro
-- Linux: archivo .desktop con MimeType
-- macOS: Info.plist con CFBundleDocumentTypes  
-**Archivo relacionado**: `main_window.py`, spec files, archivos de packaging
+- Menú Herramientas > Registrar asociaciones de archivo (diálogo)
+- Linux: archivo .desktop con MimeType (en tools/)
+- Windows/macOS: info en diálogo (se configura en instalación)
+
+**Pendiente para futura versión**:
+- Formato .bbp como carpeta comprimida (ZIP) para soportar imágenes/archivos adjuntos
+
+**Archivos modificados**: `main.py`, `main_window.py`, `beat_board_view.py`, nuevo `file_association_dialog.py`, `tools/beatboard.desktop`
+
+#### 12. Exportar a PNG
+**Descripción**: Exportar el canvas completo o selección a imagen PNG.  
+**Funcionalidades**:
+- Diálogo de exportación con opciones de configuración
+- Opciones del diálogo:
+  - **Área a exportar**:
+    - Todo el canvas (zona con contenido + márgenes)
+    - Selección actual (solo elementos seleccionados)
+    - Región visible (lo que se ve en pantalla)
+  - **Resolución/Escala**:
+    - 1x (original)
+    - 2x (retina/doble densidad)
+    - 3x (ultra alta)
+    - Personalizado (0.5x a 5x)
+  - **Fondo**:
+    - Transparente
+    - Color sólido (selector de color)
+    - Mantener color actual del canvas
+  - **Opciones de calidad**:
+    - Compresión PNG (0-9)
+    - Incluir/excluir grid
+    - Incluir/excluir guías
+- Vista previa en tiempo real en el diálogo
+- Nombre de archivo sugerido: `{proyecto}_{fecha}_{escala}.png`
+- Acceso desde: Menú Archivo > Exportar a PNG... (Ctrl+Shift+E)
+
+**Algoritmo suggested**:
+1. Calcular bounding box de elementos a exportar
+2. Agregar márgenes configurables
+3. Crear QImage del tamaño apropiado
+4. Renderizar scene o selection con renderizador
+5. Aplicar fondo si no es transparente
+6. Guardar a PNG con compresión configurada
+
+**Archivos relacionados**: `export_service.py` (nuevo método), `main_window.py` (menú)
 
 ---
 
@@ -144,15 +185,16 @@
 |-------|------|---------|--------|
 | 1 | Bug | Fix altura conexiones | ✅ Completado |
 | 2 | Bug | Arreglar PDF | Pendiente |
-| 3 | Arquitectura | Columna propiedades general | Pendiente |
-| 4 | UI | Botón "Más opciones" | Pendiente |
-| 5 | UI | Color fondo con tema | Pendiente |
-| 6 | Conexiones | Grosor/color nodos | Pendiente |
-| 7 | Conexiones | Texto en conexiones | Pendiente |
+| 3 | Arquitectura | Columna propiedades general | ✅ Completado |
+| 4 | UI | Botón "Más opciones" | ✅ Completado |
+| 5 | UI | Color fondo con tema | ✅ Completado |
+| 6 | Conexiones | Grosor/color nodos | ✅ Completado |
+| 7 | Conexiones | Texto en conexiones | ⚠️ Parcial |
 | 8 | Beats | Markdown | Pendiente |
 | 9 | Beats | Imágenes | Pendiente |
 | 10 | Nueva | Shapes | Pendiente |
-| 11 | Sistema | Asociar archivos | Depende de packaging |
+| 11 | Sistema | Asociar archivos | ✅ Completado v1.0.22 |
+| 12 | Export | Exportar a PNG | Pendiente |
 
 ---
 

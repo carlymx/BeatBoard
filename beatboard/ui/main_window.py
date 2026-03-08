@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(self, parent: QWidget | None = None, file_to_open_on_start: str | None = None) -> None:
         super().__init__(parent)
         
         self._project = Project()
@@ -66,14 +66,19 @@ class MainWindow(QMainWindow):
         self._setup_statusbar()
         self._connect_signals()
         self._load_saved_preferences()
+        self._load_recent_files()
         
         self._set_window_icon()
         
         self._update_title()
+        
+        if file_to_open_on_start:
+            self._load_project(file_to_open_on_start)
     
     def _setup_ui(self) -> None:
         self.setMinimumSize(1024, 768)
         self.resize(1280, 800)
+        self.setAcceptDrops(True)
         
         splitter = QSplitter(Qt.Orientation.Horizontal)
         
@@ -101,6 +106,10 @@ class MainWindow(QMainWindow):
         open_action.setShortcut("Ctrl+O")
         open_action.triggered.connect(self._on_open_project)
         
+        self._recent_menu = file_menu.addMenu(_tr("recent_files"))
+        self._recent_files: list[str] = []
+        self._update_recent_files_menu()
+        
         file_menu.addSeparator()
         
         save_action = file_menu.addAction(_tr("save_project"))
@@ -118,6 +127,12 @@ class MainWindow(QMainWindow):
         
         export_text_action = file_menu.addAction(_tr("export_text"))
         export_text_action.triggered.connect(self._on_export_text)
+        
+        file_menu.addSeparator()
+        
+        close_action = file_menu.addAction(_tr("close_project"))
+        close_action.setShortcut("Ctrl+W")
+        close_action.triggered.connect(self._on_close_project)
         
         file_menu.addSeparator()
         
@@ -329,6 +344,11 @@ class MainWindow(QMainWindow):
         custom_bg_action = bg_menu.addAction(_tr("custom"))
         custom_bg_action.triggered.connect(self._on_custom_canvas_background)
         
+        bg_menu.addSeparator()
+        
+        reset_theme_colors_action = bg_menu.addAction(_tr("reset_theme_colors"))
+        reset_theme_colors_action.triggered.connect(self._on_reset_theme_colors)
+        
         self._update_canvas_background_check(bg_group)
         
         preferences_menu.addSeparator()
@@ -463,6 +483,12 @@ class MainWindow(QMainWindow):
             action.triggered.connect(lambda checked, p=percent: self._on_connection_offset_changed(p))
             offset_group.addAction(action)
         
+        # Menú Herramientas
+        tools_menu = menubar.addMenu(_tr("menu_tools"))
+        
+        file_association_action = tools_menu.addAction(_tr("register_file_association"))
+        file_association_action.triggered.connect(self._on_register_file_association)
+        
         help_menu = menubar.addMenu(_tr("menu_help"))
         
         shortcuts_action = help_menu.addAction(_tr("keyboard_shortcuts"))
@@ -548,6 +574,9 @@ class MainWindow(QMainWindow):
         self._beat_board_view.selection_changed.connect(self._on_selection_changed)
         self._beat_board_view.mouse_moved.connect(self._on_mouse_moved)
         self._properties_panel.beat_updated.connect(self._on_beat_updated)
+        self._properties_panel.connection_updated.connect(self._on_connection_updated)
+        self._properties_panel.multiple_beats_updated.connect(self._on_multiple_beats_updated)
+        self._properties_panel.multiple_connections_updated.connect(self._on_multiple_connections_updated)
         
         app = QApplication.instance()
         if app and hasattr(app, "locale_manager"):
@@ -719,6 +748,8 @@ class MainWindow(QMainWindow):
             self._update_title()
             self._update_status()
             
+            self._add_recent_file(file_path)
+            
             app = QApplication.instance()
             if hasattr(app, "logger"):
                 app.logger.info(f"Project loaded from {file_path}")
@@ -734,6 +765,109 @@ class MainWindow(QMainWindow):
     def _on_export_text(self) -> None:
         from beatboard.services.export_service import ExportService
         ExportService.export_to_text(self._project, self)
+    
+    def _on_close_project(self) -> None:
+        if self._is_modified:
+            from PySide6.QtWidgets import QMessageBox
+            ret = QMessageBox.question(
+                self,
+                _tr("save_project"),
+                _tr("unsaved_changes_msg"),
+                QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
+            )
+            if ret == QMessageBox.StandardButton.Save:
+                self._on_save_project()
+            elif ret == QMessageBox.StandardButton.Cancel:
+                return
+        
+        self._project = Project()
+        self._current_file = None
+        self._is_modified = False
+        self._beat_board_view.set_project(self._project)
+        self._stop_autosave()
+        self._selection_message = ""
+        self._update_title()
+        self._update_status()
+    
+    def _add_recent_file(self, file_path: str) -> None:
+        if file_path in self._recent_files:
+            self._recent_files.remove(file_path)
+        self._recent_files.insert(0, file_path)
+        if len(self._recent_files) > 10:
+            self._recent_files = self._recent_files[:10]
+        self._update_recent_files_menu()
+        self._save_recent_files()
+    
+    def _update_recent_files_menu(self) -> None:
+        self._recent_menu.clear()
+        
+        if not self._recent_files:
+            empty_action = self._recent_menu.addAction(_tr("no_recent_files"))
+            empty_action.setEnabled(False)
+            return
+        
+        from pathlib import Path
+        for file_path in self._recent_files:
+            file_name = Path(file_path).name
+            action = self._recent_menu.addAction(file_name)
+            action.setData(file_path)
+            action.triggered.connect(lambda checked, fp=file_path: self._on_open_recent_file(fp))
+    
+    def _on_open_recent_file(self, file_path: str) -> None:
+        from pathlib import Path
+        if not Path(file_path).exists():
+            from PySide6.QtWidgets import QMessageBox
+            msg = QMessageBox(self)
+            msg.setWindowTitle(_tr("file_not_found"))
+            msg.setText(_tr("file_not_found_msg").format(path=file_path))
+            msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            ret = msg.exec()
+            if ret == QMessageBox.StandardButton.Yes:
+                self._remove_recent_file(file_path)
+            return
+        
+        if self._is_modified:
+            from PySide6.QtWidgets import QMessageBox
+            ret = QMessageBox.question(
+                self,
+                _tr("save_project"),
+                _tr("unsaved_changes_msg"),
+                QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
+            )
+            if ret == QMessageBox.StandardButton.Save:
+                self._on_save_project()
+            elif ret == QMessageBox.StandardButton.Cancel:
+                return
+        
+        self._load_project(file_path)
+    
+    def _remove_recent_file(self, file_path: str) -> None:
+        if file_path in self._recent_files:
+            self._recent_files.remove(file_path)
+            self._update_recent_files_menu()
+            self._save_recent_files()
+    
+    def _load_recent_files(self) -> None:
+        import json
+        from pathlib import Path
+        from beatboard.core.paths import get_config_dir
+        
+        recent_file = get_config_dir() / "recent_files.json"
+        if recent_file.exists():
+            try:
+                self._recent_files = json.loads(recent_file.read_text(encoding="utf-8"))
+            except Exception:
+                self._recent_files = []
+        else:
+            self._recent_files = []
+    
+    def _save_recent_files(self) -> None:
+        import json
+        from pathlib import Path
+        from beatboard.core.paths import get_config_dir
+        
+        recent_file = get_config_dir() / "recent_files.json"
+        recent_file.write_text(json.dumps(self._recent_files, ensure_ascii=False), encoding="utf-8")
     
     def _get_current_file_path(self) -> str | None:
         return self._current_file
@@ -809,6 +943,11 @@ class MainWindow(QMainWindow):
         app = QApplication.instance()
         if app and hasattr(app, "theme_manager"):
             app.theme_manager.set_custom_canvas_background(hex_color)
+    
+    def _on_reset_theme_colors(self) -> None:
+        app = QApplication.instance()
+        if app and hasattr(app, "theme_manager"):
+            app.theme_manager.reset_to_theme_colors()
     
     def _on_grid_toggled(self, checked: bool) -> None:
         self._beat_board_view._scene.set_grid_enabled(checked)
@@ -897,11 +1036,22 @@ class MainWindow(QMainWindow):
         self._set_modified(True)
         
         # Actualizar indicador de color en el panel si el beat afectado está seleccionado
-        if beat_id and self._properties_panel._current_beat:
-            if self._properties_panel._current_beat.id == beat_id:
-                beat = self._project.get_beat_by_id(beat_id)
-                if beat:
-                    self._properties_panel.update_selected_color(beat.color)
+        if not beat_id:
+            return
+        
+        beat = self._project.get_beat_by_id(beat_id)
+        if not beat:
+            return
+        
+        # Verificar si el beat está seleccionado individualmente
+        if self._properties_panel._current_beat and self._properties_panel._current_beat.id == beat_id:
+            self._properties_panel.update_selected_color(beat.color)
+        
+        # Verificar si el beat está entre los beats múltiples seleccionados
+        elif self._properties_panel._selected_beats:
+            selected_ids = {b.id for b in self._properties_panel._selected_beats}
+            if beat_id in selected_ids:
+                self._properties_panel.update_selected_color(beat.color)
     
     def _on_delete_selected(self) -> None:
         self._beat_board_view.delete_selected_beats()
@@ -946,6 +1096,8 @@ class MainWindow(QMainWindow):
         # Obtener beats y conexiones para calcular alturas Z
         beats = [self._project.get_beat_by_id(bid) for bid in beat_ids]
         beats = [b for b in beats if b is not None]
+        connections = [self._project.get_connection_by_id(cid) for cid in connection_ids]
+        connections = [c for c in connections if c is not None]
         
         # Obtener items gráficos para zValue de conexiones
         view = self._beat_board_view
@@ -972,20 +1124,25 @@ class MainWindow(QMainWindow):
             )
         elif total_beats > 1 and total_connections == 0:
             # Múltiples beats seleccionados
-            self._properties_panel.clear()
+            self._properties_panel.set_multiple_beats(beats)
             self._selection_message = (
                 _tr("multiple_selected_status").format(count=total_beats) +
                 f" ({min_z}, {max_z})"
             )
         elif total_connections == 1 and total_beats == 0:
             # Una sola conexión seleccionada
-            self._properties_panel.clear()
+            connection_id = connection_ids[0]
+            connection = self._project.get_connection_by_id(connection_id)
+            if connection:
+                self._properties_panel.set_connection(connection)
+            else:
+                self._properties_panel.clear()
             self._selection_message = (
                 _tr("selected_connection_status") + f" | Altura: {min_z}"
             )
         elif total_connections > 1 and total_beats == 0:
             # Múltiples conexiones seleccionadas
-            self._properties_panel.clear()
+            self._properties_panel.set_multiple_connections(connections)
             self._selection_message = (
                 _tr("multiple_connections_status").format(count=total_connections) +
                 f" ({min_z}, {max_z})"
@@ -1013,6 +1170,38 @@ class MainWindow(QMainWindow):
                 item.auto_resize_to_content()
                 item.refresh()
             self._beat_board_view.beat_moved.emit(beat_id)
+    
+    def _on_connection_updated(self, connection_id: str, color: str, line_width: float, node_shape: str, label: str) -> None:
+        connection = self._project.get_connection_by_id(connection_id)
+        if connection:
+            connection.color = color
+            connection.line_width = line_width
+            connection.node_shape = node_shape
+            connection.label = label if label else None
+            item = self._beat_board_view._connection_items.get(connection_id)
+            if item:
+                item.refresh()
+    
+    def _on_multiple_beats_updated(self, beat_ids: list[str], color: str, show_title: bool) -> None:
+        for beat_id in beat_ids:
+            beat = self._project.get_beat_by_id(beat_id)
+            if beat:
+                beat.color = color
+                beat.show_title = show_title
+                item = self._beat_board_view._beat_items.get(beat_id)
+                if item:
+                    item.refresh()
+    
+    def _on_multiple_connections_updated(self, connection_ids: list[str], color: str, line_width: float, node_shape: str) -> None:
+        for connection_id in connection_ids:
+            connection = self._project.get_connection_by_id(connection_id)
+            if connection:
+                connection.color = color
+                connection.line_width = line_width
+                connection.node_shape = node_shape
+                item = self._beat_board_view._connection_items.get(connection_id)
+                if item:
+                    item.refresh()
     
     def _on_show_shortcuts(self) -> None:
         from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTextEdit
@@ -1075,12 +1264,18 @@ class MainWindow(QMainWindow):
         
         dialog.exec()
     
+    def _on_register_file_association(self) -> None:
+        from beatboard.ui.dialogs.file_association_dialog import FileAssociationDialog
+        
+        dialog = FileAssociationDialog(self)
+        dialog.exec()
+    
     def _on_about(self) -> None:
         from PySide6.QtWidgets import QMessageBox
         from datetime import date
         
         current_year = date.today().year
-        version_date = "March 05, 2026"
+        version_date = "March 08, 2026"
         
         QMessageBox.about(
             self,

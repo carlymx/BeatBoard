@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=BeatBoard
+Comment=Visual beat board for screenwriters
+Comment[es]=Tablero visual para guionistas
+Comment[fr]=Tableau visuel pour scénaristes
+Comment[de]=Visuelles Beat-Board für Drehbuchautoren
+Exec=BeatBoard %F
+Icon=beatboard
+Terminal=false
+Type=Application
+Categories=Office;TextTools;
+MimeType=x-scheme-handler/bbp;application/x-bbp;
+StartupNotify=true

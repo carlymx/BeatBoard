@@ -45,6 +45,8 @@ class BeatBoardScene(QGraphicsScene):
         app = QApplication.instance()
         if app and hasattr(app, "theme_manager"):
             app.theme_manager.canvas_background_changed.connect(self._on_canvas_background_changed)
+            app.theme_manager.grid_color_changed.connect(self._on_grid_color_changed)
+            self._grid_color = app.theme_manager.get_grid_color()
     
     def _apply_canvas_background(self) -> None:
         app = QApplication.instance()
@@ -63,6 +65,10 @@ class BeatBoardScene(QGraphicsScene):
     def _on_canvas_background_changed(self, color_key: str) -> None:
         bg_color = self._get_bg_color(color_key)
         self.setBackgroundBrush(QBrush(QColor(bg_color)))
+    
+    def _on_grid_color_changed(self, color: str) -> None:
+        self._grid_color = color
+        self.update()
     
     def set_project(self, project: Project) -> None:
         self._project = project

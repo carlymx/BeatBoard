@@ -4,7 +4,7 @@
 
 <!-- Sección de Badges -->
 ![Licencia](https://img.shields.io/badge/licencia-CC%20BY--NC%204.0-blue.svg)
-![Versión](https://img.shields.io/badge/versión-1.0.19-green.svg)
+![Versión](https://img.shields.io/badge/versión-1.0.25-green.svg)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -249,6 +249,20 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 - NoComercial — No puedes usar el material para fines comerciales
 
 ## Registro de Cambios
+
+### v1.0.25 (2026-03-08)
+- **Columna de propiedades general**: El panel de propiedades ahora funciona para beats, conexiones y selección múltiple
+- **Propiedades de conexión**: Nuevos campos para color de línea, grosor (0.5-10px) y formas de terminadores (círculo, cuadrado, flecha, ninguno)
+- **Soporte para selección múltiple**: Cambiar propiedades comunes para múltiples beats o conexiones simultáneamente
+- **Visualización de estados mixtos**: Combos sin selección y checkboxes parcialmente marcados cuando los valores difieren
+- **Renderizado de terminadores**: Terminadores visuales en extremos de líneas según la forma seleccionada
+- **Actualizaciones en tiempo real**: Los indicadores de color se actualizan al usar atajos de teclado (1-0)
+
+### v1.0.21 (2026-03-08)
+- **Botón "Abrir editor completo"**: Nuevo botón en el panel de propiedades para abrir el editor de beats completo con formato rico
+
+### v1.0.20 (2026-03-08)
+- **Color de fondo con Tema**: Cada tema ahora tiene colores de fondo y cuadrícula asociados que se aplican automáticamente
 
 ### v1.0.19 (2026-03-06)
 - **Sistema de Z-Order corregido**: Cada beat nuevo se crea con z = número total de beats + 1
