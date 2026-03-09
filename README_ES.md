@@ -4,7 +4,7 @@
 
 <!-- Sección de Badges -->
 ![Licencia](https://img.shields.io/badge/licencia-CC%20BY--NC%204.0-blue.svg)
-![Versión](https://img.shields.io/badge/versión-1.0.25-green.svg)
+![Versión](https://img.shields.io/badge/versión-1.0.27-green.svg)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -183,7 +183,8 @@ chmod +x BeatBoard-x86_64.AppImage
 | Ctrl+- | Alejar |
 | Espacio | Modo desplazamiento (mantener) |
 | Escape | Cancelar / Deseleccionar |
-| 1-8 | Cambiar color del beat |
+| 1-0 | Cambia el color de selección |
+| C | Activa/desactiva modo conexión (sin selección) |
 
 ## Estructura del Proyecto
 
@@ -249,6 +250,25 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 - NoComercial — No puedes usar el material para fines comerciales
 
 ## Registro de Cambios
+
+### v1.0.27 (2026-03-09)
+- **Zoom de selección de área**: Nuevo modo de zoom que permite dibujar un rectángulo para hacer zoom al área seleccionada
+- **Botón toolbar para zoom**: Nuevo icono "Zoom" entre zoom-in y fit
+- **Atajo de teclado "Z"**: Activa el modo zoom de selección cuando no hay nada seleccionado
+- **Fix banner modo conexión**: Arreglado el problema por el cual el banner no se mostraba
+- **Atajos actualizados**: Añadidos "Z" (zoom) y "Ctrl+W" (cerrar proyecto) al diálogo de atajos
+- **Descripciones de atajos corregidas**: Ahora indican "doble clic" para crear/editar beats
+- **Fix paneo con teclado**: Arreglado el problema por el cual el paneo con Espacio no funcionaba correctamente
+
+### v1.0.26 (2026-03-09)
+- **Corrección de bugs en propiedades de conexión**: Solucionado problema donde la selección múltiple de conexiones no aplicaba cambios
+- **Atajos de teclado extendidos**: Teclas 1-0 ahora cambian colores tanto para beats COMO para conexiones
+- **Personalización de colores de conexión**: Añadidos colores personalizados (8, 9, 0) a los widgets de propiedades de conexión
+- **Nuevo color de conexión**: Añadido 7º color predefinido "Gris Oscuro" (#616161)
+- **Atajo para modo conexión**: Añadida tecla "C" para activar/desactivar modo conexión cuando no hay nada seleccionado
+- **Descripciones de atajos actualizadas**: Cambiado "Cambiar color del beat" a "Cambiar color de la selección" en todos los idiomas
+- **Actualizaciones en tiempo real de propiedades**: El panel de propiedades de conexión se actualiza al usar atajos de teclado
+- **Renderizado de colores mejorado**: Corregida visualización de colores hexadecimales para conexiones personalizadas
 
 ### v1.0.25 (2026-03-08)
 - **Columna de propiedades general**: El panel de propiedades ahora funciona para beats, conexiones y selección múltiple

@@ -90,6 +90,10 @@ TRANSLATIONS: dict[str, str] = {
     "fit_tooltip": "Fit to content (Ctrl+0)",
     "center_tooltip": "Center view on origin (0,0)",
     "connect_tooltip": "Connection mode (create lines between beats)",
+    "zoom_selection_toolbar": "Zoom",
+    "zoom_selection_tooltip": "Selection zoom (Z)",
+    "zoom_selection_mode_active": "Zoom mode active. Drag to select area. ESC to exit.",
+    "shortcut_zoom_selection": "Selection zoom",
     
     # Properties panel
     "beat_properties": "Properties",
@@ -168,11 +172,14 @@ TRANSLATIONS: dict[str, str] = {
     "shortcut_fit": "Fit to content",
     "shortcut_zoom_in": "Zoom in",
     "shortcut_zoom_out": "Zoom out",
-    "shortcut_pan": "Pan mode (hold)",
+    "shortcut_pan": "Pan mode (Space or middle mouse button)",
     "shortcut_deselect": "Deselect all / Cancel connection mode",
-    "shortcut_change_color": "Change beat color",
-    "shortcut_new_beat": "Create new beat (canvas)",
-    "shortcut_edit_beat": "Edit beat",
+    "shortcut_change_color": "Change selection color",
+    "shortcut_toggle_connection_mode": "Toggle connection mode (no selection)",
+    "shortcut_zoom_selection": "Selection zoom (no selection)",
+    "shortcut_close_project": "Close project",
+    "shortcut_new_beat": "Create new beat (double-click on canvas)",
+    "shortcut_edit_beat": "Edit beat (double-click on beat)",
     
     # About dialog
     "about": "About",
@@ -242,6 +249,7 @@ TRANSLATIONS: dict[str, str] = {
     "connection_color_yellow": "Yellow",
     "connection_color_orange": "Orange",
     "connection_color_purple": "Purple",
+    "connection_color_dark_gray": "Dark Gray",
     "node_shape_circle": "Circle",
     "node_shape_square": "Square",
     "node_shape_arrow": "Arrow",

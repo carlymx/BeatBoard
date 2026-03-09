@@ -4,7 +4,7 @@ from PySide6.QtCore import QSizeF, QPointF
 from PySide6.QtGui import QColor
 
 APP_NAME = "BeatBoard"
-APP_VERSION = "1.0.25"
+APP_VERSION = "1.0.27"
 APP_ORGANIZATION = "BeatBoard"
 
 BEAT_DEFAULT_WIDTH = 200.0
@@ -88,6 +88,23 @@ def get_beat_qcolor(color_str: str) -> QColor:
     hex_color = get_valid_beat_color(color_str)
     return QColor(hex_color)
 
+# Función para obtener color válido para conexiones
+def get_valid_connection_color(color_str: str) -> QColor:
+    """Get valid QColor for connections from any color string format."""
+    # Si ya es un nombre de color predefinido
+    if color_str in CONNECTION_COLORS:
+        return CONNECTION_COLORS[color_str]
+    
+    # Si es un color hexadecimal válido
+    if color_str.startswith("#") and len(color_str) == 7:
+        try:
+            return QColor(color_str)
+        except:
+            pass
+    
+    # Fallback a color por defecto
+    return CONNECTION_COLORS[CONNECTION_COLOR_DEFAULT]
+
 CONNECTION_LINE_WIDTH = 2.0
 CONNECTION_LINE_WIDTH_OPTIONS = [1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
 CONNECTION_LINE_WIDTH_DEFAULT = 2.0
@@ -105,6 +122,7 @@ CONNECTION_COLORS: dict[str, QColor] = {
     "yellow": QColor("#FFEE58"),
     "orange": QColor("#FFA726"),
     "purple": QColor("#AB47BC"),
+    "dark_gray": QColor("#616161"),  # 7º color - gris oscuro
 }
 
 CONNECTION_COLOR_DEFAULT = "blue"

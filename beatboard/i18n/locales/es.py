@@ -90,6 +90,10 @@ TRANSLATIONS: dict[str, str] = {
     "fit_tooltip": "Ajustar a contenido (Ctrl+0)",
     "center_tooltip": "Centrar vista en el origen (0,0)",
     "connect_tooltip": "Modo conexión (crear líneas entre beats)",
+    "zoom_selection_toolbar": "Zoom",
+    "zoom_selection_tooltip": "Zoom de selección (Z)",
+    "zoom_selection_mode_active": "Modo 'Zoom' Activado. Arrastra para seleccionar área. ESC para salir.",
+    "shortcut_zoom_selection": "Zoom de selección",
     
     # Properties panel
     "beat_properties": "Propiedades",
@@ -168,11 +172,14 @@ TRANSLATIONS: dict[str, str] = {
     "shortcut_fit": "Ajustar a contenido",
     "shortcut_zoom_in": "Acercar",
     "shortcut_zoom_out": "Alejar",
-    "shortcut_pan": "Modo paneo (mantener)",
+    "shortcut_pan": "Modo paneo (Espacio o botón central del ratón)",
     "shortcut_deselect": "Deseleccionar todo / Cancelar modo conexión",
-    "shortcut_change_color": "Cambiar color del beat",
-    "shortcut_new_beat": "Crear nuevo beat (lienzo)",
-    "shortcut_edit_beat": "Editar beat",
+    "shortcut_change_color": "Cambia el color de selección",
+    "shortcut_toggle_connection_mode": "Activa/desactiva modo conexión (sin selección)",
+    "shortcut_zoom_selection": "Zoom de selección (sin selección)",
+    "shortcut_close_project": "Cerrar proyecto",
+    "shortcut_new_beat": "Crear nuevo beat (doble clic en lienzo)",
+    "shortcut_edit_beat": "Editar beat (doble clic en beat)",
     
     # About dialog
     "about": "Acerca de",
@@ -242,6 +249,7 @@ TRANSLATIONS: dict[str, str] = {
     "connection_color_yellow": "Amarillo",
     "connection_color_orange": "Naranja",
     "connection_color_purple": "Púrpura",
+    "connection_color_dark_gray": "Gris Oscuro",
     "node_shape_circle": "Círculo",
     "node_shape_square": "Cuadrado",
     "node_shape_arrow": "Flecha",

@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-MS Windows spec file for BeatBoard v1.0.25
+MS Windows spec file for BeatBoard v1.0.27
 """
 
 from pathlib import Path

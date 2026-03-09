@@ -4,7 +4,7 @@
 
 <!-- Badges Section -->
 ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.25-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.27-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -183,7 +183,8 @@ chmod +x BeatBoard-x86_64.AppImage
 | Ctrl+- | Zoom Out |
 | Space | Pan mode (hold) |
 | Escape | Cancel / Deselect |
-| 1-8 | Change beat color |
+| 1-0 | Change selection color |
+| C | Toggle connection mode (no selection) |
 
 ## Project Structure
 
@@ -249,6 +250,25 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 - NonCommercial — You may not use the material for commercial purposes
 
 ## Changelog
+
+### v1.0.27 (2026-03-09)
+- **Area selection zoom**: New zoom mode that allows drawing a rectangle to zoom to the selected area
+- **Zoom toolbar button**: New "Zoom" icon between zoom-in and fit
+- **"Z" keyboard shortcut**: Activates selection zoom mode when nothing is selected
+- **Connection mode banner fix**: Fixed issue where the banner was not showing
+- **Updated shortcuts**: Added "Z" (zoom) and "Ctrl+W" (close project) to shortcuts dialog
+- **Shortcut descriptions corrected**: Now indicate "double-click" to create/edit beats
+- **Keyboard panning fix**: Fixed issue where panning with Space key wasn't working correctly
+
+### v1.0.26 (2026-03-09)
+- **Connection properties bug fixes**: Fixed issue where multiple connection selections didn't apply changes
+- **Extended keyboard shortcuts**: Keys 1-0 now change colors for both beats AND connections
+- **Connection color customization**: Added custom colors (8, 9, 0) to connection property widgets
+- **New connection color**: Added 7th predefined color "Dark Gray" (#616161)
+- **Connection mode shortcut**: Added "C" key to toggle connection mode when nothing is selected
+- **Updated shortcut descriptions**: Changed "Change beat color" to "Change selection color" in all languages
+- **Real-time property updates**: Connection property panel updates when using keyboard shortcuts
+- **Improved color rendering**: Fixed hex color display for custom connection colors
 
 ### v1.0.25 (2026-03-08)
 - **General properties column**: Properties panel now works for beats, connections, and multiple selection

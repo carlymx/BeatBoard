@@ -3,7 +3,7 @@
 ## Info
 - **App de escritorio**: Pizarra virtual de beats para guionistas (como Final Draft Beat Board)
 - **Tech**: Python 3.10+ / PySide6 / Qt Graphics View
-- **v1.0 COMPLETA** | Roadmap: v1.1→v1.2→v1.5→v2.0
+- **v1.0.27 COMPLETA** | Roadmap: v1.1→v1.2→v1.5→v2.0
 
 ---
 
@@ -188,8 +188,9 @@
 | 3 | Arquitectura | Columna propiedades general | ✅ Completado |
 | 4 | UI | Botón "Más opciones" | ✅ Completado |
 | 5 | UI | Color fondo con tema | ✅ Completado |
-| 6 | Conexiones | Grosor/color nodos | ✅ Completado |
+| 6 | Conexiones | Grosor/color nodos | ✅ Completado v1.0.25 |
 | 7 | Conexiones | Texto en conexiones | ⚠️ Parcial |
+| 8 | Conexiones | Atajos teclado 1-0 + color gris oscuro | ✅ Completado v1.0.26 |
 | 8 | Beats | Markdown | Pendiente |
 | 9 | Beats | Imágenes | Pendiente |
 | 10 | Nueva | Shapes | Pendiente |
@@ -246,6 +247,20 @@ beatboard/
 ├── i18n/         # traducciones (en, es, fr, de)
 └── tests/        # pytest (34 tests)
 ```
+
+---
+## Archivos con el numero de versión
+- Cada cambio de versión hay que actualizar el numero de versión a esta lista de archivos:
+./beatboard-linux.spec
+./beatboard-macos.spec
+./beatboard-windows.spec
+./beatboard/__init__.py
+./beatboard/core/constants.py
+./build_linux.sh
+./pyproject.toml
+
+- Cada cambio de versión hay que actualizar la fecha por la actual en este archivo:
+./beatboard/ui/main_window.py (cerca de la linea 1290)
 
 ---
 

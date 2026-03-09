@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-PyInstaller spec file for BeatBoard v1.0.25
+PyInstaller spec file for BeatBoard v1.0.27
 """
 
 import sys

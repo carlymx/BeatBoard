@@ -90,6 +90,10 @@ TRANSLATIONS: dict[str, str] = {
     "fit_tooltip": "Ajuster au contenu (Ctrl+0)",
     "center_tooltip": "Centrer la vue sur l'origine (0,0)",
     "connect_tooltip": "Mode connexion (créer des lignes entre les beats)",
+    "zoom_selection_toolbar": "Zoom",
+    "zoom_selection_tooltip": "Zoom de sélection (Z)",
+    "zoom_selection_mode_active": "Mode 'Zoom' actif. Faites glisser pour sélectionner. Échap pour quitter.",
+    "shortcut_zoom_selection": "Zoom de sélection",
     
     # Properties panel
     "beat_properties": "Propriétés",
@@ -168,11 +172,14 @@ TRANSLATIONS: dict[str, str] = {
     "shortcut_fit": "Ajuster au contenu",
     "shortcut_zoom_in": "Zoom avant",
     "shortcut_zoom_out": "Zoom arrière",
-    "shortcut_pan": "Mode panoramique (maintenir)",
+    "shortcut_pan": "Mode panoramique (Espace ou bouton central de la souris)",
     "shortcut_deselect": "Tout désélectionner / Annuler le mode connexion",
-    "shortcut_change_color": "Changer la couleur du beat",
-    "shortcut_new_beat": "Créer un nouveau beat (canevas)",
-    "shortcut_edit_beat": "Modifier le beat",
+    "shortcut_change_color": "Change la couleur de la sélection",
+    "shortcut_toggle_connection_mode": "Active/désactive le mode connexion (sans sélection)",
+    "shortcut_zoom_selection": "Zoom de sélection (sans sélection)",
+    "shortcut_close_project": "Fermer le projet",
+    "shortcut_new_beat": "Créer un nouveau beat (double-clic sur le canevas)",
+    "shortcut_edit_beat": "Modifier le beat (double-clic sur le beat)",
     
     # About dialog
     "about": "À propos",
@@ -242,6 +249,7 @@ TRANSLATIONS: dict[str, str] = {
     "connection_color_yellow": "Jaune",
     "connection_color_orange": "Orange",
     "connection_color_purple": "Violet",
+    "connection_color_dark_gray": "Gris Foncé",
     "node_shape_circle": "Cercle",
     "node_shape_square": "Carré",
     "node_shape_arrow": "Flèche",

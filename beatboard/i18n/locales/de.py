@@ -90,6 +90,10 @@ TRANSLATIONS: dict[str, str] = {
     "fit_tooltip": "An Inhalt anpassen (Strg+0)",
     "center_tooltip": "Ansicht auf Ursprung zentrieren (0,0)",
     "connect_tooltip": "Verbindungsmodus (Linien zwischen Beats erstellen)",
+    "zoom_selection_toolbar": "Zoom",
+    "zoom_selection_tooltip": "Auswahlzoom (Z)",
+    "zoom_selection_mode_active": "Zoom-Modus aktiv. Ziehen um Bereich auszuwählen. ESC zum Beenden.",
+    "shortcut_zoom_selection": "Auswahlzoom",
     
     # Properties panel
     "beat_properties": "Eigenschaften",
@@ -168,11 +172,14 @@ TRANSLATIONS: dict[str, str] = {
     "shortcut_fit": "An Inhalt anpassen",
     "shortcut_zoom_in": "Vergrößern",
     "shortcut_zoom_out": "Verkleinern",
-    "shortcut_pan": "Schwenkmodus (gedrückt halten)",
+    "shortcut_pan": "Schwenkmodus (Leertaste oder mittlere Maustaste)",
     "shortcut_deselect": "Auswahl aufheben / Verbindungsmodus abbrechen",
-    "shortcut_change_color": "Beat-Farbe ändern",
-    "shortcut_new_beat": "Neuen Beat erstellen (Leinwand)",
-    "shortcut_edit_beat": "Beat bearbeiten",
+    "shortcut_change_color": "Farbe der Auswahl ändern",
+    "shortcut_toggle_connection_mode": "Verbindungsmodus umschalten (ohne Auswahl)",
+    "shortcut_zoom_selection": "Auswahlzoom (ohne Auswahl)",
+    "shortcut_close_project": "Projekt schließen",
+    "shortcut_new_beat": "Neuen Beat erstellen (Doppelklick auf Leinwand)",
+    "shortcut_edit_beat": "Beat bearbeiten (Doppelklick auf Beat)",
     
     # About dialog
     "about": "Über",
@@ -242,6 +249,7 @@ TRANSLATIONS: dict[str, str] = {
     "connection_color_yellow": "Gelb",
     "connection_color_orange": "Orange",
     "connection_color_purple": "Lila",
+    "connection_color_dark_gray": "Dunkelgrau",
     "node_shape_circle": "Kreis",
     "node_shape_square": "Quadrat",
     "node_shape_arrow": "Pfeil",

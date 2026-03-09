@@ -548,6 +548,10 @@ class MainWindow(QMainWindow):
         zoom_out_btn.setToolTip(_tr("zoom_out_tooltip"))
         zoom_out_btn.triggered.connect(self._beat_board_view.zoom_out)
         
+        zoom_selection_btn = toolbar.addAction(self._get_toolbar_icon("Zoom"), _tr("zoom_selection_toolbar"))
+        zoom_selection_btn.setToolTip(_tr("zoom_selection_tooltip"))
+        zoom_selection_btn.triggered.connect(self._beat_board_view.toggle_zoom_selection_mode)
+        
         fit_btn = toolbar.addAction(self._get_toolbar_icon("fit"), _tr("fit"))
         fit_btn.setToolTip(_tr("fit_tooltip"))
         fit_btn.triggered.connect(self._beat_board_view.fit_to_contents)
@@ -571,6 +575,7 @@ class MainWindow(QMainWindow):
         self._beat_board_view.beat_created.connect(self._on_beat_created)
         self._beat_board_view.beat_deleted.connect(self._on_beat_deleted)
         self._beat_board_view.beat_moved.connect(self._on_beat_moved)
+        self._beat_board_view.connection_updated.connect(self._on_connection_updated)
         self._beat_board_view.selection_changed.connect(self._on_selection_changed)
         self._beat_board_view.mouse_moved.connect(self._on_mouse_moved)
         self._properties_panel.beat_updated.connect(self._on_beat_updated)
@@ -1181,6 +1186,16 @@ class MainWindow(QMainWindow):
             item = self._beat_board_view._connection_items.get(connection_id)
             if item:
                 item.refresh()
+            
+            # Actualizar color en el panel de propiedades si esta conexión está seleccionada
+            if self._properties_panel._current_connection and self._properties_panel._current_connection.id == connection_id:
+                self._properties_panel.update_selected_color(color)
+            
+            # Verificar si la conexión está entre las múltiples seleccionadas
+            elif self._properties_panel._selected_connections:
+                selected_ids = {c.id for c in self._properties_panel._selected_connections}
+                if connection_id in selected_ids:
+                    self._properties_panel.update_selected_color(color)
     
     def _on_multiple_beats_updated(self, beat_ids: list[str], color: str, show_title: bool) -> None:
         for beat_id in beat_ids:
@@ -1192,13 +1207,14 @@ class MainWindow(QMainWindow):
                 if item:
                     item.refresh()
     
-    def _on_multiple_connections_updated(self, connection_ids: list[str], color: str, line_width: float, node_shape: str) -> None:
+    def _on_multiple_connections_updated(self, connection_ids: list[str], color: str, line_width: float, node_shape: str, label: str) -> None:
         for connection_id in connection_ids:
             connection = self._project.get_connection_by_id(connection_id)
             if connection:
                 connection.color = color
                 connection.line_width = line_width
                 connection.node_shape = node_shape
+                connection.label = label if label else None
                 item = self._beat_board_view._connection_items.get(connection_id)
                 if item:
                     item.refresh()
@@ -1215,6 +1231,7 @@ class MainWindow(QMainWindow):
         <li><b>Ctrl+O</b>: {_tr("shortcut_open_project")}</li>
         <li><b>Ctrl+S</b>: {_tr("shortcut_save_project")}</li>
         <li><b>Ctrl+Shift+S</b>: {_tr("shortcut_save_as")}</li>
+        <li><b>Ctrl+W</b>: {_tr("shortcut_close_project")}</li>
         </ul>
 
         <h3>{_tr("shortcuts_edit")}</h3>
@@ -1243,7 +1260,9 @@ class MainWindow(QMainWindow):
 
         <h3>{_tr("shortcuts_other")}</h3>
         <ul>
-        <li><b>1-8</b>: {_tr("shortcut_change_color")}</li>
+        <li><b>1-0</b>: {_tr("shortcut_change_color")}</li>
+        <li><b>C</b>: {_tr("shortcut_toggle_connection_mode")}</li>
+        <li><b>Z</b>: {_tr("shortcut_zoom_selection")}</li>
         <li><b>{_tr("shortcut_new_beat")}</b></li>
         <li><b>{_tr("shortcut_edit_beat")}</b></li>
         </ul>
@@ -1275,7 +1294,7 @@ class MainWindow(QMainWindow):
         from datetime import date
         
         current_year = date.today().year
-        version_date = "March 08, 2026"
+        version_date = "March 09, 2026"
         
         QMessageBox.about(
             self,

@@ -155,6 +155,9 @@ class PropertiesPanel(QWidget):
             color_display = _tr(f"connection_color_{color_name}")
             self._connection_color_combo.addItem(color_display, color_name)
         
+        # Agregar colores personalizados
+        self._update_custom_connection_colors_in_combo(self._connection_color_combo)
+        
         self._connection_color_combo.currentIndexChanged.connect(self._on_connection_color_changed)
         
         color_layout = QHBoxLayout()
@@ -283,6 +286,9 @@ class PropertiesPanel(QWidget):
         for color_name, qcolor in CONNECTION_COLORS.items():
             color_display = _tr(f"connection_color_{color_name}")
             self._multiple_connections_color_combo.addItem(color_display, color_name)
+        
+        # Agregar colores personalizados
+        self._update_custom_connection_colors_in_combo(self._multiple_connections_color_combo)
         
         self._multiple_connections_color_combo.currentIndexChanged.connect(self._on_multiple_connections_color_changed)
         
@@ -417,6 +423,25 @@ class PropertiesPanel(QWidget):
             color_labels[hex_color] = color_name
             combo.addItem(color_name, hex_color)
     
+    def _update_custom_connection_colors_in_combo(self, combo: QComboBox) -> None:
+        """Actualizar los colores personalizados en el combo box de conexiones."""
+        # Eliminar elementos de colores personalizados existentes (índices después de los predefinidos)
+        predefined_count = len(CONNECTION_COLORS)
+        while combo.count() > predefined_count:
+            combo.removeItem(predefined_count)
+        
+        # Obtener colores personalizados actuales
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance()
+        custom_colors = []
+        if app and hasattr(app, 'theme_manager'):
+            custom_colors = app.theme_manager.get_custom_colors()
+        
+        # Agregar colores personalizados actualizados
+        for i, hex_color in enumerate(custom_colors):
+            color_name = _tr("custom_color").format(num=i+1, color=hex_color)
+            combo.addItem(color_name, hex_color)
+    
     def set_beat(self, beat: Beat | None) -> None:
         self._current_beat = beat
         self._current_connection = None
@@ -481,6 +506,9 @@ class PropertiesPanel(QWidget):
             self._connection_properties_widget.setVisible(True)
             self._multiple_beats_widget.setVisible(False)
             self._multiple_connections_widget.setVisible(False)
+            
+            # Actualizar colores personalizados en el combo box
+            self._update_custom_connection_colors_in_combo(self._connection_color_combo)
             
             # Configurar color
             index = self._connection_color_combo.findData(connection.color)
@@ -583,6 +611,9 @@ class PropertiesPanel(QWidget):
             
             count_text = _tr("multiple_selected_connections").format(count=len(connections))
             self._multiple_connections_count_label.setText(count_text)
+            
+            # Actualizar colores personalizados en el combo box
+            self._update_custom_connection_colors_in_combo(self._multiple_connections_color_combo)
             
             # Determinar valores comunes
             colors = {conn.color for conn in connections}
@@ -756,12 +787,18 @@ class PropertiesPanel(QWidget):
         if self._updating or not self._selected_connections:
             return
         
-        self._emit_multiple_connections_updated(label=text)
+        self._emit_multiple_connections_updated(label=text if text else "")
     
-    def _update_connection_color_indicator(self, color_name: str) -> None:
+    def _update_connection_color_indicator(self, color_value: str) -> None:
         if hasattr(self, '_connection_color_indicator') and self._connection_color_indicator:
-            qcolor = CONNECTION_COLORS.get(color_name, CONNECTION_COLORS["blue"])
-            hex_color = qcolor.name()
+            # Si es un nombre de color predefinido, obtener el QColor
+            if color_value in CONNECTION_COLORS:
+                qcolor = CONNECTION_COLORS[color_value]
+                hex_color = qcolor.name()
+            else:
+                # Si es un color hexadecimal (personalizado)
+                hex_color = color_value
+            
             self._connection_color_indicator.setStyleSheet(
                 f"background-color: {hex_color}; border: 2px solid #333333; border-radius: 4px;"
             )
@@ -784,10 +821,16 @@ class PropertiesPanel(QWidget):
                 f"background-color: {hex_color}; border: 2px solid #333333; border-radius: 4px;"
             )
     
-    def _update_multiple_connections_color_indicator(self, color_name: str) -> None:
+    def _update_multiple_connections_color_indicator(self, color_value: str) -> None:
         if hasattr(self, '_multiple_connections_color_indicator') and self._multiple_connections_color_indicator:
-            qcolor = CONNECTION_COLORS.get(color_name, CONNECTION_COLORS["blue"])
-            hex_color = qcolor.name()
+            # Si es un nombre de color predefinido, obtener el QColor
+            if color_value in CONNECTION_COLORS:
+                qcolor = CONNECTION_COLORS[color_value]
+                hex_color = qcolor.name()
+            else:
+                # Si es un color hexadecimal (personalizado)
+                hex_color = color_value
+            
             self._multiple_connections_color_indicator.setStyleSheet(
                 f"background-color: {hex_color}; border: 2px solid #333333; border-radius: 4px;"
             )
@@ -806,7 +849,7 @@ class PropertiesPanel(QWidget):
         
         self.multiple_beats_updated.emit(beat_ids, color, show_title)
     
-    def _emit_multiple_connections_updated(self, color: str | None = None, line_width: float | None = None, node_shape: str | None = None) -> None:
+    def _emit_multiple_connections_updated(self, color: str | None = None, line_width: float | None = None, node_shape: str | None = None, label: str | None = None) -> None:
         if not self._selected_connections:
             return
         
@@ -818,8 +861,10 @@ class PropertiesPanel(QWidget):
             line_width = self._selected_connections[0].line_width
         if node_shape is None:
             node_shape = self._selected_connections[0].node_shape
+        if label is None:
+            label = self._selected_connections[0].label or ""
         
-        self.multiple_connections_updated.emit(connection_ids, color, line_width, node_shape)
+        self.multiple_connections_updated.emit(connection_ids, color, line_width, node_shape, label)
     
     def clear(self) -> None:
         self.set_beat(None)
@@ -832,16 +877,16 @@ class PropertiesPanel(QWidget):
         self._multiple_beats_widget.setVisible(False)
         self._multiple_connections_widget.setVisible(False)
     
-    def update_selected_color(self, hex_color: str) -> None:
+    def update_selected_color(self, color_value: str) -> None:
         # Actualizar para beat individual seleccionado
         if self._current_beat and self._color_combo:
             # Bloquear señales para evitar ciclo
             self._updating = True
             
-            index = self._color_combo.findData(hex_color)
+            index = self._color_combo.findData(color_value)
             if index >= 0:
                 self._color_combo.setCurrentIndex(index)
-            self._update_color_indicator(hex_color)
+            self._update_color_indicator(color_value)
             
             self._updating = False
         
@@ -851,16 +896,47 @@ class PropertiesPanel(QWidget):
             
             # Verificar si todos los beats seleccionados tienen el mismo color
             colors = {beat.color for beat in self._selected_beats}
-            if len(colors) == 1 and next(iter(colors)) == hex_color:
+            if len(colors) == 1 and next(iter(colors)) == color_value:
                 # Todos tienen el mismo color, actualizar combo box
-                index = self._multiple_beats_color_combo.findData(hex_color)
+                index = self._multiple_beats_color_combo.findData(color_value)
                 if index >= 0:
                     self._multiple_beats_color_combo.setCurrentIndex(index)
-                self._update_multiple_beats_color_indicator(hex_color)
+                self._update_multiple_beats_color_indicator(color_value)
             else:
                 # Valores mixtos: establecer índice -1 (sin selección)
                 self._multiple_beats_color_combo.setCurrentIndex(-1)
                 self._multiple_beats_color_indicator.setStyleSheet("background-color: transparent; border: 2px dashed #666; border-radius: 4px;")
+            
+            self._updating = False
+        
+        # Actualizar para conexión individual seleccionada
+        if self._current_connection and self._connection_color_combo:
+            self._updating = True
+            
+            # Buscar el color en el combo box (puede ser nombre o hexadecimal)
+            index = self._connection_color_combo.findData(color_value)
+            if index >= 0:
+                self._connection_color_combo.setCurrentIndex(index)
+            self._update_connection_color_indicator(color_value)
+            
+            self._updating = False
+        
+        # Actualizar para múltiples conexiones seleccionadas
+        if self._selected_connections and self._multiple_connections_color_combo:
+            self._updating = True
+            
+            # Verificar si todas las conexiones seleccionadas tienen el mismo color
+            colors = {conn.color for conn in self._selected_connections}
+            if len(colors) == 1 and next(iter(colors)) == color_value:
+                # Todas tienen el mismo color, actualizar combo box
+                index = self._multiple_connections_color_combo.findData(color_value)
+                if index >= 0:
+                    self._multiple_connections_color_combo.setCurrentIndex(index)
+                self._update_multiple_connections_color_indicator(color_value)
+            else:
+                # Valores mixtos: establecer índice -1 (sin selección)
+                self._multiple_connections_color_combo.setCurrentIndex(-1)
+                self._multiple_connections_color_indicator.setStyleSheet("background-color: transparent; border: 2px dashed #666; border-radius: 4px;")
             
             self._updating = False
     

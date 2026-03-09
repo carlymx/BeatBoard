@@ -1,10 +1,79 @@
 # BeatBoard - Estado del Desarrollo
 
-**Fecha**: 8 Marzo 2026  
-**Versión**: 1.0.25 - RELEASE ✅
+**Fecha**: 9 Marzo 2026  
+**Versión**: 1.0.27 - RELEASE ✅
 
 ---
+## v1.0.27 - RELEASE ✅
 
+### Cambios
+- ✅ **Zoom de selección de área**:
+  - Nuevo modo de zoom que permite dibujar un rectángulo para hacer zoom al área seleccionada
+  - Activación: botón en toolbar (entre zoom-in y fit) o tecla "Z" (cuando no hay selección)
+  - Banner visual indicando el modo activo
+  - Rectángulo semitransparente azul durante la selección
+  - Margen del 5% aplicado para mejor visualización
+
+- ✅ **Fix banner modo conexión**:
+  - Arreglado el banner que no se mostraba al activar el modo conexión
+
+- ✅ **Atajos de teclado actualizados**:
+  - Añadido atajo "Z" para zoom de selección en el diálogo de atajos
+  - Añadido atajo "Ctrl+W" para cerrar proyecto
+  - Actualizada descripción de "Crear nuevo beat" (doble clic en lienzo)
+  - Actualizada descripción de "Editar beat" (doble clic en beat)
+  - Actualizada descripción de "Modo paneo" (Espacio o botón central del ratón)
+
+- ✅ **Fix paneo con teclado (Espacio)**:
+  - Arreglado el problema por el cual el paneo con Espacio no funcionaba correctamente
+  - Añadido flag `_pan_started_with_space` para gestionar el primer movimiento del ratón
+  - Ahora el paneo empieza sin desplazamiento no deseado
+
+### Archivos modificados
+- `beatboard/ui/canvas/beat_board_view.py` – Nueva lógica de zoom de selección, fix paneo
+- `beatboard/ui/main_window.py` – Nuevo botón toolbar, diálogo de atajos actualizado
+- `beatboard/i18n/locales/*.py` – Nuevas traducciones para zoom selection, paneo, atajos
+
+---
+## v1.0.26 - RELEASE ✅
+
+### Cambios
+- ✅ **Corrección de bugs en propiedades de conexión**:
+  - Solucionado problema donde la selección múltiple de conexiones no aplicaba cambios
+  - El handler `_on_multiple_connections_updated` ahora incluye el parámetro `label` faltante
+
+- ✅ **Atajos de teclado extendidos para conexiones**:
+  - Teclas 1-0 ahora cambian colores tanto para beats como para conexiones
+  - Nueva señal `connection_updated` en `BeatBoardView` para notificar actualizaciones
+  - Método `_change_selected_connection_color()` para manejar cambios de color por teclado
+
+- ✅ **Personalización de colores de conexión**:
+  - Añadidos colores personalizados (8, 9, 0) a los widgets de propiedades de conexión
+  - Función `get_valid_connection_color()` para manejar colores hex y nombres predefinidos
+
+- ✅ **Nuevo color de conexión**:
+  - Añadido 7º color predefinido "dark_gray" (#616161) a `CONNECTION_COLORS`
+  - Traducciones en los 4 idiomas para "Gris Oscuro"/"Dark Gray"
+
+- ✅ **Atajo para modo conexión**:
+  - Tecla "C" activa/desactiva modo conexión cuando no hay nada seleccionado
+  - Integración con el método existente `toggle_connection_mode()`
+
+- ✅ **Actualizaciones de interfaz**:
+  - Cambiado "Cambiar color del beat" a "Cambiar color de la selección" en todos los idiomas
+  - Panel de propiedades de conexión se actualiza en tiempo real con atajos de teclado
+  - Actualizado diálogo de atajos de teclado para mostrar "1-0" y "C"
+
+### Archivos modificados
+- `beatboard/ui/widgets/properties_panel.py` – Soporte para colores personalizados en conexiones, fix multiselección
+- `beatboard/ui/main_window.py` – Handlers actualizados, conexión de señales, diálogo de atajos
+- `beatboard/ui/canvas/beat_board_view.py` – Nueva señal `connection_updated`, método `_change_selected_connection_color()`, atajo "C"
+- `beatboard/core/constants.py` – Añadido color `dark_gray`, función `get_valid_connection_color()`
+- `beatboard/ui/canvas/connection_item.py` – Usa `get_valid_connection_color()` para renderizado correcto
+- `beatboard/i18n/locales/*.py` – Nuevas traducciones para atajos y color gris oscuro
+- `beatboard/__init__.py` y `pyproject.toml` – Versión actualizada a 1.0.26
+
+---
 ## v1.0.24 - RELEASE ✅
 
 ### Cambios
@@ -16,7 +85,6 @@
 - `beatboard/ui/main_window.py`
 
 ---
-
 ## v1.0.25 - RELEASE ✅
 
 ### Cambios
@@ -45,7 +113,6 @@
 - `beatboard/i18n/locales/*.py` – nuevas traducciones para propiedades de conexión
 
 ---
-
 ## v1.0.23 - RELEASE ✅
 
 ### Cambios
@@ -70,7 +137,6 @@
 - `beatboard/i18n/locales/*.py`: nuevas traducciones
 
 ---
-
 ## v1.0.22 - RELEASE ✅
 
 ### Cambios
@@ -98,7 +164,6 @@
 - Formato .bbp como ZIP para soportar imágenes/archivos adjuntos
 
 ---
-
 ## v1.0.21 - RELEASE ✅
 
 ### Cambios
@@ -117,7 +182,6 @@
 - `beatboard/i18n/locales/*.py`: nueva traducción "open_full_editor"
 
 ---
-
 ## v1.0.20 - RELEASE ✅
 
 ### Cambios
@@ -140,7 +204,6 @@
 - `beatboard/i18n/locales/*.py`: nueva traducción "reset_theme_colors"
 
 ---
-
 ## v1.0.19 - RELEASE ✅
 
 ### Cambios
@@ -182,7 +245,6 @@
 - `beatboard/core/constants.py`, `beatboard/__init__.py`, `pyproject.toml`: versión actualizada a 1.0.19
 
 ---
-
 ## v1.0.18 - RELEASE ✅
 
 ### Cambios
@@ -204,7 +266,6 @@
 - `beatboard/ui/canvas/connection_item.py`: Lógica completa de handles, factores relativos, doble clic
 
 ---
-
 ## v1.0.17 - RELEASE ✅
 
 ### Cambios
@@ -228,7 +289,6 @@
 - `main_window.py`: menú de conexiones, traducciones
 
 ---
-
 ## v1.0.16 - RELEASE ✅
 
 ### Features
@@ -243,7 +303,6 @@
 - `resources.py`: carga cross-platform de iconos
 
 ---
-
 ## v1.0.14 - RELEASE ✅
 
 ### Features
@@ -253,31 +312,26 @@
 - Fix botón "Más Colores..."
 
 ---
-
 ## v1.0.13 - RELEASE ✅
 - Indicador visual Modo Conexión (banner)
 - Fix cursor cruz en Modo Conexión
 
 ---
-
 ## v1.0.12 - RELEASE ✅
 - Spellcheck lazy loading
 - Checkbox "Mostrar título"
 
 ---
-
 ## v1.0.10 - RELEASE ✅
 - Spellcheck Hunspell (es, en, fr, de)
 - Diccionarios de usuario
 
 ---
-
 ## v1.0.7 - RELEASE ✅
 - Icono personalizado embebido
 - Rutas cross-platform
 
 ---
-
 ## Funcionalidades v1.0 (COMPLETO- BeatBoardScene)
 
 ### Canvas
@@ -312,7 +366,6 @@
 - 34 tests
 
 ---
-
 ## 📋 Tareas Pendientes (Futuras Versiones)
 
 ### Formato .bbp como ZIP (para imágenes/archivos adjuntos)
@@ -349,7 +402,6 @@
 - Spec files: actualizar para incluir recursos
 
 ---
-
 ## Archivos Clave
 
 | Módulo | Archivo |
@@ -363,7 +415,6 @@
 | i18n | beatboard/i18n/ (en, es, fr, de) |
 
 ---
-
 ## Ejecución
 ```bash
 source .venv/bin/activate
@@ -372,7 +423,6 @@ pytest beatboard/tests/ -v
 ```
 
 ---
-
 ## Notas
 - Python 3.10 para compilar (no 3.12+)
 - Errores LSP son falsos positivos

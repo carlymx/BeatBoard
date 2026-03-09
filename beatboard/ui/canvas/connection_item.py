@@ -17,6 +17,7 @@ from beatboard.core.constants import (
     CONNECTION_OFFSET_PERCENT,
     CONNECTION_OFFSET_MIN,
     DEBUG_SHOW_Z_ORDER,
+    get_valid_connection_color,
 )
 
 if TYPE_CHECKING:
@@ -74,9 +75,10 @@ class ConnectionItem(QGraphicsPathItem):
         return max(distance, CONNECTION_OFFSET_MIN)
     
     def _update_pen(self) -> None:
-        color = CONNECTION_COLORS.get(self._connection.color, CONNECTION_COLORS["blue"])
+        from beatboard.core.constants import get_valid_connection_color
+        color = get_valid_connection_color(self._connection.color)
         line_width = self._connection.line_width if hasattr(self._connection, 'line_width') else CONNECTION_LINE_WIDTH
-        pen = QPen(QColor(color), line_width)
+        pen = QPen(color, line_width)
         pen.setStyle(Qt.PenStyle.SolidLine)
         self.setPen(pen)
     

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable
 
-from PySide6.QtCore import QEvent, QPointF, Qt, Signal
+from PySide6.QtCore import QEvent, QPoint, QPointF, Qt, Signal
 from PySide6.QtGui import QDragEnterEvent, QKeyEvent, QMouseEvent, QWheelEvent
 from PySide6.QtWidgets import QGraphicsView, QLabel, QWidget
 from PySide6.QtWidgets import QVBoxLayout
@@ -33,6 +33,7 @@ class BeatBoardView(QGraphicsView):
     beat_created = Signal(str)
     beat_deleted = Signal(str)
     beat_moved = Signal(str)
+    connection_updated = Signal(str, str, float, str, str)  # connection_id, color, line_width, node_shape, label
     selection_changed = Signal(dict)
     zoom_changed = Signal(float)
     mouse_moved = Signal(int, int)
@@ -44,7 +45,8 @@ class BeatBoardView(QGraphicsView):
         self._undo_stack = undo_stack
         self._zoom_level = ZOOM_DEFAULT
         self._pan_mode = False
-        self._last_pan_point = QPointF()
+        self._pan_started_with_space = False
+        self._last_pan_point = QPoint()
         self._grid_enabled = GRID_ENABLED_DEFAULT
         self._beat_items: dict[str, BeatItem] = {}
         self._connection_items: dict[str, ConnectionItem] = {}
@@ -52,6 +54,9 @@ class BeatBoardView(QGraphicsView):
         self._connection_start_beat: str | None = None
         self._temp_connection_line = None
         self._clipboard_beats: list[dict] = []
+        self._zoom_selection_mode = False
+        self._zoom_selection_start: QPointF | None = None
+        self._zoom_selection_rect_item = None
         
         self._setup_scene()
         self._setup_view()
@@ -60,6 +65,7 @@ class BeatBoardView(QGraphicsView):
         self._load_connections()
         
         self._create_connection_mode_banner()
+        self._create_zoom_selection_banner()
         
         self.viewport().installEventFilter(self)
     
@@ -175,10 +181,139 @@ class BeatBoardView(QGraphicsView):
         self._connection_banner.raise_()
         self._connection_banner.show()
     
+    def _create_zoom_selection_banner(self) -> None:
+        self._zoom_selection_banner = QLabel(self.viewport())
+        self._zoom_selection_banner.setText("Modo 'Zoom' Activado. Arrastra para seleccionar área. ESC para salir.")
+        self._zoom_selection_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._zoom_selection_banner.setStyleSheet("""
+            QLabel {
+                background-color: rgba(76, 175, 80, 220);
+                color: white;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+        """)
+        self._zoom_selection_banner.setFixedHeight(40)
+        self._zoom_selection_banner.hide()
+    
+    def _show_zoom_selection_banner(self) -> None:
+        from PySide6.QtWidgets import QApplication
+        
+        app = QApplication.instance()
+        if app and hasattr(app, 'locale_manager'):
+            from beatboard.i18n.locales import get_locale
+            locale_dict = get_locale()
+            message = locale_dict.get(
+                'zoom_selection_mode_active',
+                "Modo 'Zoom' Activado. Arrastra para seleccionar área. ESC para salir."
+            )
+            self._zoom_selection_banner.setText(message)
+        else:
+            self._zoom_selection_banner.setText("Modo 'Zoom' Activado. Arrastra para seleccionar área. ESC para salir.")
+        
+        banner_width = 450
+        self._zoom_selection_banner.setFixedWidth(banner_width)
+        x = (self.viewport().width() - banner_width) // 2
+        y = self.viewport().height() - 60
+        self._zoom_selection_banner.move(x, y)
+        self._zoom_selection_banner.raise_()
+        self._zoom_selection_banner.show()
+    
+    def _hide_zoom_selection_banner(self) -> None:
+        self._zoom_selection_banner.hide()
+    
+    def _update_zoom_selection_banner_position(self):
+        if not hasattr(self, '_zoom_selection_banner'):
+            return
+        banner_width = self._zoom_selection_banner.width()
+        x = (self.viewport().width() - banner_width) // 2
+        y = self.viewport().height() - 60
+        self._zoom_selection_banner.move(x, y)
+    
+    def toggle_zoom_selection_mode(self) -> None:
+        self._zoom_selection_mode = not self._zoom_selection_mode
+        if self._zoom_selection_mode:
+            self.viewport().setCursor(Qt.CursorShape.CrossCursor)
+            self._show_zoom_selection_banner()
+        else:
+            self.viewport().setCursor(Qt.CursorShape.ArrowCursor)
+            self._hide_zoom_selection_banner()
+            self._clear_zoom_selection_rect()
+    
+    def is_zoom_selection_mode(self) -> bool:
+        return self._zoom_selection_mode
+    
+    def _clear_zoom_selection_rect(self) -> None:
+        if self._zoom_selection_rect_item:
+            self._scene.removeItem(self._zoom_selection_rect_item)
+            self._zoom_selection_rect_item = None
+        self._zoom_selection_start = None
+    
+    def _update_zoom_selection_rect(self, current_pos: QPointF) -> None:
+        from PySide6.QtGui import QPen, QBrush, QColor, QPainter
+        from PySide6.QtCore import QRectF
+        
+        if self._zoom_selection_rect_item:
+            self._scene.removeItem(self._zoom_selection_rect_item)
+        
+        x1 = self._zoom_selection_start.x()
+        y1 = self._zoom_selection_start.y()
+        x2 = current_pos.x()
+        y2 = current_pos.y()
+        
+        rect = QRectF(x1, y1, x2 - x1, y2 - y1)
+        
+        from PySide6.QtWidgets import QGraphicsRectItem
+        self._zoom_selection_rect_item = QGraphicsRectItem(rect)
+        self._zoom_selection_rect_item.setPen(QPen(QColor(33, 150, 243), 2))
+        self._zoom_selection_rect_item.setBrush(QBrush(QColor(33, 150, 243, 50)))
+        self._scene.addItem(self._zoom_selection_rect_item)
+    
+    def _apply_zoom_to_selection(self, rect: QPointF) -> None:
+        if not self._zoom_selection_start:
+            return
+        
+        from PySide6.QtCore import QRectF
+        x1 = min(self._zoom_selection_start.x(), rect.x())
+        y1 = min(self._zoom_selection_start.y(), rect.y())
+        x2 = max(self._zoom_selection_start.x(), rect.x())
+        y2 = max(self._zoom_selection_start.y(), rect.y())
+        
+        selection_rect = QRectF(x1, y1, x2 - x1, y2 - y1)
+        
+        if selection_rect.width() < 10 or selection_rect.height() < 10:
+            self._clear_zoom_selection_rect()
+            return
+        
+        margin_factor = 0.05
+        margin_x = selection_rect.width() * margin_factor
+        margin_y = selection_rect.height() * margin_factor
+        selection_rect.adjust(-margin_x, -margin_y, margin_x, margin_y)
+        
+        self.fitInView(selection_rect, Qt.AspectRatioMode.KeepAspectRatio)
+        self._zoom_level = self.transform().m11()
+        
+        if self._zoom_level < ZOOM_MIN:
+            self._zoom_level = ZOOM_MIN
+            self._set_zoom(self._zoom_level)
+        elif self._zoom_level > ZOOM_MAX:
+            self._zoom_level = ZOOM_MAX
+            self._set_zoom(self._zoom_level)
+        
+        self.zoom_changed.emit(self._zoom_level)
+        self._clear_zoom_selection_rect()
+        
+        if self._zoom_selection_mode:
+            self.toggle_zoom_selection_mode()
+    
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, '_connection_banner') and self._connection_banner.isVisible():
             self._update_banner_position()
+        if hasattr(self, '_zoom_selection_banner') and self._zoom_selection_banner.isVisible():
+            self._update_zoom_selection_banner_position()
     
     def _update_banner_position(self):
         if not hasattr(self, '_connection_banner'):
@@ -577,6 +712,11 @@ class BeatBoardView(QGraphicsView):
             event.accept()
             return
         
+        if self._zoom_selection_mode and event.button() == Qt.MouseButton.LeftButton:
+            self._zoom_selection_start = self.mapToScene(event.pos())
+            event.accept()
+            return
+        
         if event.button() == Qt.MouseButton.RightButton:
             item = self.itemAt(event.pos())
             if isinstance(item, BeatItem):
@@ -628,8 +768,13 @@ class BeatBoardView(QGraphicsView):
     
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         if self._pan_mode:
-            delta = event.pos() - self._last_pan_point
-            self._last_pan_point = event.pos()
+            if self._pan_started_with_space:
+                self._last_pan_point = event.pos()
+                self._pan_started_with_space = False
+            
+            current_pos = event.pos()
+            delta = current_pos - self._last_pan_point
+            self._last_pan_point = current_pos
             self.horizontalScrollBar().setValue(
                 self.horizontalScrollBar().value() - delta.x()
             )
@@ -639,12 +784,25 @@ class BeatBoardView(QGraphicsView):
             event.accept()
             return
         
+        if self._zoom_selection_mode and self._zoom_selection_start:
+            current_pos = self.mapToScene(event.pos())
+            self._update_zoom_selection_rect(current_pos)
+            event.accept()
+            return
+        
         super().mouseMoveEvent(event)
     
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.MouseButton.MiddleButton:
             self._pan_mode = False
+            self._pan_started_with_space = False
             self.setCursor(Qt.CursorShape.ArrowCursor)
+            event.accept()
+            return
+        
+        if self._zoom_selection_mode and self._zoom_selection_start and event.button() == Qt.MouseButton.LeftButton:
+            end_pos = self.mapToScene(event.pos())
+            self._apply_zoom_to_selection(end_pos)
             event.accept()
             return
         
@@ -666,6 +824,8 @@ class BeatBoardView(QGraphicsView):
             self._scene.clearSelection()
             if self._connection_mode:
                 self.toggle_connection_mode()
+            if self._zoom_selection_mode:
+                self.toggle_zoom_selection_mode()
             event.accept()
             return
         
@@ -676,6 +836,7 @@ class BeatBoardView(QGraphicsView):
         
         if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
             self._pan_mode = True
+            self._pan_started_with_space = True
             self.setCursor(Qt.CursorShape.ClosedHandCursor)
             event.accept()
             return
@@ -684,13 +845,32 @@ class BeatBoardView(QGraphicsView):
         if event.key() >= Qt.Key.Key_1 and event.key() <= Qt.Key.Key_9:
             color_index = event.key() - Qt.Key.Key_1
             self._change_selected_beat_color(color_index)
+            self._change_selected_connection_color(color_index)
             event.accept()
             return
         elif event.key() == Qt.Key.Key_0:
             color_index = 9  # 0 es el décimo color (índice 9)
             self._change_selected_beat_color(color_index)
+            self._change_selected_connection_color(color_index)
             event.accept()
             return
+        
+        # Tecla C para activar/desactivar modo conexión (cuando no hay nada seleccionado)
+        if event.key() == Qt.Key.Key_C and not (event.modifiers() & Qt.KeyboardModifier.ControlModifier):
+            # Solo activar/desactivar modo conexión si no hay nada seleccionado
+            selected_items = self._scene.selectedItems()
+            if not selected_items:
+                self.toggle_connection_mode()
+                event.accept()
+                return
+        
+        # Tecla Z para activar/desactivar modo zoom selection (cuando no hay nada seleccionado)
+        if event.key() == Qt.Key.Key_Z and not (event.modifiers() & Qt.KeyboardModifier.ControlModifier):
+            selected_items = self._scene.selectedItems()
+            if not selected_items:
+                self.toggle_zoom_selection_mode()
+                event.accept()
+                return
         
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if event.key() == Qt.Key.Key_C:
@@ -874,9 +1054,48 @@ class BeatBoardView(QGraphicsView):
                     # Emitir señal para actualizar panel de propiedades
                     self.beat_moved.emit(beat.id)
     
+    def _change_selected_connection_color(self, color_index: int) -> None:
+        from beatboard.core.constants import (
+            CONNECTION_COLORS,
+            CONNECTION_COLOR_DEFAULT,
+        )
+        from PySide6.QtWidgets import QApplication
+        
+        # Obtener colores personalizados del ThemeManager
+        custom_colors = []
+        app = QApplication.instance()
+        if app and hasattr(app, 'theme_manager'):
+            custom_colors = app.theme_manager.get_custom_colors()
+        
+        # Combinar colores predefinidos y personalizados
+        predefined_colors = list(CONNECTION_COLORS.keys())
+        all_colors = predefined_colors + custom_colors
+        
+        if color_index < 0 or color_index >= len(all_colors):
+            return
+        
+        selected_items = self._scene.selectedItems()
+        
+        connection_items = [item for item in selected_items if hasattr(item, '_connection') and item._connection]
+        
+        for item in connection_items:
+            connection = item._connection
+            color_value = all_colors[color_index]
+            connection.color = color_value
+            item.update()
+            # Emitir señal para actualizar panel de propiedades
+            self.connection_updated.emit(
+                connection.id,
+                connection.color,
+                connection.line_width,
+                connection.node_shape,
+                connection.label or ""
+            )
+    
     def keyReleaseEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
             self._pan_mode = False
+            self._pan_started_with_space = False
             self.setCursor(Qt.CursorShape.ArrowCursor)
             event.accept()
             return
