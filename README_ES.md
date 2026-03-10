@@ -23,6 +23,7 @@ Ya sea que estés delineando un guión cinematográfico, novela, relato corto o 
 - [Características](#características)
 - [Instalación](#instalación)
 - [Uso](#uso)
+- [Manual de Usuario](./doc/manual_md/MANUAL_es.md)
 - [Atajos de Teclado](#atajos-de-teclado)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Contribuir](#contribuir)
@@ -162,6 +163,15 @@ chmod +x BeatBoard-x86_64.AppImage
 2. Clic en el beat origen
 3. Clic en el beat destino
 4. Presiona Escape para salir del modo conexión
+
+### Manual de Usuario
+
+Para una guía completa de uso, consulta el manual en tu idioma:
+
+- [Español](./doc/manual_md/MANUAL_es.md)
+- [English](./doc/manual_md/MANUAL_en.md)
+- [Français](./doc/manual_md/MANUAL_fr.md)
+- [Deutsch](./doc/manual_md/MANUAL_de.md)
 
 ## Atajos de Teclado
 

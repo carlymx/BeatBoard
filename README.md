@@ -23,6 +23,7 @@ Whether you're outlining a screenplay, novel, short story, or TV series, BeatBoa
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
+- [User Manual](./doc/manual_md/MANUAL_en.md)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
@@ -162,6 +163,15 @@ chmod +x BeatBoard-x86_64.AppImage
 2. Click on the source beat
 3. Click on the target beat
 4. Press Escape to exit connection mode
+
+### User Manual
+
+For a complete usage guide, see the manual in your language:
+
+- [Español](./doc/manual_md/MANUAL_es.md)
+- [English](./doc/manual_md/MANUAL_en.md)
+- [Français](./doc/manual_md/MANUAL_fr.md)
+- [Deutsch](./doc/manual_md/MANUAL_de.md)
 
 ## Keyboard Shortcuts
 
