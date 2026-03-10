@@ -9,7 +9,7 @@
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
 
-![main](./imgs/beatboard_001.png)
+![main](./imgs/beatboard_002.png)
 
 ## Description
 
