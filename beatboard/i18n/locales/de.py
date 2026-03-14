@@ -23,6 +23,14 @@ TRANSLATIONS: dict[str, str] = {
     "unsaved_changes_msg": "Das Projekt hat ungespeicherte Änderungen. Möchten Sie vor dem Fortfahren speichern?",
     "exit": "&Beenden",
     
+    # Help menu
+    "open_manual": "&Handbuch öffnen",
+    "manual_other_languages": "Handbuch (andere Sprachen)",
+    "manual_spanish": "Spanisch",
+    "manual_english": "Englisch",
+    "manual_french": "Französisch",
+    "manual_german": "Deutsch",
+    
     # Edit menu
     "undo": "&Rückgängig",
     "redo": "&Wiederholen",
@@ -90,6 +98,8 @@ TRANSLATIONS: dict[str, str] = {
     "fit_tooltip": "An Inhalt anpassen (Strg+0)",
     "center_tooltip": "Ansicht auf Ursprung zentrieren (0,0)",
     "connect_tooltip": "Verbindungsmodus (Linien zwischen Beats erstellen)",
+    "add_image": "Bild",
+    "add_image_tooltip": "Bildmodus (Bilder zur Leinwand hinzufügen) (I)",
     "zoom_selection_toolbar": "Zoom",
     "zoom_selection_tooltip": "Auswahlzoom (Z)",
     "zoom_selection_mode_active": "Zoom-Modus aktiv. Ziehen um Bereich auszuwählen. ESC zum Beenden.",
@@ -123,6 +133,7 @@ TRANSLATIONS: dict[str, str] = {
     "insert_link": "Link einfügen",
     "insert_code": "Code",
     "insert_quote": "Zitat",
+    "clear_format": "Format entfernen",
     "more_colors": "Weitere Farben...",
     "select_color": "Farbe auswählen",
     
@@ -207,6 +218,9 @@ TRANSLATIONS: dict[str, str] = {
     "gray": "Grau",
     "no_title": "Ohne Titel",
     "beat_content_placeholder_canvas": "Beat-Inhalt...",
+    "image_not_found": "Bild nicht gefunden",
+    "select_image": "Bild auswählen",
+    "image_mode_active": "Bildmodus aktiviert. Klicken Sie, um ein Bild hinzuzufügen. ESC zum Beenden.",
     "custom_color": "Benutzerdefiniert {num} ({color})",
     
     # Language change
@@ -273,4 +287,5 @@ TRANSLATIONS: dict[str, str] = {
     "file_association_unsupported": "Betriebssystem nicht für automatische Dateizuordnungen unterstützt.",
     "register_file_association": "Dateizuordnungen registrieren...",
     "menu_tools": "Werkzeuge",
+    "toggle_markdown": "Markdown umschalten",
 }

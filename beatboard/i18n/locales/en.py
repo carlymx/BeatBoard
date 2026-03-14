@@ -23,6 +23,14 @@ TRANSLATIONS: dict[str, str] = {
     "unsaved_changes_msg": "The project has unsaved changes. Do you want to save before continuing?",
     "exit": "&Exit",
     
+    # Help menu
+    "open_manual": "&Open Manual",
+    "manual_other_languages": "Manual (Other Languages)",
+    "manual_spanish": "Spanish",
+    "manual_english": "English",
+    "manual_french": "French",
+    "manual_german": "German",
+    
     # Edit menu
     "undo": "&Undo",
     "redo": "&Redo",
@@ -90,6 +98,8 @@ TRANSLATIONS: dict[str, str] = {
     "fit_tooltip": "Fit to content (Ctrl+0)",
     "center_tooltip": "Center view on origin (0,0)",
     "connect_tooltip": "Connection mode (create lines between beats)",
+    "add_image": "Image",
+    "add_image_tooltip": "Image mode (add images to canvas) (I)",
     "zoom_selection_toolbar": "Zoom",
     "zoom_selection_tooltip": "Selection zoom (Z)",
     "zoom_selection_mode_active": "Zoom mode active. Drag to select area. ESC to exit.",
@@ -123,6 +133,7 @@ TRANSLATIONS: dict[str, str] = {
     "insert_link": "Insert link",
     "insert_code": "Code",
     "insert_quote": "Quote",
+    "clear_format": "Clear format",
     "more_colors": "More colors...",
     "select_color": "Select color",
     
@@ -207,6 +218,9 @@ TRANSLATIONS: dict[str, str] = {
     "gray": "Gray",
     "no_title": "Untitled",
     "beat_content_placeholder_canvas": "Beat content...",
+    "image_not_found": "Image not found",
+    "select_image": "Select image",
+    "image_mode_active": "Image Mode Active. Click to add image. ESC to exit.",
     "custom_color": "Custom {num} ({color})",
     
     # Language change
@@ -273,4 +287,5 @@ TRANSLATIONS: dict[str, str] = {
     "file_association_unsupported": "Unsupported operating system for automatic file associations.",
     "register_file_association": "Register file associations...",
     "menu_tools": "Tools",
+    "toggle_markdown": "Toggle Markdown",
 }

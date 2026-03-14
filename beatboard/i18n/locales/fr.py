@@ -23,6 +23,14 @@ TRANSLATIONS: dict[str, str] = {
     "unsaved_changes_msg": "Le projet a des modifications non enregistrées. Voulez-vous enregistrer avant de continuer ?",
     "exit": "&Quitter",
     
+    # Help menu
+    "open_manual": "&Ouvrir le manuel",
+    "manual_other_languages": "Manuel (autres langues)",
+    "manual_spanish": "Espagnol",
+    "manual_english": "Anglais",
+    "manual_french": "Français",
+    "manual_german": "Allemand",
+    
     # Edit menu
     "undo": "&Annuler",
     "redo": "&Rétablir",
@@ -90,6 +98,8 @@ TRANSLATIONS: dict[str, str] = {
     "fit_tooltip": "Ajuster au contenu (Ctrl+0)",
     "center_tooltip": "Centrer la vue sur l'origine (0,0)",
     "connect_tooltip": "Mode connexion (créer des lignes entre les beats)",
+    "add_image": "Image",
+    "add_image_tooltip": "Mode image (ajouter des images au canevas) (I)",
     "zoom_selection_toolbar": "Zoom",
     "zoom_selection_tooltip": "Zoom de sélection (Z)",
     "zoom_selection_mode_active": "Mode 'Zoom' actif. Faites glisser pour sélectionner. Échap pour quitter.",
@@ -123,6 +133,7 @@ TRANSLATIONS: dict[str, str] = {
     "insert_link": "Insérer un lien",
     "insert_code": "Code",
     "insert_quote": "Citation",
+    "clear_format": "Supprimer le format",
     "more_colors": "Plus de couleurs...",
     "select_color": "Sélectionner la couleur",
     
@@ -207,6 +218,9 @@ TRANSLATIONS: dict[str, str] = {
     "gray": "Gris",
     "no_title": "Sans titre",
     "beat_content_placeholder_canvas": "Contenu du beat...",
+    "image_not_found": "Image non trouvée",
+    "select_image": "Sélectionner une image",
+    "image_mode_active": "Mode Image actif. Cliquez pour ajouter une image. ESC pour quitter.",
     "custom_color": "Personnalisé {num} ({color})",
     
     # Language change
@@ -273,4 +287,5 @@ TRANSLATIONS: dict[str, str] = {
     "file_association_unsupported": "Système d'exploitation non pris en charge pour les associations de fichiers automatiques.",
     "register_file_association": "Enregistrer les associations de fichiers...",
     "menu_tools": "Outils",
+    "toggle_markdown": "Basculer Markdown",
 }

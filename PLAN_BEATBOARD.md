@@ -3,7 +3,7 @@
 ## Info
 - **App de escritorio**: Pizarra virtual de beats para guionistas (como Final Draft Beat Board)
 - **Tech**: Python 3.10+ / PySide6 / Qt Graphics View
-- **v1.0.27 COMPLETA** | Roadmap: v1.1→v1.2→v1.5→v2.0
+- **v1.0.29 COMPLETA** | Roadmap: v1.1→v1.2→v1.5→v2.0
 
 ---
 
@@ -191,14 +191,45 @@
 | 6 | Conexiones | Grosor/color nodos | ✅ Completado v1.0.25 |
 | 7 | Conexiones | Texto en conexiones | ⚠️ Parcial |
 | 8 | Conexiones | Atajos teclado 1-0 + color gris oscuro | ✅ Completado v1.0.26 |
-| 8 | Beats | Markdown | Pendiente |
-| 9 | Beats | Imágenes | Pendiente |
-| 10 | Nueva | Shapes | Pendiente |
-| 11 | Sistema | Asociar archivos | ✅ Completado v1.0.22 |
-| 12 | Export | Exportar a PNG | Pendiente |
+| 9 | Beats | Markdown | Pendiente |
+| 10 | Beats | Imágenes | ⚠️ Parcial (canvas completado) |
+| 11 | Nueva | Shapes | Pendiente |
+| 12 | Sistema | Asociar archivos | ✅ Completado v1.0.22 |
+| 13 | Sistema | Formato .bbp como ZIP | ✅ Completado v1.0.29 |
+| 14 | Export | Exportar a PNG | Pendiente |
 
 ---
 
+## Fase 4: Imágenes en Canvas (v1.0.29)
+
+**Estado**: Funcionalidad básica implementada, bugs críticos corregidos
+
+### ✅ Completado
+- **Sistema ZIP**: Formato .bbp como archivo comprimido con soporte para imágenes
+- **Imágenes en canvas**: Nuevo tipo de elemento `ImageItem` con movimiento, redimensionamiento y persistencia
+- **Carpetas temporales ocultas**: Datos del proyecto en carpetas `.{proyecto}_data` con limpieza automática
+- **Compatibilidad con versiones anteriores**: Carga automática de proyectos JSON antiguos
+- **Bug fixes**: Rutas de imágenes, duplicación de UUIDs, consistencia de `image_id`
+
+### ⚠️ Pendiente (Próximos Pasos)
+1. **Fix imágenes en beats**: Las imágenes embebidas no se muestran (icono genérico)
+2. **Undo/Redo para imágenes**: Implementar `DeleteImageCommand`
+3. **Copiar/Pegar imágenes**: Extender portapapeles para elementos imagen
+4. **Altura/Z-order para imágenes**: Integrar imágenes en la pila principal (z-order)
+5. **Panel de propiedades para ImageItem**: Controles de rotación, opacidad, fit_mode
+6. **Atajos de teclado**: Agregar "Modo Imagen (I)" en ayuda y menú Editar
+7. **Redimensionamiento en WYSIWYG**: Nodos para cambiar tamaño de imágenes embebidas
+8. **Iconos en editor WYSIWYG**: Reemplazar texto [Img], MD, Ø con iconos según tema
+9. **Drag & drop desde explorador**: Arrastrar imágenes directamente al lienzo
+
+### Archivos Clave Modificados
+- `beatboard/core/project_packager.py` – Nueva clase para empaquetar/desempaquetar ZIP
+- `beatboard/ui/canvas/image_item.py` – Widget de imagen en canvas
+- `beatboard/ui/canvas/beat_board_view.py` – Gestión de imágenes, señales
+- `beatboard/core/project.py` – Campo `canvas_images`
+- `beatboard/ui/main_window.py` – Limpieza de carpetas temporales
+
+---
 ## Roadmap
 
 ### v1.0 ✅ (Core Beat Board)
@@ -275,10 +306,13 @@ beatboard/
 ### Project
 - id, name, beats[], connections[], canvas_state
 
-### Formato .bbp (JSON)
-```json
-{"version": "1.0", "project": {...}, "canvas": {...}, "beats": [...], "connections": [...]}
-```
+### Formato .bbp (ZIP)
+El archivo .bbp es ahora un archivo ZIP que contiene:
+- `project.json` - Datos del proyecto (beats, conexiones, canvas_images)
+- `media/` - Imágenes del canvas
+- `beats/{id}/` - Imágenes embebidas en beats
+
+Los proyectos JSON antiguos siguen siendo compatibles (carga automática).
 
 ---
 

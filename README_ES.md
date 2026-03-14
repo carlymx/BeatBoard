@@ -3,8 +3,9 @@
 [📖 Read in English](./README.md)
 
 <!-- Sección de Badges -->
-![Licencia](https://img.shields.io/badge/licencia-CC%20BY--NC%204.0-blue.svg)
-![Versión](https://img.shields.io/badge/versión-1.0.27-green.svg)
+![Licencia](https://img.shields.io/badge/licencia-MIT%20(NC)-blue.svg)
+![Documentación](https://img.shields.io/badge/docs-CC%20BY--NC--SA%204.0-green.svg)
+![Versión](https://img.shields.io/badge/versión-1.0.29-green.svg)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -249,7 +250,10 @@ python -m pytest beatboard/tests/test_beat.py -v
 
 ## Licencia
 
-Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/legalcode.es).
+Este proyecto utiliza **licencia dual**:
+
+- **Código**: [Licencia MIT (No Comercial)](./LICENSE) - Ver archivo LICENSE
+- **Documentación**: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) - Ver archivo LICENSE-DOCS
 
 **Eres libre de:**
 - Compartir — copiar y redistribuir el material
@@ -258,8 +262,23 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 **Bajo los siguientes términos:**
 - Atribución — Debes dar crédito apropiado
 - NoComercial — No puedes usar el material para fines comerciales
+- CompartirIgual — Si remezclas o transformas el material, debes distribuir tu contribución bajo la misma licencia
 
 ## Registro de Cambios
+
+### v1.0.29 (2026-03-14)
+- **Sistema ZIP para proyectos**: Formato .bbp cambiado de JSON plano a ZIP, permitiendo almacenar imágenes y recursos
+- **Imágenes en canvas**: Nuevo tipo de elemento para insertar imágenes en el lienzo con movimiento y redimensionamiento
+- **Carpetas temporales ocultas**: Datos del proyecto almacenados en carpetas `.{proyecto}_data` con limpieza automática
+- **Persistencia de imágenes**: Las imágenes se guardan en `media/` dentro del ZIP y cargan correctamente al reabrir
+- **Compatibilidad con versiones anteriores**: Los proyectos JSON antiguos se cargan automáticamente
+- **Bug fixes**: Corrección de rutas de imágenes, duplicación de UUIDs, consistencia de identificadores
+
+### v1.0.28 (2026-03-12)
+- **Fix alineación vertical panel de propiedades**: Los widgets del panel de beats ahora se alinean en la parte superior (igual que conexiones)
+- **Confirmación cambios no guardados en Nuevo Proyecto**: El botón "Nuevo" (Ctrl+N) ahora pregunta si guardar cambios antes de crear nuevo proyecto
+- **Fix menú "Archivos recientes"**: Ahora muestra los archivos guardados al iniciar la aplicación
+- **Nuevo menú "Manual" en Ayuda**: Opción "Abrir Manual" que abre documentación en el idioma actual, con submenú para otros idiomas
 
 ### v1.0.27 (2026-03-09)
 - **Zoom de selección de área**: Nuevo modo de zoom que permite dibujar un rectángulo para hacer zoom al área seleccionada
@@ -393,5 +412,4 @@ Este proyecto está licenciado bajo la [Licencia Creative Commons BY-NC 4.0](htt
 ---
 
 **Autor:** CarlyMx  
-**Email:** carlymx@gmail.com  
 **GitHub:** https://github.com/carlymx/BeatBoard

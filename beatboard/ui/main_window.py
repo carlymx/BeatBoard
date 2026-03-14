@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 
 from beatboard.core.constants import APP_NAME, APP_VERSION, PROJECT_FILE_FILTER
 from beatboard.core.project import Project
+from beatboard.core.project_packager import ProjectPackager
 from beatboard.services.autosave_service import AutosaveService
 from beatboard.services.spellcheck_service import SpellCheckService
 from beatboard.ui.canvas.beat_board_view import BeatBoardView
@@ -108,7 +109,6 @@ class MainWindow(QMainWindow):
         
         self._recent_menu = file_menu.addMenu(_tr("recent_files"))
         self._recent_files: list[str] = []
-        self._update_recent_files_menu()
         
         file_menu.addSeparator()
         
@@ -494,7 +494,20 @@ class MainWindow(QMainWindow):
         shortcuts_action = help_menu.addAction(_tr("keyboard_shortcuts"))
         shortcuts_action.triggered.connect(self._on_show_shortcuts)
         
+        manual_action = help_menu.addAction(_tr("open_manual"))
+        manual_action.triggered.connect(self._on_open_manual)
+        
         help_menu.addSeparator()
+        
+        manual_other_menu = help_menu.addMenu(_tr("manual_other_languages"))
+        manual_es_action = manual_other_menu.addAction(_tr("manual_spanish"))
+        manual_es_action.triggered.connect(lambda: self._on_open_manual_language("es"))
+        manual_en_action = manual_other_menu.addAction(_tr("manual_english"))
+        manual_en_action.triggered.connect(lambda: self._on_open_manual_language("en"))
+        manual_fr_action = manual_other_menu.addAction(_tr("manual_french"))
+        manual_fr_action.triggered.connect(lambda: self._on_open_manual_language("fr"))
+        manual_de_action = manual_other_menu.addAction(_tr("manual_german"))
+        manual_de_action.triggered.connect(lambda: self._on_open_manual_language("de"))
         
         about_action = help_menu.addAction(_tr("about"))
         about_action.triggered.connect(self._on_about)
@@ -565,6 +578,10 @@ class MainWindow(QMainWindow):
         connection_btn = toolbar.addAction(self._get_toolbar_icon("link"), _tr("connect"))
         connection_btn.setToolTip(_tr("connect_tooltip"))
         connection_btn.triggered.connect(self._beat_board_view.toggle_connection_mode)
+        
+        image_btn = toolbar.addAction(self._get_toolbar_icon("image"), _tr("add_image"))
+        image_btn.setToolTip(_tr("add_image_tooltip"))
+        image_btn.triggered.connect(self._beat_board_view.toggle_image_mode)
     
     def _setup_statusbar(self) -> None:
         self._statusbar = QStatusBar(self)
@@ -671,8 +688,16 @@ class MainWindow(QMainWindow):
         self._update_status()
     
     def _on_new_project(self) -> None:
-        if self._is_modified:
-            pass
+        result = self._confirm_unsaved_changes()
+        if result == "cancel":
+            return
+        if result == "save":
+            self._on_save_project()
+            if self._is_modified:
+                return
+        
+        # Limpiar carpeta de datos del proyecto actual antes de crear nuevo proyecto
+        self._cleanup_project_data()
         
         self._project = Project()
         self._current_file = None
@@ -685,8 +710,13 @@ class MainWindow(QMainWindow):
         self._update_status()
     
     def _on_open_project(self) -> None:
-        if self._is_modified:
-            pass
+        result = self._confirm_unsaved_changes()
+        if result == "cancel":
+            return
+        if result == "save":
+            self._on_save_project()
+            if self._is_modified:
+                return
         
         file_path, _ = QFileDialog.getOpenFileName(
             self,
@@ -720,13 +750,14 @@ class MainWindow(QMainWindow):
             self._start_autosave()
     
     def _save_project(self, file_path: str) -> None:
-        import json
         from pathlib import Path
         
-        Path(file_path).write_text(
-            json.dumps(self._project.to_dict(), indent=2, ensure_ascii=False),
-            encoding="utf-8",
-        )
+        ProjectPackager.save_project(self._project, Path(file_path))
+        
+        # Actualizar project.project_path para apuntar a la carpeta de datos oculta
+        # Esta carpeta es creada por ProjectPackager.save_project() en el mismo directorio
+        data_path = Path(file_path).parent / f".{Path(file_path).stem}_data"
+        self._project.project_path = data_path
         
         self._set_modified(False)
         
@@ -735,12 +766,13 @@ class MainWindow(QMainWindow):
             app.logger.info(f"Project saved to {file_path}")
     
     def _load_project(self, file_path: str) -> None:
-        import json
+        import shutil
         from pathlib import Path
         
+        old_project_path = self._project.project_path if self._project else None
+        
         try:
-            data = json.loads(Path(file_path).read_text(encoding="utf-8"))
-            self._project = Project.from_dict(data)
+            self._project = ProjectPackager.load_project(Path(file_path))
             self._current_file = file_path
             self._is_modified = False
             self._beat_board_view.set_project(self._project)
@@ -754,6 +786,15 @@ class MainWindow(QMainWindow):
             self._update_status()
             
             self._add_recent_file(file_path)
+            
+            # Eliminar carpeta de datos del proyecto anterior si es diferente
+            new_project_path = self._project.project_path
+            if (old_project_path and old_project_path.exists() and 
+                old_project_path.is_dir() and old_project_path != new_project_path):
+                try:
+                    shutil.rmtree(old_project_path, ignore_errors=True)
+                except Exception:
+                    pass
             
             app = QApplication.instance()
             if hasattr(app, "logger"):
@@ -771,23 +812,48 @@ class MainWindow(QMainWindow):
         from beatboard.services.export_service import ExportService
         ExportService.export_to_text(self._project, self)
     
+    def _confirm_unsaved_changes(self) -> str:
+        """Muestra diálogo para confirmar cambios no guardados.
+        
+        Returns:
+            "save": usuario eligió guardar
+            "discard": usuario eligió descartar cambios
+            "cancel": usuario canceló la operación
+        """
+        if not self._is_modified:
+            return "discard"  # No hay cambios, puede proceder
+        
+        from PySide6.QtWidgets import QMessageBox
+        ret = QMessageBox.question(
+            self,
+            _tr("save_project"),
+            _tr("unsaved_changes_msg"),
+            QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
+        )
+        
+        if ret == QMessageBox.StandardButton.Save:
+            return "save"
+        elif ret == QMessageBox.StandardButton.Discard:
+            return "discard"
+        else:  # Cancel
+            return "cancel"
+    
     def _on_close_project(self) -> None:
-        if self._is_modified:
-            from PySide6.QtWidgets import QMessageBox
-            ret = QMessageBox.question(
-                self,
-                _tr("save_project"),
-                _tr("unsaved_changes_msg"),
-                QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
-            )
-            if ret == QMessageBox.StandardButton.Save:
-                self._on_save_project()
-            elif ret == QMessageBox.StandardButton.Cancel:
+        result = self._confirm_unsaved_changes()
+        if result == "cancel":
+            return
+        if result == "save":
+            self._on_save_project()
+            if self._is_modified:
                 return
+        
+        # Limpiar carpeta de datos del proyecto actual antes de crear nuevo proyecto
+        self._cleanup_project_data()
         
         self._project = Project()
         self._current_file = None
         self._is_modified = False
+        self._undo_stack.clear()
         self._beat_board_view.set_project(self._project)
         self._stop_autosave()
         self._selection_message = ""
@@ -831,17 +897,12 @@ class MainWindow(QMainWindow):
                 self._remove_recent_file(file_path)
             return
         
-        if self._is_modified:
-            from PySide6.QtWidgets import QMessageBox
-            ret = QMessageBox.question(
-                self,
-                _tr("save_project"),
-                _tr("unsaved_changes_msg"),
-                QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
-            )
-            if ret == QMessageBox.StandardButton.Save:
-                self._on_save_project()
-            elif ret == QMessageBox.StandardButton.Cancel:
+        result = self._confirm_unsaved_changes()
+        if result == "cancel":
+            return
+        if result == "save":
+            self._on_save_project()
+            if self._is_modified:
                 return
         
         self._load_project(file_path)
@@ -865,6 +926,8 @@ class MainWindow(QMainWindow):
                 self._recent_files = []
         else:
             self._recent_files = []
+        
+        self._update_recent_files_menu()
     
     def _save_recent_files(self) -> None:
         import json
@@ -888,6 +951,30 @@ class MainWindow(QMainWindow):
     def _stop_autosave(self) -> None:
         if self._autosave_service:
             self._autosave_service.stop()
+    
+    def _cleanup_project_data(self) -> None:
+        """Elimina la carpeta de datos del proyecto (carpeta oculta .*_data)."""
+        import shutil
+        from pathlib import Path
+        
+        # Intentar limpiar basándonos en project.project_path
+        if self._project and self._project.project_path:
+            data_path = self._project.project_path
+            if data_path.exists() and data_path.is_dir():
+                try:
+                    shutil.rmtree(data_path, ignore_errors=True)
+                except Exception:
+                    pass
+        
+        # También limpiar basándonos en _current_file (para nuevos proyectos guardados)
+        elif self._current_file:
+            current_path = Path(self._current_file)
+            data_path = current_path.parent / f".{current_path.stem}_data"
+            if data_path.exists() and data_path.is_dir():
+                try:
+                    shutil.rmtree(data_path, ignore_errors=True)
+                except Exception:
+                    pass
     
     def _on_theme_changed(self, mode: ThemeMode) -> None:
         app = QApplication.instance()
@@ -1294,7 +1381,7 @@ class MainWindow(QMainWindow):
         from datetime import date
         
         current_year = date.today().year
-        version_date = "March 09, 2026"
+        version_date = "March 14, 2026"
         
         QMessageBox.about(
             self,
@@ -1305,12 +1392,32 @@ class MainWindow(QMainWindow):
             f"<p>{_tr('inspired_by')}</p>"
             f"<hr>"
             f"<p><b>{_tr('author')}</b> CarlyMx</p>"
-            f"<p><b>{_tr('email')}</b> <a href='mailto:carlymx@gmail.com'>carlymx@gmail.com</a></p>"
             f"<p><b>{_tr('github')}</b> <a href='https://github.com/carlymx/BeatBoard'>https://github.com/carlymx/BeatBoard</a></p>"
             f"<hr>"
-            f"<p><b>{_tr('license')}:</b> <a href='https://creativecommons.org/licenses/by-nc/4.0/legalcode'>Creative Commons BY-NC 4.0</a></p>"
+            f"<p><b>{_tr('license')}:</b> <a href='https://opensource.org/licenses/MIT'>MIT License</a> (Non-Commercial) | <a href='https://creativecommons.org/licenses/by-nc-sa/4.0/'>CC BY-NC-SA 4.0</a></p>"
             f"<p>{_tr('copyright').format(year=current_year)}</p>",
         )
+    
+    def _on_open_manual(self) -> None:
+        locale = self._get_current_locale()
+        self._open_manual_url(locale)
+    
+    def _on_open_manual_language(self, language_code: str) -> None:
+        self._open_manual_url(language_code)
+    
+    def _open_manual_url(self, language_code: str) -> None:
+        from PySide6.QtGui import QDesktopServices
+        from PySide6.QtCore import QUrl
+        
+        url_map = {
+            "es": "https://github.com/carlymx/BeatBoard/blob/main/doc/manual_md/MANUAL_es.md",
+            "en": "https://github.com/carlymx/BeatBoard/blob/main/doc/manual_md/MANUAL_en.md",
+            "fr": "https://github.com/carlymx/BeatBoard/blob/main/doc/manual_md/MANUAL_fr.md",
+            "de": "https://github.com/carlymx/BeatBoard/blob/main/doc/manual_md/MANUAL_de.md",
+        }
+        
+        url = url_map.get(language_code, url_map["en"])
+        QDesktopServices.openUrl(QUrl(url))
     
     def closeEvent(self, event) -> None:
         if self._is_modified:
@@ -1327,12 +1434,22 @@ class MainWindow(QMainWindow):
             
             if reply == QMessageBox.StandardButton.Save:
                 self._on_save_project()
+                # Si después de guardar sigue modificado (canceló diálogo), cancelar cierre
+                if self._is_modified:
+                    event.ignore()
+                    return
+                # Limpiar carpeta de datos antes de cerrar
+                self._cleanup_project_data()
                 event.accept()
             elif reply == QMessageBox.StandardButton.Discard:
+                # Limpiar carpeta de datos antes de cerrar
+                self._cleanup_project_data()
                 event.accept()
             else:
                 event.ignore()
         else:
+            # Limpiar carpeta de datos antes de cerrar
+            self._cleanup_project_data()
             event.accept()
     
     def _load_backup_preferences(self) -> None:

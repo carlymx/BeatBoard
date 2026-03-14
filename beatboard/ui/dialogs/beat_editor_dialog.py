@@ -2,23 +2,20 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QFont, QTextCharFormat, QTextCursor
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QColorDialog,
-    QComboBox,
     QDialog,
     QDialogButtonBox,
     QFormLayout,
     QHBoxLayout,
-    QInputDialog,
     QLabel,
     QLineEdit,
     QPushButton,
-    QTextEdit,
-    QToolBar,
     QVBoxLayout,
     QWidget,
 )
@@ -29,11 +26,9 @@ from beatboard.core.constants import (
     BEAT_PREDEFINED_NAMES,
     BEAT_CUSTOM_COLORS,
     get_valid_beat_color,
-    get_beat_qcolor,
 )
 from beatboard.i18n import _tr
-from beatboard.services.spellcheck_service import SpellCheckService
-from beatboard.ui.widgets.spellcheck_highlighter import SpellCheckTextEdit
+from beatboard.ui.widgets.rich_text_editor import RichTextEditor
 
 if TYPE_CHECKING:
     pass
@@ -45,19 +40,19 @@ class BeatEditorDialog(QDialog):
         
         self._beat = beat
         self._original_color = beat.color
+        self._embedded_images = list(getattr(beat, 'embedded_images', []))
         
         self.setWindowTitle(_tr("edit_beat"))
-        self.setMinimumSize(500, 450)
+        self.setMinimumSize(600, 500)
         self.setModal(True)
         
         layout = QVBoxLayout(self)
         
         form_layout = QFormLayout()
         
-        self._title_edit = SpellCheckTextEdit()
-        self._title_edit.setPlainText(beat.title or "")
+        self._title_edit = QLineEdit()
+        self._title_edit.setText(beat.title or "")
         self._title_edit.setPlaceholderText(_tr("beat_title_placeholder"))
-        self._title_edit.setMaximumHeight(30)
         form_layout.addRow(_tr("title") + ":", self._title_edit)
         
         layout.addLayout(form_layout)
@@ -66,102 +61,56 @@ class BeatEditorDialog(QDialog):
         content_label.setStyleSheet("font-weight: bold;")
         layout.addWidget(content_label)
         
-        self._toolbar = QToolBar()
-        self._toolbar.setMovable(False)
-        layout.addWidget(self._toolbar)
-        
-        self._bold_btn = self._toolbar.addAction("B")
-        self._bold_btn.setToolTip(_tr("bold") + " (Ctrl+B)")
-        self._bold_btn.triggered.connect(self._toggle_bold)
-        
-        self._italic_btn = self._toolbar.addAction("I")
-        italic_font = QFont()
-        italic_font.setItalic(True)
-        self._italic_btn.setFont(italic_font)
-        self._italic_btn.setToolTip(_tr("italic") + " (Ctrl+I)")
-        self._italic_btn.triggered.connect(self._toggle_italic)
-        
-        self._underline_btn = self._toolbar.addAction("U")
-        underline_font = QFont()
-        underline_font.setUnderline(True)
-        self._underline_btn.setFont(underline_font)
-        self._underline_btn.setToolTip(_tr("underline") + " (Ctrl+U)")
-        self._underline_btn.triggered.connect(self._toggle_underline)
-        
-        self._toolbar.addSeparator()
-        
-        self._font_size_combo = QComboBox()
-        self._font_size_combo.setFixedWidth(60)
-        self._font_size_combo.addItems(["8", "9", "10", "12", "14", "16", "18", "20", "24", "28", "32"])
-        self._font_size_combo.setCurrentText("12")
-        self._font_size_combo.setToolTip(_tr("font_size"))
-        self._font_size_combo.currentTextChanged.connect(self._change_font_size)
-        self._toolbar.addWidget(self._font_size_combo)
-        
-        self._toolbar.addSeparator()
-        
-        self._h1_btn = self._toolbar.addAction("H1")
-        h1_font = QFont()
-        h1_font.setBold(True)
-        h1_font.setPointSize(18)
-        self._h1_btn.setFont(h1_font)
-        self._h1_btn.setToolTip(_tr("heading1"))
-        self._h1_btn.triggered.connect(self._insert_h1)
-        
-        self._h2_btn = self._toolbar.addAction("H2")
-        h2_font = QFont()
-        h2_font.setBold(True)
-        h2_font.setPointSize(16)
-        self._h2_btn.setFont(h2_font)
-        self._h2_btn.setToolTip(_tr("heading2"))
-        self._h2_btn.triggered.connect(self._insert_h2)
-        
-        self._h3_btn = self._toolbar.addAction("H3")
-        h3_font = QFont()
-        h3_font.setBold(True)
-        h3_font.setPointSize(14)
-        self._h3_btn.setFont(h3_font)
-        self._h3_btn.setToolTip(_tr("heading3"))
-        self._h3_btn.triggered.connect(self._insert_h3)
-        
-        self._toolbar.addSeparator()
-        
-        self._bullet_btn = self._toolbar.addAction("•")
-        self._bullet_btn.setToolTip(_tr("bullet_list"))
-        self._bullet_btn.triggered.connect(self._insert_bullet)
-        
-        self._toolbar.addSeparator()
-        
-        self._text_color_btn = self._toolbar.addAction("A")
-        self._text_color_btn.setToolTip(_tr("text_color"))
-        self._text_color_btn.triggered.connect(self._change_text_color)
-        
-        self._highlight_btn = self._toolbar.addAction("█")
-        self._highlight_btn.setToolTip(_tr("highlight"))
-        self._highlight_btn.triggered.connect(self._change_highlight)
-        
-        self._toolbar.addSeparator()
-        
-        self._link_btn = self._toolbar.addAction("[Link]")
-        self._link_btn.setToolTip(_tr("insert_link") + " (Ctrl+K)")
-        self._link_btn.triggered.connect(self._insert_link)
-        
-        self._code_btn = self._toolbar.addAction("[Code]")
-        self._code_btn.setToolTip(_tr("insert_code"))
-        self._code_btn.triggered.connect(self._insert_code)
-        
-        self._quote_btn = self._toolbar.addAction("[Quote]")
-        self._quote_btn.setToolTip(_tr("insert_quote"))
-        self._quote_btn.triggered.connect(self._insert_quote)
-        
-        self._content_edit = SpellCheckTextEdit()
+        self._content_edit = RichTextEditor()
         self._content_edit.setPlaceholderText(_tr("beat_content_placeholder"))
-        self._content_edit.setMinimumHeight(200)
+        self._content_edit.setMinimumHeight(250)
+        self._content_edit.set_image_insert_callback(self._on_image_insert)
         
-        if beat.content and "<" in beat.content:
-            self._content_edit.setHtml(beat.content)
+        # Build image path mapping for the editor
+        image_path_map = {}
+        project_path = self._get_project_path()
+        for img_info in self._embedded_images:
+            if isinstance(img_info, dict):
+                rel_path = img_info.get('relative_path')
+                orig_path = img_info.get('original_path')
+                if orig_path and Path(orig_path).exists():
+                    image_path_map[orig_path] = rel_path
+                elif rel_path and project_path:
+                    # Try to resolve relative path
+                    possible_paths = [
+                        project_path / rel_path,
+                        project_path / "beats" / self._beat.id / Path(rel_path).name,
+                    ]
+                    for abs_path in possible_paths:
+                        if abs_path.exists():
+                            image_path_map[str(abs_path)] = rel_path
+                            break
+            else:
+                # Legacy string path
+                rel_path = img_info
+                if rel_path and project_path:
+                    possible_paths = [
+                        project_path / rel_path,
+                        project_path / "beats" / self._beat.id / Path(rel_path).name,
+                    ]
+                    for abs_path in possible_paths:
+                        if abs_path.exists():
+                            image_path_map[str(abs_path)] = rel_path
+                            break
+        if image_path_map:
+            self._content_edit.set_image_path_map(image_path_map)
+        
+        content_mode = getattr(beat, 'content_mode', 'html')
+        content_markdown = getattr(beat, 'content_markdown', '')
+        
+        if content_mode == "markdown" and content_markdown:
+            self._content_edit.set_content_and_mode(beat.content, content_markdown, content_mode)
         else:
-            self._content_edit.setPlainText(beat.content or "")
+            self._content_edit.set_content_mode(content_mode)
+            if beat.content and "<" in beat.content:
+                self._content_edit.setHtml(beat.content)
+            else:
+                self._content_edit.setPlainText(beat.content or "")
         
         layout.addWidget(self._content_edit)
         
@@ -175,131 +124,50 @@ class BeatEditorDialog(QDialog):
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
     
-    def _toggle_bold(self) -> None:
-        self._apply_format("bold")
-    
-    def _toggle_italic(self) -> None:
-        self._apply_format("italic")
-    
-    def _toggle_underline(self) -> None:
-        self._apply_format("underline")
-    
-    def _change_font_size(self, size: str) -> None:
-        try:
-            font_size = int(size)
-        except ValueError:
-            return
+    def _get_project_path(self):
+        """Get the current project's data directory path."""
+        from pathlib import Path
+        from PySide6.QtWidgets import QApplication
         
-        cursor = self._content_edit.textCursor()
+        app = QApplication.instance()
+        if app and hasattr(app, 'main_window'):
+            main_window = app.main_window
+            if hasattr(main_window, '_project') and main_window._project:
+                project = main_window._project
+                if hasattr(project, 'project_path') and project.project_path:
+                    return Path(project.project_path)
+        return None
+    
+    def _on_image_insert(self, file_path: str) -> str:
+        from pathlib import Path
+        import uuid
         
-        if cursor.hasSelection():
-            char_format = cursor.charFormat()
-            char_format.setFontPointSize(font_size)
-            cursor.setCharFormat(char_format)
-            self._content_edit.setTextCursor(cursor)
-        else:
-            self._content_edit.setFontPointSize(font_size)
-    
-    def _insert_h1(self) -> None:
-        self._insert_heading(1)
-    
-    def _insert_h2(self) -> None:
-        self._insert_heading(2)
-    
-    def _insert_h3(self) -> None:
-        self._insert_heading(3)
-    
-    def _insert_heading(self, level: int) -> None:
-        cursor = self._content_edit.textCursor()
-        selected_text = cursor.selectedText()
+        original_path = Path(file_path)
+        if not original_path.exists():
+            return file_path
         
-        sizes = {1: 24, 2: 20, 3: 18}
-        size = sizes.get(level, 18)
+        ext = original_path.suffix
+        new_filename = f"{uuid.uuid4()}{ext}"
         
-        if selected_text:
-            html = f'<h{level} style="font-size: {size}px; margin: 10px 0 5px 0;">{selected_text}</h{level}>'
-            cursor.insertHtml(html)
-        else:
-            html = f'<h{level} style="font-size: {size}px; margin: 10px 0 5px 0;">Título {level}</h{level}>'
-            cursor.insertHtml(html)
-    
-    def _apply_format(self, format_type: str) -> None:
-        cursor = self._content_edit.textCursor()
-        if not cursor.hasSelection():
-            return
+        beats_folder = Path("beats") / self._beat.id
+        relative_path = str(beats_folder / new_filename)
         
-        char_format = cursor.charFormat()
+        self._embedded_images.append({
+            'original_path': file_path,
+            'relative_path': relative_path,
+            'filename': new_filename,
+        })
         
-        if format_type == "bold":
-            current_weight = char_format.fontWeight()
-            new_weight = 75 if current_weight < 75 else 50
-            char_format.setFontWeight(new_weight)
-        elif format_type == "italic":
-            char_format.setFontItalic(not char_format.fontItalic())
-        elif format_type == "underline":
-            char_format.setFontUnderline(not char_format.fontUnderline())
-        
-        cursor.setCharFormat(char_format)
-        self._content_edit.setTextCursor(cursor)
+        return relative_path
     
-    def _insert_bullet(self) -> None:
-        cursor = self._content_edit.textCursor()
-        cursor.insertText("• ")
-    
-    def _change_text_color(self) -> None:
-        cursor = self._content_edit.textCursor()
-        current_color = cursor.charFormat().foreground().color()
-        color = QColorDialog.getColor(current_color, self, _tr("text_color_dialog"))
-        if color.isValid():
-            char_format = cursor.charFormat()
-            char_format.setForeground(color)
-            cursor.setCharFormat(char_format)
-            self._content_edit.setTextCursor(cursor)
-    
-    def _change_highlight(self) -> None:
-        cursor = self._content_edit.textCursor()
-        current_color = cursor.charFormat().background().color()
-        color = QColorDialog.getColor(current_color, self, _tr("highlight_color_dialog"))
-        if color.isValid():
-            char_format = cursor.charFormat()
-            char_format.setBackground(color)
-            cursor.setCharFormat(char_format)
-            self._content_edit.setTextCursor(cursor)
-    
-    def _insert_link(self) -> None:
-        cursor = self._content_edit.textCursor()
-        selected_text = cursor.selectedText()
-        
-        link, ok = QInputDialog.getText(self, _tr("insert_link_title"), _tr("link_url"))
-        if ok and link:
-            if selected_text:
-                cursor.insertHtml(f'<a href="{link}">{selected_text}</a>')
-            else:
-                cursor.insertHtml(f'<a href="{link}">{link}</a>')
-    
-    def _insert_code(self) -> None:
-        cursor = self._content_edit.textCursor()
-        selected_text = cursor.selectedText()
-        
-        if selected_text:
-            cursor.insertHtml(f'<code style="background-color: #f0f0f0; padding: 2px 4px; border-radius: 3px; font-family: monospace;">{selected_text}</code>')
-        else:
-            cursor.insertHtml('<code style="background-color: #f0f0f0; padding: 2px 4px; border-radius: 3px; font-family: monospace;">código</code>')
-    
-    def _insert_quote(self) -> None:
-        cursor = self._content_edit.textCursor()
-        selected_text = cursor.selectedText()
-        
-        if selected_text:
-            cursor.insertHtml(f'<blockquote style="border-left: 3px solid #ccc; padding-left: 10px; margin-left: 0; color: #666; font-style: italic;">{selected_text}</blockquote>')
-        else:
-            cursor.insertHtml('<blockquote style="border-left: 3px solid #ccc; padding-left: 10px; margin-left: 0; color: #666; font-style: italic;">Cita</blockquote>')
-    
-    def get_beat_data(self) -> tuple[str, str, str]:
-        title = self._title_edit.toPlainText()
+    def get_beat_data(self) -> tuple[str, str, str, str, str, list]:
+        title = self._title_edit.text()
         content = self._content_edit.toHtml()
         color = self._color_widget.get_selected_color()
-        return title, content, color
+        content_mode = self._content_edit.get_content_mode()
+        content_markdown = self._content_edit.get_saved_markdown()
+        embedded_images = self._embedded_images
+        return title, content, color, content_mode, content_markdown, embedded_images
 
 
 class ColorPickerWidget(QWidget):

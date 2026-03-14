@@ -69,8 +69,6 @@ class PropertiesPanel(QWidget):
         title_label.setStyleSheet("font-weight: bold; font-size: 14px;")
         main_layout.addWidget(title_label)
         
-        main_layout.addSpacing(10)
-        
         self._no_selection_label = QLabel(_tr("no_beat_selected"))
         self._no_selection_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._no_selection_label.setStyleSheet("color: gray; padding: 20px;")
@@ -78,26 +76,10 @@ class PropertiesPanel(QWidget):
         
         self._beat_properties_widget = QWidget()
         self._beat_properties_widget.setVisible(False)
-        main_layout.addWidget(self._beat_properties_widget)
-        
-        self._connection_properties_widget = QWidget()
-        self._connection_properties_widget.setVisible(False)
-        main_layout.addWidget(self._connection_properties_widget)
-        self._setup_connection_properties()
-        
-        self._multiple_beats_widget = QWidget()
-        self._multiple_beats_widget.setVisible(False)
-        main_layout.addWidget(self._multiple_beats_widget)
-        self._setup_multiple_beats_properties()
-        
-        self._multiple_connections_widget = QWidget()
-        self._multiple_connections_widget.setVisible(False)
-        main_layout.addWidget(self._multiple_connections_widget)
-        self._setup_multiple_connections_properties()
         
         props_layout = QVBoxLayout(self._beat_properties_widget)
         props_layout.setContentsMargins(0, 0, 0, 0)
-        props_layout.setSpacing(10)
+        props_layout.setSpacing(5)
         
         title_field = self._create_field(_tr("title"))
         self._title_input = title_field["input"]
@@ -127,13 +109,30 @@ class PropertiesPanel(QWidget):
         self._open_editor_btn.clicked.connect(self._open_full_editor)
         self._open_editor_btn.setVisible(False)
         props_layout.addWidget(self._open_editor_btn)
+        props_layout.addStretch()
         
-        main_layout.addStretch()
+        main_layout.addWidget(self._beat_properties_widget)
+        
+        self._connection_properties_widget = QWidget()
+        self._connection_properties_widget.setVisible(False)
+        main_layout.addWidget(self._connection_properties_widget)
+        self._setup_connection_properties()
+        
+        self._multiple_beats_widget = QWidget()
+        self._multiple_beats_widget.setVisible(False)
+        main_layout.addWidget(self._multiple_beats_widget)
+        self._setup_multiple_beats_properties()
+        
+        self._multiple_connections_widget = QWidget()
+        self._multiple_connections_widget.setVisible(False)
+        main_layout.addWidget(self._multiple_connections_widget)
+        self._setup_multiple_connections_properties()
         
         info_label = QLabel(_tr("tip_double_click"))
         info_label.setStyleSheet("color: gray; font-size: 11px; padding: 10px;")
         info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(info_label)
+        main_layout.addStretch(1)
     
     def _setup_connection_properties(self) -> None:
         """Configurar widgets de propiedades para conexiones."""
@@ -340,7 +339,7 @@ class PropertiesPanel(QWidget):
     
     def _create_field(self, label_text: str) -> dict:
         layout = QVBoxLayout()
-        layout.setSpacing(4)
+        layout.setSpacing(2)
         
         label = QLabel(label_text)
         label.setStyleSheet("font-weight: bold;")
@@ -356,7 +355,7 @@ class PropertiesPanel(QWidget):
     
     def _create_color_field(self, label_text: str) -> dict:
         layout = QVBoxLayout()
-        layout.setSpacing(4)
+        layout.setSpacing(2)
         
         label = QLabel(label_text)
         label.setStyleSheet("font-weight: bold;")
@@ -948,10 +947,12 @@ class PropertiesPanel(QWidget):
         
         dialog = BeatEditorDialog(self._current_beat, self)
         if dialog.exec():
-            title, content, color = dialog.get_beat_data()
+            title, content, color, content_mode, content_markdown = dialog.get_beat_data()
             self._current_beat.title = title
             self._current_beat.content = content
             self._current_beat.color = color
+            self._current_beat.content_mode = content_mode
+            self._current_beat.content_markdown = content_markdown
             
             self.beat_updated.emit(
                 self._current_beat.id,

@@ -29,6 +29,9 @@ class Beat:
     tags: list[str] = field(default_factory=list)
     z_order: float = 0.0
     show_title: bool = True
+    content_mode: str = "html"
+    content_markdown: str = ""
+    embedded_images: list[dict] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         if isinstance(self.position, dict):
@@ -65,8 +68,22 @@ class Beat:
             "tags": self.tags,
             "z_order": self.z_order,
             "show_title": self.show_title,
+            "content_mode": self.content_mode,
+            "content_markdown": self.content_markdown,
+            "embedded_images": self.embedded_images,
         }
 
+    @classmethod
+    def _normalize_embedded_images(cls, embedded_images):
+        """Convert embedded_images to list of dicts with 'relative_path' key."""
+        normalized = []
+        for item in embedded_images:
+            if isinstance(item, dict):
+                normalized.append(item)
+            else:
+                normalized.append({'relative_path': item})
+        return normalized
+    
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Beat:
         return cls(
@@ -82,6 +99,9 @@ class Beat:
             tags=data.get("tags", []),
             z_order=data.get("z_order", 0.0),
             show_title=data.get("show_title", True),
+            content_mode=data.get("content_mode", "html"),
+            content_markdown=data.get("content_markdown", ""),
+            embedded_images=cls._normalize_embedded_images(data.get("embedded_images", [])),
         )
 
     def __repr__(self) -> str:

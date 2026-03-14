@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from PySide6.QtCore import QPointF
@@ -45,7 +46,9 @@ class Project:
     beats: list[Beat] = field(default_factory=list)
     connections: list[Connection] = field(default_factory=list)
     canvas_state: CanvasState = field(default_factory=CanvasState)
+    canvas_images: list[dict[str, Any]] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
+    project_path: Path | None = field(default_factory=lambda: None, repr=False)
 
     def __post_init__(self) -> None:
         if isinstance(self.created_at, str):
@@ -118,6 +121,7 @@ class Project:
             "canvas": self.canvas_state.to_dict(),
             "beats": [beat.to_dict() for beat in self.beats],
             "connections": [conn.to_dict() for conn in self.connections],
+            "canvas_images": self.canvas_images,
             "metadata": self.metadata,
         }
 
@@ -127,6 +131,7 @@ class Project:
         canvas_data = data.get("canvas", {})
         beats_data = data.get("beats", [])
         connections_data = data.get("connections", [])
+        canvas_images_data = data.get("canvas_images", [])
 
         return cls(
             id=project_data.get("id", str(uuid.uuid4())),
@@ -140,6 +145,7 @@ class Project:
             beats=[Beat.from_dict(b) for b in beats_data],
             connections=[Connection.from_dict(c) for c in connections_data],
             canvas_state=CanvasState.from_dict(canvas_data),
+            canvas_images=canvas_images_data,
             metadata=data.get("metadata", {}),
         )
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 from PySide6.QtCore import QEvent, QPointF, QRectF, Qt, Signal
@@ -49,10 +50,11 @@ class BeatItem(QGraphicsObject):
 
     RESIZE_HANDLE_SIZE = 8
 
-    def __init__(self, beat: Beat, parent: QGraphicsItem | None = None) -> None:
+    def __init__(self, beat: Beat, parent: QGraphicsItem | None = None, project_path: Optional[Path] = None) -> None:
         super().__init__(parent)
         
         self._beat = beat
+        self._project_path = project_path
         self._is_hovering = False
         self._resizing = False
         self._resize_start_pos: Optional[QPointF] = None
@@ -80,6 +82,21 @@ class BeatItem(QGraphicsObject):
     def beat_id(self) -> str:
         return self._beat.id
     
+    def _get_project_path(self) -> 'Optional[Path]':
+        if self._project_path:
+            return self._project_path
+        from pathlib import Path
+        from PySide6.QtWidgets import QApplication
+        
+        app = QApplication.instance()
+        if app and hasattr(app, 'main_window'):
+            main_window = app.main_window
+            if hasattr(main_window, '_project') and main_window._project:
+                project = main_window._project
+                if hasattr(project, 'project_path') and project.project_path:
+                    return Path(project.project_path)
+        return None
+    
     def _get_current_size(self) -> QPointF:
         if self._beat.size:
             return QPointF(self._beat.size.width(), self._beat.size.height())
@@ -104,6 +121,52 @@ class BeatItem(QGraphicsObject):
             if rect.contains(pos):
                 return handle_name
         return None
+    
+    def _fix_image_paths(self, html_content: str, project_path: Optional[Path]) -> str:
+        import re
+        
+        def replace_img_src(match):
+            src = match.group(1)
+            if src.startswith('http') or src.startswith('file'):
+                return match.group(0)
+            
+            possible_paths = []
+            
+            # Buscar en embedded_images del beat
+            for img_info in self._beat.embedded_images:
+                if isinstance(img_info, dict):
+                    rel_path = img_info.get('relative_path')
+                    orig_path = img_info.get('original_path')
+                    if src == rel_path or src == orig_path:
+                        if orig_path and Path(orig_path).exists():
+                            return f'<img src="{Path(orig_path).as_posix()}"'
+                        # También agregar ruta relativa a possible_paths
+                        if rel_path:
+                            possible_paths.append(Path(rel_path))
+                else:
+                    # string (backwards compatibility)
+                    if src == img_info and Path(img_info).exists():
+                        return f'<img src="{Path(img_info).as_posix()}"'
+            
+            if project_path:
+                path1 = project_path / src
+                path2 = project_path / "beats" / self._beat.id / Path(src).name
+                possible_paths.extend([path1, path2])
+            
+            possible_paths.extend([
+                Path(src),
+                Path.cwd() / src,
+            ])
+            
+            for img_path in possible_paths:
+                if img_path.exists() and img_path.is_file():
+                    return f'<img src="{img_path.as_posix()}"'
+            
+            return match.group(0)
+        
+        html_content = re.sub(r'<img\s+src="([^"]+)"', replace_img_src, html_content)
+        
+        return html_content
     
     def paint(self, painter: QPainter, option, widget=None) -> None:
         size = self._get_current_size()
@@ -164,10 +227,23 @@ class BeatItem(QGraphicsObject):
         
         content = self._beat.content or ""
         
+        project_path = self._get_project_path()
+        
         if content:
-            if "<" in content and ">" in content:
-                styled_content = f'<style>body {{ color: #333333; }}</style>{content}'
+            render_content = content
+            if self._beat.content_mode == "markdown":
+                import markdown as md_lib
+                render_content = md_lib.markdown(content, extensions=['extra', 'codehilite', 'tables'])
+            
+            if "<" in render_content and ">" in render_content:
+                render_content = self._fix_image_paths(render_content, project_path)
+                styled_content = f'<style>body {{ color: #333333; }}</style>{render_content}'
                 text_doc = QTextDocument()
+                
+                from PySide6.QtCore import QUrl
+                if project_path:
+                    text_doc.setBaseUrl(QUrl.fromLocalFile(str(project_path)))
+                
                 text_doc.setHtml(styled_content)
                 text_doc.setDefaultFont(QFont("Arial", 9))
                 text_doc.setTextWidth(content_rect.width())
@@ -184,7 +260,7 @@ class BeatItem(QGraphicsObject):
                 
                 content_option = QTextOption(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
                 content_option.setWrapMode(QTextOption.WrapMode.WordWrap)
-                painter.drawText(content_rect, content, content_option)
+                painter.drawText(content_rect, render_content, content_option)
         else:
             placeholder_font = QFont("Arial", 9)
             painter.setFont(placeholder_font)
@@ -325,8 +401,13 @@ class BeatItem(QGraphicsObject):
         content_width = width - 25
         content_height_max = current_size.y() - title_offset
         
-        if "<" in content and ">" in content:
-            styled_content = f'<style>body {{ color: #333333; }}</style>{content}'
+        render_content = content
+        if self._beat.content_mode == "markdown":
+            import markdown as md_lib
+            render_content = md_lib.markdown(content, extensions=['extra', 'codehilite', 'tables'])
+        
+        if "<" in render_content and ">" in render_content:
+            styled_content = f'<style>body {{ color: #333333; }}</style>{render_content}'
             text_doc = QTextDocument()
             text_doc.setHtml(styled_content)
             text_doc.setDefaultFont(QFont("Arial", 9))
@@ -345,7 +426,7 @@ class BeatItem(QGraphicsObject):
             text_height = font_metrics.boundingRect(
                 0, 0, content_width, 10000,
                 Qt.TextFlag.TextWordWrap,
-                content
+                render_content
             ).height()
             
             if text_height > content_height_max:

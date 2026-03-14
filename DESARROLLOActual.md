@@ -1,7 +1,60 @@
 # BeatBoard - Estado del Desarrollo
 
-**Fecha**: 9 Marzo 2026  
-**Versión**: 1.0.27 - RELEASE ✅
+**Fecha**: 12 Marzo 2026  
+**Versión**: 1.0.28 - RELEASE ✅
+
+---
+## v1.0.28 - RELEASE ✅
+
+### Cambios
+- ✅ **Fix alineación vertical panel de propiedades**:
+  - Los widgets del panel de beats ahora se alinean en la parte superior (igual que conexiones)
+  - Agregado `addStretch()` en layouts para empujar widgets hacia arriba
+
+- ✅ **Confirmación de cambios no guardados en Nuevo Proyecto**:
+  - El botón "Nuevo" (Ctrl+N) ahora pregunta si guardar cambios antes de crear nuevo proyecto
+  - Refactorizado método `_confirm_unsaved_changes()` reutilizable
+  - También aplicado a Abrir, Cerrar y Abrir reciente
+
+- ✅ **Eliminación de email por privacidad**:
+  - Removida dirección de email del diálogo "Acerca de"
+  - Eliminadas referencias a email en README.md y README_ES.md
+
+- ✅ **Fix menú "Archivos recientes"**:
+  - Ahora muestra los archivos guardados al iniciar la aplicación
+  - Corregido orden de inicialización: `_load_recent_files()` después de `_setup_menus()`
+
+- ✅ **Nuevo menú "Manual" en Ayuda**:
+  - Opción "Abrir Manual" que abre documentación en el idioma actual
+  - Submenú "Manual (Otros Idiomas)" con enlaces a español, inglés, francés y alemán
+  - URLs apuntan a GitHub: `https://github.com/carlymx/BeatBoard/blob/main/doc/manual_md/MANUAL_[lang].md`
+
+### Archivos modificados
+- `beatboard/ui/widgets/properties_panel.py` – Añadido `addStretch()` para alineación vertical
+- `beatboard/ui/main_window.py` – Confirmación cambios no guardados, fix archivos recientes, nuevo menú manual
+- `beatboard/i18n/locales/*.py` – Nuevas traducciones para menú manual
+- `README.md`, `README_ES.md` – Eliminación de email
+
+---
+## v1.0.29 - RELEASE ✅
+
+### Cambios
+- ✅ **Sistema ZIP para proyectos (.bbp)**: Formato de archivo cambiado de JSON plano a ZIP, permitiendo almacenar imágenes y recursos
+- ✅ **Imágenes en canvas**: Nuevo tipo de elemento ImageItem para insertar imágenes en el lienzo
+- ✅ **Persistencia de imágenes**: Las imágenes se guardan en `media/` dentro del ZIP y cargan correctamente
+- ✅ **Carpetas temporales ocultas**: Las carpetas de datos del proyecto ahora son ocultas (`.{proyecto}_data`)
+- ✅ **Limpieza automática**: Eliminación automática de carpetas temporales al cerrar proyecto/abrir nuevo/cerrar app
+- ✅ **Bug fixes**: Corrección de rutas de imágenes, duplicación de UUIDs, consistencia de image_id
+- ✅ **Integración con beats**: Las imágenes embebidas en beats también se guardan en `beats/{id}/`
+- ✅ **Compatibilidad con versiones anteriores**: Los proyectos JSON antiguos se cargan correctamente
+
+### Archivos modificados
+- `beatboard/core/project_packager.py` – Nueva clase para empaquetar/desempaquetar proyectos ZIP
+- `beatboard/ui/canvas/image_item.py` – Nuevo widget para imágenes en canvas
+- `beatboard/ui/canvas/beat_board_view.py` – Gestión de imágenes, carga/guardado, señales
+- `beatboard/core/project.py` – Nuevo campo `canvas_images`
+- `beatboard/ui/main_window.py` – Lógica de limpieza de carpetas temporales
+- `beatboard/i18n/locales/*.py` – Traducciones para imágenes
 
 ---
 ## v1.0.27 - RELEASE ✅

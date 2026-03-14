@@ -1,0 +1,181 @@
+{
+  "version": "1.0",
+  "project": {
+    "id": "736f9250-3052-455d-8f2a-543bdc1c2cc3",
+    "name": "Untitled Project",
+    "created_at": "2026-03-09T23:57:27.163214",
+    "modified_at": "2026-03-10T00:02:50.931019"
+  },
+  "canvas": {
+    "zoom": 1.0,
+    "pan_x": 0.0,
+    "pan_y": 0.0
+  },
+  "beats": [
+    {
+      "id": "ef9229a6-55cd-410f-a26b-4b080db2a2fb",
+      "title": "Compelling Characters: ",
+      "content": "Your protagonist must have a clear goal, a deep-seated motivation, and internal flaws. Readers need to care about their journey, so give them a \"saving the cat\" moment or a relatable struggle to establish an early emotional connection.",
+      "color": "#FFF59D",
+      "position": {
+        "x": -232.25,
+        "y": -272.5
+      },
+      "size": {
+        "width": 233.0,
+        "height": 191.0
+      },
+      "created_at": "2026-03-09T23:58:58.261272",
+      "modified_at": "2026-03-10T00:10:27.826927",
+      "image_path": null,
+      "tags": [],
+      "z_order": 1,
+      "show_title": true
+    },
+    {
+      "id": "c541ddb6-0424-4f31-857d-0f8ae1c1f0f0",
+      "title": "A Solid Plot and Structure:",
+      "content": "A novel needs a sequence of events (plot) that moves the story forward. Many writers use a Three-Act Structure to ensure there is a clear beginning (inciting incident), a middle (rising action), and a satisfying resolution.",
+      "color": "#90CAF9",
+      "position": {
+        "x": 87.75,
+        "y": -394.75
+      },
+      "size": {
+        "width": 233.0,
+        "height": 191.0
+      },
+      "created_at": "2026-03-09T23:59:32.775847",
+      "modified_at": "2026-03-10T00:10:27.827324",
+      "image_path": null,
+      "tags": [],
+      "z_order": 2,
+      "show_title": true
+    },
+    {
+      "id": "59c2fcb7-009b-4122-be43-e651a53b96c4",
+      "title": "Central Conflict:",
+      "content": "Without conflict, there is no story. This can be external (the protagonist vs. an antagonist or nature) or internal (the protagonist vs. their own doubts). Every scene should ideally contain some level of tension to keep the reader engaged.",
+      "color": "#A5D6A7",
+      "position": {
+        "x": 350.0,
+        "y": -156.0
+      },
+      "size": {
+        "width": 233.0,
+        "height": 191.0
+      },
+      "created_at": "2026-03-09T23:59:45.192715",
+      "modified_at": "2026-03-10T00:10:27.827540",
+      "image_path": null,
+      "tags": [],
+      "z_order": 3,
+      "show_title": true
+    },
+    {
+      "id": "497b9f38-8b58-4ac9-a59f-d2fead065520",
+      "title": "Immersive Setting: ",
+      "content": "The \"where\" and \"when\" of your story should feel like more than just a backdrop. Whether it is a historical period or a fantasy world, use sensory details (sights, sounds, smells) to make the environment feel real and lived-in for the reader.",
+      "color": "#EF9A9A",
+      "position": {
+        "x": -188.5,
+        "y": 16.75
+      },
+      "size": {
+        "width": 173.0,
+        "height": 284.75
+      },
+      "created_at": "2026-03-10T00:00:03.524867",
+      "modified_at": "2026-03-10T00:10:27.827770",
+      "image_path": null,
+      "tags": [],
+      "z_order": 4,
+      "show_title": true
+    },
+    {
+      "id": "e6e7fa29-ea08-4c10-ad9d-0630602729a9",
+      "title": "Consistent Narrative Voice and POV:",
+      "content": "Decide who is telling the story and how much they know. Whether you choose first-person (\"I\") or third-person (\"He/She\"), maintaining a consistent point of view (POV) is crucial for a professional-sounding narrative. ",
+      "color": "#CE93D8",
+      "position": {
+        "x": 195.0,
+        "y": 140.25
+      },
+      "size": {
+        "width": 301.0,
+        "height": 201.0
+      },
+      "created_at": "2026-03-10T00:00:24.135163",
+      "modified_at": "2026-03-10T00:10:27.827951",
+      "image_path": null,
+      "tags": [],
+      "z_order": 5,
+      "show_title": true
+    },
+    {
+      "id": "28474069-81d1-4bf5-becb-9ce1d32fedc6",
+      "title": "The Plot:",
+      "content": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\nhr { height: 1px; border-width: 0; }\nli.unchecked::marker { content: \"\\2610\"; }\nli.checked::marker { content: \"\\2612\"; }\n</style></head><body style=\" font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The <span style=\" font-weight:700;\">plot</span> is the backbone of your novel. While the &quot;story&quot; is simply what happens, the <span style=\" font-weight:700;\">plot</span> focuses on <span style=\" font-weight:700;\">causality</span>—how one event leads to another. As novelist E.M. Forster famously said: <span style=\" font-style:italic;\">&quot;The king died and then the queen died&quot;</span> is a story; <span style=\" font-style:italic;\">&quot;The king died, and then the queen died of grief&quot;</span> is a plot. </p>\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">To build a compelling plot, you should understand these five key stages, often referred to as <a href=\"https://www.thewordling.com/the-elements-of-plot/\"><span style=\" text-decoration: underline; color:#5294e2;\">Freytag's Pyramid</span></a>: </p>\n<ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\">\n<li style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:700;\">Exposition</span>: This is the beginning where you introduce your characters, the setting, and the &quot;normal&quot; world before everything changes.</li>\n<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:700;\">Inciting Incident</span>: A specific event that disrupts the status quo and forces the protagonist into action, setting the central conflict in motion.</li>\n<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:700;\">Rising Action</span>: A series of obstacles and complications that build tension. The protagonist makes choices that have consequences, making the situation increasingly difficult.</li>\n<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:700;\">Climax</span>: The turning point and the moment of highest tension. This is where the protagonist faces their greatest challenge or enemy head-on.</li>\n<li style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:700;\">Falling Action and Resolution</span>: The aftermath of the climax where loose ends are tied up, and the story reaches a new state of equilibrium. </li></ul>\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">In Spanish literary theory, the plot is often divided into three simpler parts: <span style=\" font-weight:700;\">Inicio</span> (Introduction), <span style=\" font-weight:700;\">Nudo</span> (Knot/Conflict), and <span style=\" font-weight:700;\">Desenlace</span> (Outcome). </p>\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Would you like to see how these plot stages apply to a <span style=\" font-weight:700;\">famous example</span> like <span style=\" font-style:italic;\">The Hobbit</span> or <span style=\" font-style:italic;\">Harry Potter</span>?</p></body></html>",
+      "color": "#4bff5a",
+      "position": {
+        "x": -569.0,
+        "y": -392.75
+      },
+      "size": {
+        "width": 301.0,
+        "height": 802.0
+      },
+      "created_at": "2026-03-10T00:01:03.736425",
+      "modified_at": "2026-03-10T00:10:27.828195",
+      "image_path": null,
+      "tags": [],
+      "z_order": 6,
+      "show_title": true
+    }
+  ],
+  "connections": [
+    {
+      "id": "526ed0b2-68ff-44f0-9560-e4282eaa5cb3",
+      "source_beat_id": "ef9229a6-55cd-410f-a26b-4b080db2a2fb",
+      "target_beat_id": "c541ddb6-0424-4f31-857d-0f8ae1c1f0f0",
+      "color": "red",
+      "line_width": 5.5,
+      "node_shape": "square",
+      "label": null,
+      "control_factor1": null,
+      "control_factor2": null,
+      "created_at": "2026-03-10T00:02:28.657473"
+    },
+    {
+      "id": "6f37e142-4d4d-4162-aa9d-7013fb37308b",
+      "source_beat_id": "c541ddb6-0424-4f31-857d-0f8ae1c1f0f0",
+      "target_beat_id": "59c2fcb7-009b-4122-be43-e651a53b96c4",
+      "color": "purple",
+      "line_width": 6.5,
+      "node_shape": "circle",
+      "label": null,
+      "control_factor1": null,
+      "control_factor2": null,
+      "created_at": "2026-03-10T00:02:36.536912"
+    },
+    {
+      "id": "d9116eb5-e6d0-401b-96f7-b2a8bce7453e",
+      "source_beat_id": "497b9f38-8b58-4ac9-a59f-d2fead065520",
+      "target_beat_id": "e6e7fa29-ea08-4c10-ad9d-0630602729a9",
+      "color": "green",
+      "line_width": 4.5,
+      "node_shape": "circle",
+      "label": null,
+      "control_factor1": [
+        0.41507930640776064,
+        -1.2396032241191337
+      ],
+      "control_factor2": [
+        0.21693239036330633,
+        -2.0
+      ],
+      "created_at": "2026-03-10T00:02:50.930988"
+    }
+  ],
+  "metadata": {}
+}

@@ -23,6 +23,14 @@ TRANSLATIONS: dict[str, str] = {
     "unsaved_changes_msg": "El proyecto tiene cambios sin guardar. ¿Desea guardar antes de continuar?",
     "exit": "&Salir",
     
+    # Help menu
+    "open_manual": "&Abrir manual",
+    "manual_other_languages": "Manual (otros idiomas)",
+    "manual_spanish": "Español",
+    "manual_english": "Inglés",
+    "manual_french": "Francés",
+    "manual_german": "Alemán",
+    
     # Edit menu
     "undo": "&Deshacer",
     "redo": "&Rehacer",
@@ -90,6 +98,8 @@ TRANSLATIONS: dict[str, str] = {
     "fit_tooltip": "Ajustar a contenido (Ctrl+0)",
     "center_tooltip": "Centrar vista en el origen (0,0)",
     "connect_tooltip": "Modo conexión (crear líneas entre beats)",
+    "add_image": "Imagen",
+    "add_image_tooltip": "Modo imagen (añadir imágenes al canvas) (I)",
     "zoom_selection_toolbar": "Zoom",
     "zoom_selection_tooltip": "Zoom de selección (Z)",
     "zoom_selection_mode_active": "Modo 'Zoom' Activado. Arrastra para seleccionar área. ESC para salir.",
@@ -123,6 +133,7 @@ TRANSLATIONS: dict[str, str] = {
     "insert_link": "Insertar enlace",
     "insert_code": "Código",
     "insert_quote": "Cita",
+    "clear_format": "Quitar formato",
     "more_colors": "Más colores...",
     "select_color": "Seleccionar color",
     
@@ -207,6 +218,9 @@ TRANSLATIONS: dict[str, str] = {
     "gray": "Gris",
     "no_title": "Sin título",
     "beat_content_placeholder_canvas": "Contenido del beat...",
+    "image_not_found": "Imagen no encontrada",
+    "select_image": "Seleccionar imagen",
+    "image_mode_active": "Modo 'Imagen' Activado. Click para añadir imagen. ESC para salir.",
     "custom_color": "Personalizado {num} ({color})",
     
     # Language change
@@ -273,4 +287,5 @@ TRANSLATIONS: dict[str, str] = {
     "file_association_unsupported": "Sistema operativo no compatible para asociaciones de archivo automáticas.",
     "register_file_association": "Registrar asociaciones de archivo...",
     "menu_tools": "Herramientas",
+    "toggle_markdown": "Alternar Markdown",
 }

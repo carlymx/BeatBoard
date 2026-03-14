@@ -3,8 +3,9 @@
 [📖 Leer en Español](./README_ES.md)
 
 <!-- Badges Section -->
-![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.27-green.svg)
+![License](https://img.shields.io/badge/license-MIT%20(NC)-blue.svg)
+![Documentation](https://img.shields.io/badge/docs-CC%20BY--NC--SA%204.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.29-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)
 ![Qt](https://img.shields.io/badge/Qt-PySide6-purple.svg)
@@ -249,7 +250,10 @@ Contributions are welcome! Please follow these steps:
 
 ## License
 
-This project is licensed under the [Creative Commons BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/legalcode) License.
+This project uses **dual licensing**:
+
+- **Code**: [MIT License (Non-Commercial)](./LICENSE) - See LICENSE file
+- **Documentation**: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) - See LICENSE-DOCS file
 
 **You are free to:**
 - Share — copy and redistribute the material
@@ -258,8 +262,23 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 **Under the following terms:**
 - Attribution — You must give appropriate credit
 - NonCommercial — You may not use the material for commercial purposes
+- ShareAlike — If you remix or transform the material, you must distribute your contribution under the same license
 
 ## Changelog
+
+### v1.0.29 (2026-03-14)
+- **ZIP project system**: .bbp format changed from plain JSON to ZIP, allowing storage of images and resources
+- **Canvas images**: New element type for inserting images on canvas with move and resize capabilities
+- **Hidden temporary folders**: Project data stored in `.{project}_data` folders with automatic cleanup
+- **Image persistence**: Images saved in `media/` within ZIP and load correctly when reopening
+- **Backward compatibility**: Old JSON projects load automatically
+- **Bug fixes**: Image path corrections, UUID duplication fixes, identifier consistency
+
+### v1.0.28 (2026-03-12)
+- **Properties panel alignment fix**: Beat widgets now align to top (same as connections)
+- **Unsaved changes confirmation**: New Project (Ctrl+N) now asks to save changes before creating new project
+- **Recent files menu fix**: Saved files now display correctly on application startup
+- **New Manual menu**: Added "Open Manual" option in Help menu with multilingual documentation
 
 ### v1.0.27 (2026-03-09)
 - **Area selection zoom**: New zoom mode that allows drawing a rectangle to zoom to the selected area
@@ -393,5 +412,4 @@ This project is licensed under the [Creative Commons BY-NC 4.0](https://creative
 ---
 
 **Author:** CarlyMx  
-**Email:** carlymx@gmail.com  
 **GitHub:** https://github.com/carlymx/BeatBoard
