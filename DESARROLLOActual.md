@@ -1,7 +1,7 @@
 # BeatBoard - Estado del Desarrollo
 
-**Fecha**: 12 Marzo 2026  
-**Versión**: 1.0.28 - RELEASE ✅
+**Fecha**: 15 Marzo 2026  
+**Versión**: 1.0.29 - RELEASE ✅
 
 ---
 ## v1.0.28 - RELEASE ✅
@@ -44,17 +44,27 @@
 - ✅ **Persistencia de imágenes**: Las imágenes se guardan en `media/` dentro del ZIP y cargan correctamente
 - ✅ **Carpetas temporales ocultas**: Las carpetas de datos del proyecto ahora son ocultas (`.{proyecto}_data`)
 - ✅ **Limpieza automática**: Eliminación automática de carpetas temporales al cerrar proyecto/abrir nuevo/cerrar app
-- ✅ **Bug fixes**: Corrección de rutas de imágenes, duplicación de UUIDs, consistencia de image_id
+- ✅ **Bug fixes generales**: Corrección de rutas de imágenes, duplicación de UUIDs, consistencia de image_id
 - ✅ **Integración con beats**: Las imágenes embebidas en beats también se guardan en `beats/{id}/`
 - ✅ **Compatibilidad con versiones anteriores**: Los proyectos JSON antiguos se cargan correctamente
+- ✅ **FIX bugs críticos del sistema de imágenes**:
+  - **Copy/paste bug**: Las imágenes mostraban "Imagen no encontrada" al copiar después de guardar/cerrar/reabrir proyecto
+    - Solución: Nuevo método `_resolve_image_path()` en `beat_board_view.py` que busca imágenes en `media/`, `beats/` y directorio base del proyecto
+  - **WYSIWYG resize bug**: Los cambios de tamaño en el diálogo de propiedades de imágenes incrustadas no persistían (volvían al tamaño original al reeditar)
+    - Solución: Corregido `mouseDoubleClickEvent()` en `rich_text_editor.py` usando `cursorForPosition(event.pos())`, añadido `document().setModified(True)` y señales de cambio de contenido
+  - **Undo bug**: Eliminar una imagen y pulsar Ctrl+Z no hacía nada (undo no funcionaba)
+    - Solución: Modificado `delete_selected_beats()` en `beat_board_view.py` para usar `DeleteImageCommand` cuando existe un stack de undo
+  - **LSP errors**: Corregidos usando `isinstance(item, ImageItem)` con type hints en lugar de `hasattr(item, 'image_id')`
 
 ### Archivos modificados
 - `beatboard/core/project_packager.py` – Nueva clase para empaquetar/desempaquetar proyectos ZIP
 - `beatboard/ui/canvas/image_item.py` – Nuevo widget para imágenes en canvas
-- `beatboard/ui/canvas/beat_board_view.py` – Gestión de imágenes, carga/guardado, señales
+- `beatboard/ui/canvas/beat_board_view.py` – Gestión de imágenes, carga/guardado, señales + nuevos métodos `_resolve_image_path()`, fix undo para imágenes, corrección LSP errors
 - `beatboard/core/project.py` – Nuevo campo `canvas_images`
 - `beatboard/ui/main_window.py` – Lógica de limpieza de carpetas temporales
-- `beatboard/i18n/locales/*.py` – Traducciones para imágenes
+- `beatboard/ui/widgets/rich_text_editor.py` – Fix bug WYSIWYG resize, diálogo de propiedades de imágenes
+- `beatboard/i18n/locales/*.py` – Traducciones para imágenes y diálogo de propiedades (image_properties, width, height, keep_aspect_ratio)
+- `beatboard/ui/undo_commands.py` – Comandos `DeleteImageCommand` y `CreateImageCommand` ya existentes, ahora utilizados correctamente
 
 ---
 ## v1.0.27 - RELEASE ✅

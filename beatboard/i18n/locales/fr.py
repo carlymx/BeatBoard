@@ -187,6 +187,7 @@ TRANSLATIONS: dict[str, str] = {
     "shortcut_deselect": "Tout désélectionner / Annuler le mode connexion",
     "shortcut_change_color": "Change la couleur de la sélection",
     "shortcut_toggle_connection_mode": "Active/désactive le mode connexion (sans sélection)",
+    "shortcut_toggle_image_mode": "Active/désactive le mode image (sans sélection)",
     "shortcut_zoom_selection": "Zoom de sélection (sans sélection)",
     "shortcut_close_project": "Fermer le projet",
     "shortcut_new_beat": "Créer un nouveau beat (double-clic sur le canevas)",
@@ -288,4 +289,8 @@ TRANSLATIONS: dict[str, str] = {
     "register_file_association": "Enregistrer les associations de fichiers...",
     "menu_tools": "Outils",
     "toggle_markdown": "Basculer Markdown",
+    "image_properties": "Propriétés de l'image",
+    "width": "Largeur",
+    "height": "Hauteur",
+    "keep_aspect_ratio": "Conserver les proportions",
 }

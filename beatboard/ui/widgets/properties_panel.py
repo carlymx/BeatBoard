@@ -43,16 +43,20 @@ if TYPE_CHECKING:
 class PropertiesPanel(QWidget):
     beat_updated = Signal(str, str, str, str, bool)
     connection_updated = Signal(str, str, float, str, str)
+    image_updated = Signal(str, float, float, str, float)  # image_id, rotation, opacity, fit_mode, z_order
     multiple_beats_updated = Signal(list, str, bool)  # beat_ids, color, show_title
     multiple_connections_updated = Signal(list, str, float, str, str)  # connection_ids, color, line_width, node_shape, label
+    multiple_images_updated = Signal(list, float, float, str, float)  # image_ids, rotation, opacity, fit_mode, z_order
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         
         self._current_beat: Beat | None = None
         self._current_connection: Connection | None = None
+        self._current_image: dict | None = None
         self._selected_beats: list[Beat] = []
         self._selected_connections: list[Connection] = []
+        self._selected_images: list[dict] = []
         self._element_type: str = "none"  # "beat", "connection", "shape", "image", "none"
         self._updating = False
         
@@ -127,6 +131,16 @@ class PropertiesPanel(QWidget):
         self._multiple_connections_widget.setVisible(False)
         main_layout.addWidget(self._multiple_connections_widget)
         self._setup_multiple_connections_properties()
+        
+        self._image_properties_widget = QWidget()
+        self._image_properties_widget.setVisible(False)
+        main_layout.addWidget(self._image_properties_widget)
+        self._setup_image_properties()
+        
+        self._multiple_images_widget = QWidget()
+        self._multiple_images_widget.setVisible(False)
+        main_layout.addWidget(self._multiple_images_widget)
+        self._setup_multiple_images_properties()
         
         info_label = QLabel(_tr("tip_double_click"))
         info_label.setStyleSheet("color: gray; font-size: 11px; padding: 10px;")
@@ -334,6 +348,98 @@ class PropertiesPanel(QWidget):
         self._multiple_connections_label_input.setPlaceholderText(_tr("label_placeholder"))
         self._multiple_connections_label_input.textChanged.connect(self._on_multiple_connections_label_changed)
         multi_layout.addWidget(self._multiple_connections_label_input)
+        
+        multi_layout.addStretch()
+    
+    def _setup_image_properties(self) -> None:
+        """Configurar widgets de propiedades para imágenes."""
+        img_layout = QVBoxLayout(self._image_properties_widget)
+        img_layout.setContentsMargins(0, 0, 0, 0)
+        img_layout.setSpacing(10)
+        
+        # Rotación
+        rotation_label = QLabel(_tr("rotation"))
+        rotation_label.setStyleSheet("font-weight: bold;")
+        img_layout.addWidget(rotation_label)
+        
+        self._rotation_spin = QSpinBox()
+        self._rotation_spin.setRange(0, 360)
+        self._rotation_spin.setSuffix("°")
+        self._rotation_spin.valueChanged.connect(self._on_rotation_changed)
+        img_layout.addWidget(self._rotation_spin)
+        
+        # Opacidad
+        opacity_label = QLabel(_tr("opacity"))
+        opacity_label.setStyleSheet("font-weight: bold;")
+        img_layout.addWidget(opacity_label)
+        
+        self._opacity_spin = QDoubleSpinBox()
+        self._opacity_spin.setRange(0.0, 100.0)
+        self._opacity_spin.setSingleStep(1.0)
+        self._opacity_spin.setSuffix("%")
+        self._opacity_spin.valueChanged.connect(self._on_opacity_changed)
+        img_layout.addWidget(self._opacity_spin)
+        
+        # Modo de ajuste
+        fit_mode_label = QLabel(_tr("fit_mode"))
+        fit_mode_label.setStyleSheet("font-weight: bold;")
+        img_layout.addWidget(fit_mode_label)
+        
+        self._fit_mode_combo = QComboBox()
+        self._fit_mode_combo.addItem(_tr("fit_mode_contain"), "contain")
+        self._fit_mode_combo.addItem(_tr("fit_mode_cover"), "cover")
+        self._fit_mode_combo.addItem(_tr("fit_mode_stretch"), "stretch")
+        self._fit_mode_combo.currentIndexChanged.connect(self._on_fit_mode_changed)
+        img_layout.addWidget(self._fit_mode_combo)
+        
+        img_layout.addStretch()
+    
+    def _setup_multiple_images_properties(self) -> None:
+        """Configurar widgets de propiedades comunes para múltiples imágenes."""
+        multi_layout = QVBoxLayout(self._multiple_images_widget)
+        multi_layout.setContentsMargins(0, 0, 0, 0)
+        multi_layout.setSpacing(10)
+        
+        count_label = QLabel("")
+        count_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #666;")
+        count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        multi_layout.addWidget(count_label)
+        self._multiple_images_count_label = count_label
+        
+        # Rotación común
+        rotation_label = QLabel(_tr("rotation"))
+        rotation_label.setStyleSheet("font-weight: bold;")
+        multi_layout.addWidget(rotation_label)
+        
+        self._multiple_images_rotation_spin = QSpinBox()
+        self._multiple_images_rotation_spin.setRange(0, 360)
+        self._multiple_images_rotation_spin.setSuffix("°")
+        self._multiple_images_rotation_spin.valueChanged.connect(self._on_multiple_images_rotation_changed)
+        multi_layout.addWidget(self._multiple_images_rotation_spin)
+        
+        # Opacidad común
+        opacity_label = QLabel(_tr("opacity"))
+        opacity_label.setStyleSheet("font-weight: bold;")
+        multi_layout.addWidget(opacity_label)
+        
+        self._multiple_images_opacity_spin = QDoubleSpinBox()
+        self._multiple_images_opacity_spin.setRange(0.0, 100.0)
+        self._multiple_images_opacity_spin.setSingleStep(1.0)
+        self._multiple_images_opacity_spin.setSuffix("%")
+        self._multiple_images_opacity_spin.valueChanged.connect(self._on_multiple_images_opacity_changed)
+        multi_layout.addWidget(self._multiple_images_opacity_spin)
+        
+        # Modo de ajuste común
+        fit_mode_label = QLabel(_tr("fit_mode"))
+        fit_mode_label.setStyleSheet("font-weight: bold;")
+        multi_layout.addWidget(fit_mode_label)
+        
+        self._multiple_images_fit_mode_combo = QComboBox()
+        self._multiple_images_fit_mode_combo.addItem(_tr("fit_mode_contain"), "contain")
+        self._multiple_images_fit_mode_combo.addItem(_tr("fit_mode_cover"), "cover")
+        self._multiple_images_fit_mode_combo.addItem(_tr("fit_mode_stretch"), "stretch")
+        self._multiple_images_fit_mode_combo.currentIndexChanged.connect(self._on_multiple_images_fit_mode_changed)
+        multi_layout.addWidget(self._multiple_images_fit_mode_combo)
         
         multi_layout.addStretch()
     
@@ -652,6 +758,115 @@ class PropertiesPanel(QWidget):
         
         self._updating = False
     
+    def set_image(self, image_data: dict | None) -> None:
+        self._current_image = image_data
+        self._current_beat = None
+        self._current_connection = None
+        self._selected_beats = []
+        self._selected_connections = []
+        self._selected_images = []
+        self._updating = True
+        
+        if image_data is None:
+            self._no_selection_label.setVisible(True)
+            self._beat_properties_widget.setVisible(False)
+            self._connection_properties_widget.setVisible(False)
+            self._image_properties_widget.setVisible(False)
+            self._multiple_beats_widget.setVisible(False)
+            self._multiple_connections_widget.setVisible(False)
+            self._multiple_images_widget.setVisible(False)
+        else:
+            self._no_selection_label.setVisible(False)
+            self._beat_properties_widget.setVisible(False)
+            self._connection_properties_widget.setVisible(False)
+            self._image_properties_widget.setVisible(True)
+            self._multiple_beats_widget.setVisible(False)
+            self._multiple_connections_widget.setVisible(False)
+            self._multiple_images_widget.setVisible(False)
+            
+            # Actualizar controles con datos de imagen
+            rotation = image_data.get("rotation", 0.0)
+            opacity = image_data.get("opacity", 1.0)
+            fit_mode = image_data.get("fit_mode", "contain")
+            
+            self._rotation_spin.blockSignals(True)
+            self._rotation_spin.setValue(int(rotation))
+            self._rotation_spin.blockSignals(False)
+            
+            self._opacity_spin.blockSignals(True)
+            self._opacity_spin.setValue(opacity * 100.0)
+            self._opacity_spin.blockSignals(False)
+            
+            index = self._fit_mode_combo.findData(fit_mode)
+            if index >= 0:
+                self._fit_mode_combo.setCurrentIndex(index)
+            else:
+                self._fit_mode_combo.setCurrentIndex(0)
+        
+        self._updating = False
+    
+    def set_multiple_images(self, images: list[dict]) -> None:
+        self._selected_images = images
+        self._selected_beats = []
+        self._selected_connections = []
+        self._current_beat = None
+        self._current_connection = None
+        self._current_image = None
+        self._updating = True
+        
+        if not images:
+            self._no_selection_label.setVisible(True)
+            self._beat_properties_widget.setVisible(False)
+            self._connection_properties_widget.setVisible(False)
+            self._image_properties_widget.setVisible(False)
+            self._multiple_beats_widget.setVisible(False)
+            self._multiple_connections_widget.setVisible(False)
+            self._multiple_images_widget.setVisible(False)
+        else:
+            self._no_selection_label.setVisible(False)
+            self._beat_properties_widget.setVisible(False)
+            self._connection_properties_widget.setVisible(False)
+            self._image_properties_widget.setVisible(False)
+            self._multiple_beats_widget.setVisible(False)
+            self._multiple_connections_widget.setVisible(False)
+            self._multiple_images_widget.setVisible(True)
+            
+            # Actualizar etiqueta de conteo
+            count_text = _tr("multiple_selected_images").format(count=len(images))
+            self._multiple_images_count_label.setText(count_text)
+            
+            # Determinar valores comunes
+            rotations = {img.get("rotation", 0.0) for img in images}
+            opacities = {img.get("opacity", 1.0) for img in images}
+            fit_modes = {img.get("fit_mode", "contain") for img in images}
+            
+            # Configurar rotación común
+            if len(rotations) == 1:
+                rotation = next(iter(rotations))
+                self._multiple_images_rotation_spin.setValue(int(rotation))
+            else:
+                self._multiple_images_rotation_spin.setValue(0)  # valor por defecto
+            
+            # Configurar opacidad común
+            if len(opacities) == 1:
+                opacity = next(iter(opacities))
+                self._multiple_images_opacity_spin.setValue(opacity * 100.0)
+            else:
+                self._multiple_images_opacity_spin.setValue(100.0)  # valor por defecto (100%)
+            
+            # Configurar modo de ajuste común
+            if len(fit_modes) == 1:
+                fit_mode = next(iter(fit_modes))
+                index = self._multiple_images_fit_mode_combo.findData(fit_mode)
+                if index >= 0:
+                    self._multiple_images_fit_mode_combo.setCurrentIndex(index)
+                else:
+                    self._multiple_images_fit_mode_combo.setCurrentIndex(0)
+            else:
+                self._multiple_images_fit_mode_combo.setCurrentIndex(-1)
+        
+        self._updating = False
+    
     def _on_title_changed(self) -> None:
         if self._updating or not self._current_beat:
             return
@@ -865,16 +1080,86 @@ class PropertiesPanel(QWidget):
         
         self.multiple_connections_updated.emit(connection_ids, color, line_width, node_shape, label)
     
+    def _on_rotation_changed(self, value: int) -> None:
+        if self._updating or not self._current_image:
+            return
+        self._current_image["rotation"] = float(value)
+        self._emit_image_updated()
+    
+    def _on_opacity_changed(self, value: float) -> None:
+        if self._updating or not self._current_image:
+            return
+        self._current_image["opacity"] = value / 100.0
+        self._emit_image_updated()
+    
+    def _on_fit_mode_changed(self, index: int) -> None:
+        if self._updating or not self._current_image:
+            return
+        fit_mode = self._fit_mode_combo.itemData(index)
+        if fit_mode:
+            self._current_image["fit_mode"] = fit_mode
+            self._emit_image_updated()
+    
+    def _on_multiple_images_rotation_changed(self, value: int) -> None:
+        if self._updating or not self._selected_images:
+            return
+        self._emit_multiple_images_updated(rotation=float(value))
+    
+    def _on_multiple_images_opacity_changed(self, value: float) -> None:
+        if self._updating or not self._selected_images:
+            return
+        self._emit_multiple_images_updated(opacity=value / 100.0)
+    
+    def _on_multiple_images_fit_mode_changed(self, index: int) -> None:
+        if self._updating or not self._selected_images:
+            return
+        fit_mode = self._multiple_images_fit_mode_combo.itemData(index)
+        if fit_mode:
+            self._emit_multiple_images_updated(fit_mode=fit_mode)
+    
+    def _emit_image_updated(self) -> None:
+        if not self._current_image:
+            return
+        image_id = self._current_image.get("image_id")
+        if not image_id:
+            return
+        rotation = self._current_image.get("rotation", 0.0)
+        opacity = self._current_image.get("opacity", 1.0)
+        fit_mode = self._current_image.get("fit_mode", "contain")
+        z_order = self._current_image.get("z_order", 0)
+        self.image_updated.emit(image_id, rotation, opacity, fit_mode, z_order)
+    
+    def _emit_multiple_images_updated(self, rotation: float | None = None, opacity: float | None = None, fit_mode: str | None = None, z_order: float | None = None) -> None:
+        if not self._selected_images:
+            return
+        image_ids = [img.get("image_id") for img in self._selected_images if img.get("image_id")]
+        if not image_ids:
+            return
+        # Determinar valores actuales si alguno es None
+        if rotation is None:
+            rotation = self._selected_images[0].get("rotation", 0.0)
+        if opacity is None:
+            opacity = self._selected_images[0].get("opacity", 1.0)
+        if fit_mode is None:
+            fit_mode = self._selected_images[0].get("fit_mode", "contain")
+        if z_order is None:
+            z_order = self._selected_images[0].get("z_order", 0)
+        self.multiple_images_updated.emit(image_ids, rotation, opacity, fit_mode, z_order)
+    
     def clear(self) -> None:
         self.set_beat(None)
         self.set_connection(None)
+        self.set_image(None)
         self._selected_beats = []
         self._selected_connections = []
+        self._selected_images = []
         self._no_selection_label.setVisible(True)
         self._beat_properties_widget.setVisible(False)
         self._connection_properties_widget.setVisible(False)
+        self._image_properties_widget.setVisible(False)
         self._multiple_beats_widget.setVisible(False)
         self._multiple_connections_widget.setVisible(False)
+        self._multiple_images_widget.setVisible(False)
     
     def update_selected_color(self, color_value: str) -> None:
         # Actualizar para beat individual seleccionado

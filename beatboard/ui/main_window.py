@@ -599,6 +599,8 @@ class MainWindow(QMainWindow):
         self._properties_panel.connection_updated.connect(self._on_connection_updated)
         self._properties_panel.multiple_beats_updated.connect(self._on_multiple_beats_updated)
         self._properties_panel.multiple_connections_updated.connect(self._on_multiple_connections_updated)
+        self._properties_panel.image_updated.connect(self._on_image_updated)
+        self._properties_panel.multiple_images_updated.connect(self._on_multiple_images_updated)
         
         app = QApplication.instance()
         if app and hasattr(app, "locale_manager"):
@@ -1175,9 +1177,11 @@ class MainWindow(QMainWindow):
     def _on_selection_changed(self, selection: dict) -> None:
         beat_ids = selection.get('beats', [])
         connection_ids = selection.get('connections', [])
+        image_ids = selection.get('images', [])
         total_beats = len(beat_ids)
         total_connections = len(connection_ids)
-        total_selected = total_beats + total_connections
+        total_images = len(image_ids)
+        total_selected = total_beats + total_connections + total_images
         
         if total_selected == 0:
             self._properties_panel.clear()
@@ -1190,6 +1194,9 @@ class MainWindow(QMainWindow):
         beats = [b for b in beats if b is not None]
         connections = [self._project.get_connection_by_id(cid) for cid in connection_ids]
         connections = [c for c in connections if c is not None]
+        images = []
+        if hasattr(self._project, 'canvas_images'):
+            images = [img for img in self._project.canvas_images if img.get('image_id') in image_ids]
         
         # Obtener items gráficos para zValue de conexiones
         view = self._beat_board_view
@@ -1200,13 +1207,14 @@ class MainWindow(QMainWindow):
                 connection_z_values.append(conn_item.zValue())
         
         beat_z_values = [b.z_order for b in beats]
-        all_z_values = beat_z_values + connection_z_values
+        image_z_values = [img.get('z_order', 0) for img in images]
+        all_z_values = beat_z_values + connection_z_values + image_z_values
         
         min_z = min(all_z_values) if all_z_values else None
         max_z = max(all_z_values) if all_z_values else None
         
         # Construir mensaje según tipo de selección
-        if total_beats == 1 and total_connections == 0:
+        if total_beats == 1 and total_connections == 0 and total_images == 0:
             # Un solo beat seleccionado
             beat = beats[0]
             self._properties_panel.set_beat(beat)
@@ -1214,14 +1222,14 @@ class MainWindow(QMainWindow):
                 _tr("selected_beat_status").format(title=beat.title or _tr("title_placeholder")) +
                 f" | Altura: {beat.z_order}"
             )
-        elif total_beats > 1 and total_connections == 0:
+        elif total_beats > 1 and total_connections == 0 and total_images == 0:
             # Múltiples beats seleccionados
             self._properties_panel.set_multiple_beats(beats)
             self._selection_message = (
                 _tr("multiple_selected_status").format(count=total_beats) +
                 f" ({min_z}, {max_z})"
             )
-        elif total_connections == 1 and total_beats == 0:
+        elif total_connections == 1 and total_beats == 0 and total_images == 0:
             # Una sola conexión seleccionada
             connection_id = connection_ids[0]
             connection = self._project.get_connection_by_id(connection_id)
@@ -1232,15 +1240,32 @@ class MainWindow(QMainWindow):
             self._selection_message = (
                 _tr("selected_connection_status") + f" | Altura: {min_z}"
             )
-        elif total_connections > 1 and total_beats == 0:
+        elif total_connections > 1 and total_beats == 0 and total_images == 0:
             # Múltiples conexiones seleccionadas
             self._properties_panel.set_multiple_connections(connections)
             self._selection_message = (
                 _tr("multiple_connections_status").format(count=total_connections) +
                 f" ({min_z}, {max_z})"
             )
+        elif total_images == 1 and total_beats == 0 and total_connections == 0:
+            # Una sola imagen seleccionada
+            image = images[0] if images else None
+            if image:
+                self._properties_panel.set_image(image)
+            else:
+                self._properties_panel.clear()
+            self._selection_message = (
+                _tr("selected_image_status") + f" | Altura: {image.get('z_order', 0) if image else 0}"
+            )
+        elif total_images > 1 and total_beats == 0 and total_connections == 0:
+            # Múltiples imágenes seleccionadas
+            self._properties_panel.set_multiple_images(images)
+            self._selection_message = (
+                _tr("multiple_selected_images").format(count=total_images) +
+                f" ({min_z}, {max_z})"
+            )
         else:
-            # Mezcla de beats y conexiones
+            # Mezcla de beats, conexiones e imágenes
             self._properties_panel.clear()
             self._selection_message = (
                 _tr("mixed_objects_status").format(count=total_selected) +
@@ -1306,6 +1331,40 @@ class MainWindow(QMainWindow):
                 if item:
                     item.refresh()
     
+    def _on_image_updated(self, image_id: str, rotation: float, opacity: float, fit_mode: str, z_order: float) -> None:
+        if not hasattr(self._project, 'canvas_images'):
+            return
+        for img_data in self._project.canvas_images:
+            if img_data.get('image_id') == image_id:
+                img_data['rotation'] = rotation
+                img_data['opacity'] = opacity
+                img_data['fit_mode'] = fit_mode
+                img_data['z_order'] = z_order
+                # Actualizar item gráfico
+                item = self._beat_board_view._image_items.get(image_id)
+                if item:
+                    item.set_rotation(rotation)
+                    item.set_opacity(opacity)
+                    item.set_fit_mode(fit_mode)
+                    # El z_order se maneja en beat_board_view
+                break
+    
+    def _on_multiple_images_updated(self, image_ids: list[str], rotation: float, opacity: float, fit_mode: str, z_order: float) -> None:
+        if not hasattr(self._project, 'canvas_images'):
+            return
+        for img_data in self._project.canvas_images:
+            if img_data.get('image_id') in image_ids:
+                img_data['rotation'] = rotation
+                img_data['opacity'] = opacity
+                img_data['fit_mode'] = fit_mode
+                img_data['z_order'] = z_order
+                # Actualizar items gráficos
+                item = self._beat_board_view._image_items.get(img_data['image_id'])
+                if item:
+                    item.set_rotation(rotation)
+                    item.set_opacity(opacity)
+                    item.set_fit_mode(fit_mode)
+    
     def _on_show_shortcuts(self) -> None:
         from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTextEdit
         
@@ -1349,6 +1408,7 @@ class MainWindow(QMainWindow):
         <ul>
         <li><b>1-0</b>: {_tr("shortcut_change_color")}</li>
         <li><b>C</b>: {_tr("shortcut_toggle_connection_mode")}</li>
+        <li><b>I</b>: {_tr("shortcut_toggle_image_mode")}</li>
         <li><b>Z</b>: {_tr("shortcut_zoom_selection")}</li>
         <li><b>{_tr("shortcut_new_beat")}</b></li>
         <li><b>{_tr("shortcut_edit_beat")}</b></li>

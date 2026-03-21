@@ -187,6 +187,7 @@ TRANSLATIONS: dict[str, str] = {
     "shortcut_deselect": "Deselect all / Cancel connection mode",
     "shortcut_change_color": "Change selection color",
     "shortcut_toggle_connection_mode": "Toggle connection mode (no selection)",
+    "shortcut_toggle_image_mode": "Toggle image mode (no selection)",
     "shortcut_zoom_selection": "Selection zoom (no selection)",
     "shortcut_close_project": "Close project",
     "shortcut_new_beat": "Create new beat (double-click on canvas)",
@@ -288,4 +289,8 @@ TRANSLATIONS: dict[str, str] = {
     "register_file_association": "Register file associations...",
     "menu_tools": "Tools",
     "toggle_markdown": "Toggle Markdown",
+    "image_properties": "Image Properties",
+    "width": "Width",
+    "height": "Height",
+    "keep_aspect_ratio": "Keep aspect ratio",
 }

@@ -213,3 +213,63 @@ class DeleteConnectionCommand(QUndoCommand):
     def undo(self) -> None:
         self._project.add_connection(self._connection)
         self._view._add_connection_item(self._connection)
+
+
+class DeleteImageCommand(QUndoCommand):
+    def __init__(
+        self,
+        project: Project,
+        view: BeatBoardView,
+        image_data: dict,
+        description: str = "Eliminar imagen",
+    ) -> None:
+        super().__init__(description)
+        self._project = project
+        self._view = view
+        self._image_data = image_data
+        self._item = None
+
+    def redo(self) -> None:
+        image_id = self._image_data["image_id"]
+        self._item = self._view._image_items.get(image_id)
+        if self._item:
+            self._view._scene.removeItem(self._item)
+            del self._view._image_items[image_id]
+        self._project.canvas_images = [
+            img for img in self._project.canvas_images
+            if img.get("image_id") != image_id
+        ]
+
+    def undo(self) -> None:
+        self._project.canvas_images.append(self._image_data)
+        self._view._add_image_item(self._image_data)
+
+
+class CreateImageCommand(QUndoCommand):
+    def __init__(
+        self,
+        project: Project,
+        view: BeatBoardView,
+        image_data: dict,
+        description: str = "Crear imagen",
+    ) -> None:
+        super().__init__(description)
+        self._project = project
+        self._view = view
+        self._image_data = image_data
+        self._item = None
+
+    def redo(self) -> None:
+        self._project.canvas_images.append(self._image_data)
+        self._item = self._view._add_image_item(self._image_data)
+
+    def undo(self) -> None:
+        image_id = self._image_data["image_id"]
+        self._item = self._view._image_items.get(image_id)
+        if self._item:
+            self._view._scene.removeItem(self._item)
+            del self._view._image_items[image_id]
+        self._project.canvas_images = [
+            img for img in self._project.canvas_images
+            if img.get("image_id") != image_id
+        ]

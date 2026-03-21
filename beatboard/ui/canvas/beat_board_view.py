@@ -56,7 +56,7 @@ class BeatBoardView(QGraphicsView):
         self._image_mode = False
         self._connection_start_beat: str | None = None
         self._temp_connection_line = None
-        self._clipboard_beats: list[dict] = []
+        self._clipboard_items: list[dict] = []
         self._zoom_selection_mode = False
         self._zoom_selection_start: QPointF | None = None
         self._zoom_selection_rect_item = None
@@ -196,6 +196,17 @@ class BeatBoardView(QGraphicsView):
             # Conectar señales para actualizar proyecto
             item.item_moved.connect(self._on_image_moved)
             item.item_resized.connect(self._on_image_resized)
+            
+            # Establecer z-order
+            z_order = image_data.get("z_order")
+            if z_order is not None:
+                item.setZValue(z_order)
+            else:
+                # Asignar z_order secuencial
+                z_order = idx + 1
+                item.setZValue(z_order)
+                # Guardar en datos del proyecto
+                self._project.canvas_images[idx]["z_order"] = z_order
     
     def _add_connection_item(self, connection) -> None:
         from beatboard.ui.canvas.connection_item import ConnectionItem
@@ -538,9 +549,39 @@ class BeatBoardView(QGraphicsView):
         return None
     
     def _normalize_z_order(self) -> None:
-        beats_sorted = sorted(self._project.beats, key=lambda b: b.z_order)
-        for i, beat in enumerate(beats_sorted, start=1):
-            beat.z_order = i
+        # Recopilar todos los elementos con su z actual
+        elements = []
+        
+        # Beats
+        for beat in self._project.beats:
+            elements.append(("beat", beat, beat.z_order))
+        
+        # Imágenes
+        for image_data in self._project.canvas_images:
+            z = image_data.get("z_order")
+            if z is None:
+                item = self._image_items.get(image_data.get("image_id"))
+                if item:
+                    z = item.zValue()
+                else:
+                    z = 0
+            elements.append(("image", image_data, z))
+        
+        # Ordenar por z
+        elements.sort(key=lambda x: x[2])
+        
+        # Reasignar z secuencialmente
+        for i, (elem_type, elem, _) in enumerate(elements, start=1):
+            if elem_type == "beat":
+                elem.z_order = i
+                item = self._beat_items.get(elem.id)
+                if item:
+                    item.setZValue(i)
+            else:  # image
+                elem["z_order"] = i
+                item = self._image_items.get(elem.get("image_id"))
+                if item:
+                    item.setZValue(i)
     
     def _on_beat_resized(self, beat_id: str, width: float, height: float) -> None:
         if BeatDefaults.is_memorize_enabled():
@@ -719,30 +760,53 @@ class BeatBoardView(QGraphicsView):
             return item
     
     def copy_selected_beats(self) -> None:
+        from beatboard.ui.canvas.beat_item import BeatItem
+        from beatboard.ui.canvas.image_item import ImageItem
+        
         selected_items = self._scene.selectedItems()
-        beats_to_copy = []
+        items_to_copy = []
         
         for item in selected_items:
             if isinstance(item, BeatItem):
                 beat = self._project.get_beat_by_id(item.beat_id)
                 if beat:
-                    beats_to_copy.append(beat.to_dict())
+                    items_to_copy.append({
+                        "type": "beat",
+                        "data": beat.to_dict()
+                    })
+            elif isinstance(item, ImageItem):
+                image_id = item.image_id
+                for img_data in self._project.canvas_images:
+                    if img_data.get("image_id") == image_id:
+                        items_to_copy.append({
+                            "type": "image",
+                            "data": img_data.copy()
+                        })
+                        break
         
-        self._clipboard_beats = beats_to_copy
+        self._clipboard_items = items_to_copy
     
     def cut_selected_beats(self) -> None:
+        from beatboard.ui.canvas.beat_item import BeatItem
+        from beatboard.ui.canvas.image_item import ImageItem
+        
         self.copy_selected_beats()
         
-        if self._clipboard_beats:
+        if self._clipboard_items:
             selected_items = self._scene.selectedItems()
             beats_to_delete = []
+            images_to_delete = []
             
             for item in selected_items:
                 if isinstance(item, BeatItem):
                     beat = self._project.get_beat_by_id(item.beat_id)
                     if beat:
                         beats_to_delete.append((item, beat))
+                elif isinstance(item, ImageItem):
+                    image_id = item.image_id
+                    images_to_delete.append((item, image_id))
             
+            # Eliminar beats
             for item, beat in beats_to_delete:
                 beat_id = beat.id
                 self._scene.removeItem(item)
@@ -750,43 +814,90 @@ class BeatBoardView(QGraphicsView):
                 if beat_id in self._beat_items:
                     del self._beat_items[beat_id]
                 self.beat_deleted.emit(beat_id)
+            
+            # Eliminar imágenes
+            for item, image_id in images_to_delete:
+                self._scene.removeItem(item)
+                if image_id in self._image_items:
+                    del self._image_items[image_id]
+                # Eliminar del proyecto
+                self._project.canvas_images = [
+                    img for img in self._project.canvas_images
+                    if img.get("image_id") != image_id
+                ]
+                self._project.update_modified()
     
     def paste_beats(self) -> None:
-        if not self._clipboard_beats:
+        if not self._clipboard_items:
             return
         
         import uuid
         beat_id_mapping = {}
+        image_id_mapping = {}
         
-        for beat_data in self._clipboard_beats:
-            old_id = beat_data["id"]
-            new_id = str(uuid.uuid4())
-            beat_id_mapping[old_id] = new_id
+        for item_data in self._clipboard_items:
+            item_type = item_data["type"]
+            data = item_data["data"]
             
-            new_beat_data = beat_data.copy()
-            new_beat_data["id"] = new_id
-            
-            pos = beat_data.get("position", {"x": 0, "y": 0})
-            new_beat_data["position"] = {
-                "x": pos.get("x", 0) + 30,
-                "y": pos.get("y", 0) + 30
-            }
-            
-            from beatboard.core.beat import Beat
-            new_beat = Beat.from_dict(new_beat_data)
-            
-            self._project.add_beat(new_beat)
-            item = self._add_beat_item(new_beat)
-            self.beat_created.emit(new_beat.id)
+            if item_type == "beat":
+                old_id = data["id"]
+                new_id = str(uuid.uuid4())
+                beat_id_mapping[old_id] = new_id
+                
+                new_beat_data = data.copy()
+                new_beat_data["id"] = new_id
+                
+                pos = data.get("position", {"x": 0, "y": 0})
+                new_beat_data["position"] = {
+                    "x": pos.get("x", 0) + 30,
+                    "y": pos.get("y", 0) + 30
+                }
+                
+                from beatboard.core.beat import Beat
+                new_beat = Beat.from_dict(new_beat_data)
+                
+                self._project.add_beat(new_beat)
+                item = self._add_beat_item(new_beat)
+                self.beat_created.emit(new_beat.id)
+                
+            elif item_type == "image":
+                old_id = data["image_id"]
+                new_id = str(uuid.uuid4())
+                image_id_mapping[old_id] = new_id
+                
+                new_image_data = data.copy()
+                new_image_data["image_id"] = new_id
+                
+                pos = data.get("position", {"x": 0, "y": 0})
+                new_image_data["position"] = {
+                    "x": pos.get("x", 0) + 30,
+                    "y": pos.get("y", 0) + 30
+                }
+                
+                # Agregar al proyecto
+                self._project.canvas_images.append(new_image_data)
+                self._project.update_modified()
+                
+                # Crear item
+                item = self._add_image_item(new_image_data)
+                item.setSelected(True)
         
         self._scene.clearSelection()
         
-        for beat_data in self._clipboard_beats:
-            old_id = beat_data["id"]
-            new_id = beat_id_mapping.get(old_id)
-            
-            if new_id and new_id in self._beat_items:
-                self._beat_items[new_id].setSelected(True)
+        # Seleccionar nuevos elementos
+        for item_data in self._clipboard_items:
+            item_type = item_data["type"]
+            data = item_data["data"]
+            if item_type == "beat":
+                old_id = data["id"]
+                new_id = beat_id_mapping.get(old_id)
+                if new_id and new_id in self._beat_items:
+                    self._beat_items[new_id].setSelected(True)
+            elif item_type == "image":
+                old_id = data["image_id"]
+                new_id = image_id_mapping.get(old_id)
+                if new_id and new_id in self._image_items:
+                    self._image_items[new_id].setSelected(True)
     
     def delete_selected_beats(self) -> None:
         selected_items = self._scene.selectedItems()
@@ -816,18 +927,32 @@ class BeatBoardView(QGraphicsView):
             if reply != QMessageBox.StandardButton.Yes:
                 return
         
-        # Eliminar imágenes (sin undo por ahora)
-        for img_item in images_to_delete:
-            img_id = img_item.image_id
-            self._scene.removeItem(img_item)
-            if img_id in self._image_items:
-                del self._image_items[img_id]
-            # Eliminar del proyecto
-            self._project.canvas_images = [
-                img for img in self._project.canvas_images
-                if img.get("image_id") != img_id
-            ]
-            self._project.update_modified()
+        # Eliminar imágenes
+        if self._undo_stack and images_to_delete:
+            from beatboard.ui.undo_commands import DeleteImageCommand
+            for img_item in images_to_delete:
+                img_id = img_item.image_id
+                # Buscar datos de imagen
+                image_data = None
+                for img in self._project.canvas_images:
+                    if img.get("image_id") == img_id:
+                        image_data = img
+                        break
+                if image_data:
+                    cmd = DeleteImageCommand(self._project, self, image_data)
+                    self._undo_stack.push(cmd)
+        else:
+            for img_item in images_to_delete:
+                img_id = img_item.image_id
+                self._scene.removeItem(img_item)
+                if img_id in self._image_items:
+                    del self._image_items[img_id]
+                # Eliminar del proyecto
+                self._project.canvas_images = [
+                    img for img in self._project.canvas_images
+                    if img.get("image_id") != img_id
+                ]
+                self._project.update_modified()
         
         if self._undo_stack and (beats_to_delete or connections_to_delete):
             from beatboard.ui.undo_commands import DeleteBeatCommand, DeleteConnectionCommand
@@ -915,6 +1040,7 @@ class BeatBoardView(QGraphicsView):
     def _add_image_at(self, pos) -> None:
         from PySide6.QtWidgets import QFileDialog
         from PySide6.QtCore import QPointF
+        import uuid
         
         file_path, _ = QFileDialog.getOpenFileName(
             self,
@@ -928,37 +1054,112 @@ class BeatBoardView(QGraphicsView):
         
         scene_pos = self.mapToScene(pos)
         
+        # Cargar imagen para obtener dimensiones originales
+        image_data = self._create_image_data(file_path, scene_pos)
+        if not image_data:
+            return
+        
+        if self._undo_stack:
+            from beatboard.ui.undo_commands import CreateImageCommand
+            cmd = CreateImageCommand(self._project, self, image_data)
+            self._undo_stack.push(cmd)
+        else:
+            self._add_image_item(image_data)
+            item = self._image_items.get(image_data["image_id"])
+            if item:
+                item.setSelected(True)
+            self._project.canvas_images.append(image_data)
+            self._project.update_modified()
+        
+        self.toggle_image_mode()
+    
+    def _create_image_data(self, file_path: str, scene_pos) -> dict | None:
+        from PySide6.QtCore import QPointF
+        from PySide6.QtGui import QPixmap
+        import uuid
+        
+        pixmap = QPixmap(file_path)
+        if pixmap.isNull():
+            return None
+        
+        image_id = str(uuid.uuid4().hex)
+        position = QPointF(scene_pos.x() - 100, scene_pos.y() - 75)
+        size = QPointF(pixmap.width(), pixmap.height())
+        
+        max_z = self._get_max_z_order()
+        z_order = max_z + 1
+        
+        image_data = {
+            "image_id": image_id,
+            "image_path": file_path,
+            "position": {"x": position.x(), "y": position.y()},
+            "size": {"width": size.x(), "height": size.y()},
+            "rotation": 0.0,
+            "opacity": 1.0,
+            "fit_mode": "contain",
+            "z_order": z_order,
+        }
+        return image_data
+    
+    def _add_image_item(self, image_data: dict):
+        from beatboard.ui.canvas.image_item import ImageItem
+        from PySide6.QtCore import QPointF
+        
+        image_path = self._resolve_image_path(image_data["image_path"])
+        
         item = ImageItem(
-            image_path=file_path,
-            position=QPointF(scene_pos.x() - 100, scene_pos.y() - 75),
+            image_path=image_path,
+            position=QPointF(image_data["position"]["x"], image_data["position"]["y"]),
+            size=QPointF(image_data["size"]["width"], image_data["size"]["height"]),
+            image_id=image_data["image_id"],
+            rotation=image_data.get("rotation", 0.0),
+            opacity=image_data.get("opacity", 1.0),
+            fit_mode=image_data.get("fit_mode", "contain"),
         )
         
         self._scene.addItem(item)
         self._image_items[item.image_id] = item
         
-        # Conectar señales para actualizar proyecto
         item.item_moved.connect(self._on_image_moved)
         item.item_resized.connect(self._on_image_resized)
         
-        min_z = self._get_min_z_order()
-        item.setZValue(min_z - 1)
+        z_order = image_data.get("z_order")
+        if z_order is not None:
+            item.setZValue(z_order)
+        else:
+            min_z = self._get_min_z_order()
+            item.setZValue(min_z - 1)
         
-        item.setSelected(True)
+        return item
+    
+    def _resolve_image_path(self, image_path: str) -> str:
+        from pathlib import Path
         
-        # Agregar al proyecto
-        image_data = {
-            "image_id": item.image_id,
-            "image_path": file_path,
-            "position": {"x": item.pos().x(), "y": item.pos().y()},
-            "size": {"width": item._current_size.x(), "height": item._current_size.y()},
-            "rotation": item._rotation,
-            "opacity": item._opacity,
-            "fit_mode": item._fit_mode,
-        }
-        self._project.canvas_images.append(image_data)
-        self._project.update_modified()
+        path_obj = Path(image_path)
+        if path_obj.exists():
+            return str(path_obj)
         
-        self.toggle_image_mode()
+        if self._project.project_path:
+            project_path = Path(self._project.project_path)
+            full_path = project_path / image_path
+            if full_path.exists():
+                return str(full_path)
+            
+            target_name = Path(image_path).name
+            
+            for search_dir in [project_path / "media", project_path / "beats", project_path]:
+                if search_dir.exists():
+                    for item in search_dir.rglob("*"):
+                        if item.is_file() and item.suffix.lower() in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp']:
+                            if item.name == target_name:
+                                return str(item)
+        return image_path
+    
+    def _remove_image_item(self, image_id: str) -> None:
+        if image_id in self._image_items:
+            item = self._image_items[image_id]
+            self._scene.removeItem(item)
+            del self._image_items[image_id]
     
     def _get_min_z_order(self) -> int:
         if not self._project.beats and not self._image_items:
@@ -1013,10 +1214,27 @@ class BeatBoardView(QGraphicsView):
             for i, img in enumerate(self._project.canvas_images):
                 print(f"[BeatBoardView]     [{i}] id: {img.get('image_id')}, path: {img.get('image_path')}", file=sys.stderr)
         
-        if image_id in self._image_items:
-            item = self._image_items[image_id]
-            self._scene.removeItem(item)
-            del self._image_items[image_id]
+        # Buscar imagen en proyecto
+        image_data = None
+        for img in self._project.canvas_images:
+            if img.get("image_id") == image_id:
+                image_data = img
+                break
+        
+        if not image_data:
+            if debug:
+                print(f"[BeatBoardView]   image_id not found in canvas_images", file=sys.stderr)
+            return
+        
+        if self._undo_stack:
+            from beatboard.ui.undo_commands import DeleteImageCommand
+            cmd = DeleteImageCommand(self._project, self, image_data)
+            self._undo_stack.push(cmd)
+        else:
+            if image_id in self._image_items:
+                item = self._image_items[image_id]
+                self._scene.removeItem(item)
+                del self._image_items[image_id]
             # Eliminar del proyecto
             self._project.canvas_images = [
                 img for img in self._project.canvas_images
@@ -1025,9 +1243,6 @@ class BeatBoardView(QGraphicsView):
             self._project.update_modified()
             if debug:
                 print(f"[BeatBoardView]   Deleted item, canvas_images after: {len(self._project.canvas_images)}", file=sys.stderr)
-        else:
-            if debug:
-                print(f"[BeatBoardView]   image_id not found in _image_items", file=sys.stderr)
     
     def _on_image_moved(self, image_id: str, x: float, y: float) -> None:
         """Actualizar posición de imagen en proyecto."""
@@ -1215,18 +1430,21 @@ class BeatBoardView(QGraphicsView):
         selected_items = self._scene.selectedItems()
         beat_ids = []
         connection_ids = []
+        image_ids = []
         for item in selected_items:
             if isinstance(item, BeatItem):
                 beat_ids.append(item.beat_id)
             elif isinstance(item, ConnectionItem):
                 connection_ids.append(item._connection.id)
-        return {'beats': beat_ids, 'connections': connection_ids}
+            elif isinstance(item, ImageItem):
+                image_ids.append(item.image_id)
+        return {'beats': beat_ids, 'connections': connection_ids, 'images': image_ids}
     
     def bring_selected_beats_to_front(self) -> None:
         selected_items = self._scene.selectedItems()
         
-        beats_to_move = [item for item in selected_items if isinstance(item, BeatItem)]
-        images_to_move = [item for item in selected_items if hasattr(item, 'image_id')]
+        beats_to_move: list[BeatItem] = [item for item in selected_items if isinstance(item, BeatItem)]
+        images_to_move: list[ImageItem] = [item for item in selected_items if isinstance(item, ImageItem)]
         
         if not beats_to_move and not images_to_move:
             return
@@ -1240,7 +1458,15 @@ class BeatBoardView(QGraphicsView):
                 item.setZValue(beat.z_order)
         
         for item in images_to_move:
-            item.setZValue(max_z + 2)
+            new_z = max_z + 2
+            item.setZValue(new_z)
+            # Actualizar en proyecto
+            image_id = item.image_id
+            for img_data in self._project.canvas_images:
+                if img_data.get("image_id") == image_id:
+                    img_data["z_order"] = new_z
+                    break
+        self._project.update_modified()
         
         self._normalize_z_order()
         
@@ -1254,8 +1480,8 @@ class BeatBoardView(QGraphicsView):
     def send_selected_beats_to_back(self) -> None:
         selected_items = self._scene.selectedItems()
         
-        beats_to_move = [item for item in selected_items if isinstance(item, BeatItem)]
-        images_to_move = [item for item in selected_items if hasattr(item, 'image_id')]
+        beats_to_move: list[BeatItem] = [item for item in selected_items if isinstance(item, BeatItem)]
+        images_to_move: list[ImageItem] = [item for item in selected_items if isinstance(item, ImageItem)]
         
         if not beats_to_move and not images_to_move:
             return
@@ -1269,7 +1495,15 @@ class BeatBoardView(QGraphicsView):
                 item.setZValue(beat.z_order)
         
         for item in images_to_move:
-            item.setZValue(min_z - 2)
+            new_z = min_z - 2
+            item.setZValue(new_z)
+            # Actualizar en proyecto
+            image_id = item.image_id
+            for img_data in self._project.canvas_images:
+                if img_data.get("image_id") == image_id:
+                    img_data["z_order"] = new_z
+                    break
+        self._project.update_modified()
         
         self._normalize_z_order()
         
@@ -1422,28 +1656,66 @@ class BeatBoardView(QGraphicsView):
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if event.mimeData().hasUrls():
             urls = event.mimeData().urls()
-            if urls and urls[0].toLocalFile().endswith('.bbp'):
-                event.acceptProposedAction()
-                return
+            if urls:
+                file_path = urls[0].toLocalFile()
+                if file_path.endswith('.bbp') or file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp')):
+                    event.acceptProposedAction()
+                    return
         super().dragEnterEvent(event)
     
     def dragMoveEvent(self, event) -> None:
         if event.mimeData().hasUrls():
             urls = event.mimeData().urls()
-            if urls and urls[0].toLocalFile().endswith('.bbp'):
-                event.acceptProposedAction()
-                return
+            if urls:
+                file_path = urls[0].toLocalFile()
+                if file_path.endswith('.bbp') or file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp')):
+                    event.acceptProposedAction()
+                    return
         super().dragMoveEvent(event)
     
     def dropEvent(self, event) -> None:
         if event.mimeData().hasUrls():
             urls = event.mimeData().urls()
-            if urls:
-                file_path = urls[0].toLocalFile()
-                if file_path.endswith('.bbp'):
-                    main_window = self.window()
-                    if hasattr(main_window, '_load_project'):
-                        main_window._load_project(file_path)
-                    event.acceptProposedAction()
-                    return
+            if not urls:
+                super().dropEvent(event)
+                return
+            
+            # Handle project files
+            project_files = [url.toLocalFile() for url in urls if url.toLocalFile().endswith('.bbp')]
+            if project_files:
+                main_window = self.window()
+                if hasattr(main_window, '_load_project'):
+                    main_window._load_project(project_files[0])
+                event.acceptProposedAction()
+                return
+            
+            # Handle image files
+            image_files = []
+            for url in urls:
+                file_path = url.toLocalFile()
+                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp')):
+                    image_files.append(file_path)
+            
+            if image_files:
+                scene_pos = self.mapToScene(event.pos())
+                for file_path in image_files:
+                    image_data = self._create_image_data(file_path, scene_pos)
+                    if not image_data:
+                        continue
+                    
+                    if self._undo_stack:
+                        from beatboard.ui.undo_commands import CreateImageCommand
+                        cmd = CreateImageCommand(self._project, self, image_data)
+                        self._undo_stack.push(cmd)
+                    else:
+                        self._add_image_item(image_data)
+                        item = self._image_items.get(image_data["image_id"])
+                        if item:
+                            item.setSelected(True)
+                        self._project.canvas_images.append(image_data)
+                        self._project.update_modified()
+                
+                event.acceptProposedAction()
+                return
+        
         super().dropEvent(event)

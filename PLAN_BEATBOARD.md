@@ -192,11 +192,12 @@
 | 7 | Conexiones | Texto en conexiones | ⚠️ Parcial |
 | 8 | Conexiones | Atajos teclado 1-0 + color gris oscuro | ✅ Completado v1.0.26 |
 | 9 | Beats | Markdown | Pendiente |
-| 10 | Beats | Imágenes | ⚠️ Parcial (canvas completado) |
-| 11 | Nueva | Shapes | Pendiente |
-| 12 | Sistema | Asociar archivos | ✅ Completado v1.0.22 |
-| 13 | Sistema | Formato .bbp como ZIP | ✅ Completado v1.0.29 |
-| 14 | Export | Exportar a PNG | Pendiente |
+| 10 | Beats | Imágenes | ✅ Completado (canvas + undo/redo + copy/paste fix) |
+| 11 | Bug | Fix bugs críticos imágenes (copy/paste, WYSIWYG resize, undo) | ✅ Completado v1.0.29 |
+| 12 | Nueva | Shapes | Pendiente |
+| 13 | Sistema | Asociar archivos | ✅ Completado v1.0.22 |
+| 14 | Sistema | Formato .bbp como ZIP | ✅ Completado v1.0.29 |
+| 15 | Export | Exportar a PNG | Pendiente |
 
 ---
 
@@ -210,24 +211,39 @@
 - **Carpetas temporales ocultas**: Datos del proyecto en carpetas `.{proyecto}_data` con limpieza automática
 - **Compatibilidad con versiones anteriores**: Carga automática de proyectos JSON antiguos
 - **Bug fixes**: Rutas de imágenes, duplicación de UUIDs, consistencia de `image_id`
+- **Undo/Redo para imágenes**: Comandos `DeleteImageCommand` y `CreateImageCommand`
+- **FIX bugs críticos v1.0.29**:
+  - **Copy/paste bug**: Imágenes mostraban "Imagen no encontrada" al copiar después de guardar/cerrar/reabrir proyecto
+  - **WYSIWYG resize bug**: Cambios de tamaño en diálogo de propiedades no persistían (volvían al original al reeditar)
+  - **Undo bug**: Eliminar imagen y pulsar Ctrl+Z no hacía nada
 
-### ⚠️ Pendiente (Próximos Pasos)
-1. **Fix imágenes en beats**: Las imágenes embebidas no se muestran (icono genérico)
-2. **Undo/Redo para imágenes**: Implementar `DeleteImageCommand`
-3. **Copiar/Pegar imágenes**: Extender portapapeles para elementos imagen
-4. **Altura/Z-order para imágenes**: Integrar imágenes en la pila principal (z-order)
-5. **Panel de propiedades para ImageItem**: Controles de rotación, opacidad, fit_mode
-6. **Atajos de teclado**: Agregar "Modo Imagen (I)" en ayuda y menú Editar
-7. **Redimensionamiento en WYSIWYG**: Nodos para cambiar tamaño de imágenes embebidas
-8. **Iconos en editor WYSIWYG**: Reemplazar texto [Img], MD, Ø con iconos según tema
-9. **Drag & drop desde explorador**: Arrastrar imágenes directamente al lienzo
+
+### ✅ Completado en Fase 4
+- **Undo/Redo para imágenes**: Implementado `DeleteImageCommand` y `CreateImageCommand`
+- **Fix imágenes en beats**: Ya resuelto (imágenes embebidas funcionan)
+- **Copiar/Pegar imágenes**: Extendido portapapeles para elementos imagen (comparte Ctrl+C/Ctrl+V con beats)
+  - **FIX bug copy/paste**: Nuevo método `_resolve_image_path()` que busca imágenes en `media/`, `beats/` y directorio base del proyecto usando coincidencia exacta de nombres de archivo
+- **Altura/Z-order para imágenes**: Integración en pila principal con persistencia (z_order en datos, normalización, movimientos front/back)
+- **Panel de propiedades para ImageItem**: Controles de rotación, opacidad, fit_mode en columna de propiedades
+- **Señales y conexiones para imágenes**: Integración completa con sistema de actualización del proyecto
+- **Atajos de teclado para imágenes**: Agregado "Modo Imagen (I)" en ayuda de atajos (shortcuts dialog)
+- **Iconos en editor WYSIWYG**: Reemplazados textos [Img], MD, Ø con iconos según tema
+- **Redimensionamiento en WYSIWYG**: Diálogo de propiedades al hacer doble clic en imágenes incrustadas
+  - **FIX bug WYSIWYG resize**: Corregido `mouseDoubleClickEvent()` usando `cursorForPosition(event.pos())` para obtener cursor en posición correcta
+  - Añadido `self.document().setModified(True)` después de cambiar tamaño de imagen
+  - Añadidas señales de cambio de contenido para actualizar el beat
+- **Drag & drop desde explorador**: Arrastrar imágenes directamente al lienzo
+- **Corrección LSP errors**: Usando `isinstance(item, ImageItem)` con type hints en lugar de `hasattr(item, 'image_id')`
 
 ### Archivos Clave Modificados
 - `beatboard/core/project_packager.py` – Nueva clase para empaquetar/desempaquetar ZIP
 - `beatboard/ui/canvas/image_item.py` – Widget de imagen en canvas
-- `beatboard/ui/canvas/beat_board_view.py` – Gestión de imágenes, señales
+- `beatboard/ui/canvas/beat_board_view.py` – Gestión de imágenes, señales + métodos `_resolve_image_path()`, fix undo, corrección LSP errors
 - `beatboard/core/project.py` – Campo `canvas_images`
 - `beatboard/ui/main_window.py` – Limpieza de carpetas temporales
+- `beatboard/ui/widgets/rich_text_editor.py` – Fix bug WYSIWYG resize, diálogo de propiedades de imágenes
+- `beatboard/ui/undo_commands.py` – Comandos `DeleteImageCommand` y `CreateImageCommand` (ya existentes, ahora utilizados correctamente)
+- `beatboard/i18n/locales/*.py` – Traducciones para diálogo de propiedades de imágenes
 
 ---
 ## Roadmap

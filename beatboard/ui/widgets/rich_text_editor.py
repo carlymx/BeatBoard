@@ -34,6 +34,26 @@ class RichTextEditor(QWidget):
         self._setup_ui()
         self._setup_connections()
 
+    def _get_editor_icon(self, icon_name: str) -> "QIcon":
+        from PySide6.QtGui import QIcon
+        from pathlib import Path
+        from PySide6.QtWidgets import QApplication
+        
+        base_path = Path(__file__).parent.parent.parent / "ui" / "icons"
+        
+        app = QApplication.instance()
+        is_dark = False
+        if app and hasattr(app, "theme_manager"):
+            is_dark = app.theme_manager.is_dark_mode()
+        
+        theme_folder = "toolbar_light" if is_dark else "toolbar_dark"
+        icon_path = base_path / theme_folder / f"{icon_name}.png"
+        
+        if icon_path.exists():
+            return QIcon(str(icon_path))
+        else:
+            return QIcon.fromTheme(icon_name)
+
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -137,17 +157,17 @@ class RichTextEditor(QWidget):
         self._quote_btn = self._toolbar.addAction("[Quote]")
         self._quote_btn.setToolTip(_tr("insert_quote"))
 
-        self._clear_format_btn = self._toolbar.addAction("Ø")
+        self._clear_format_btn = self._toolbar.addAction(self._get_editor_icon("noformat"), "")
         self._clear_format_btn.setToolTip(_tr("clear_format"))
 
         self._toolbar.addSeparator()
 
-        self._image_btn = self._toolbar.addAction("[Img]")
+        self._image_btn = self._toolbar.addAction(self._get_editor_icon("image"), "")
         self._image_btn.setToolTip(_tr("insert_image"))
 
         self._toolbar.addSeparator()
 
-        self._markdown_btn = self._toolbar.addAction("MD")
+        self._markdown_btn = self._toolbar.addAction(self._get_editor_icon("markdown"), "")
         self._markdown_btn.setToolTip(_tr("toggle_markdown"))
         self._markdown_btn.setCheckable(True)
 
@@ -592,3 +612,78 @@ class RichTextEdit(SpellCheckTextEdit):
         cursor = self.textCursor()
         cursor.insertImage(image_format)
         self.setTextCursor(cursor)
+
+    def mouseDoubleClickEvent(self, event):
+        cursor = self.cursorForPosition(event.pos())
+        char_format = cursor.charFormat()
+        if char_format.isImageFormat():
+            self._show_image_properties_dialog(cursor, char_format.toImageFormat())
+            event.accept()
+            return
+        super().mouseDoubleClickEvent(event)
+
+    def _show_image_properties_dialog(self, cursor, image_format):
+        from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QSpinBox,
+                                      QCheckBox, QDialogButtonBox)
+        from PySide6.QtCore import Qt
+        from beatboard.i18n import _tr
+        dialog = QDialog(self)
+        dialog.setWindowTitle(_tr('image_properties'))
+        layout = QVBoxLayout(dialog)
+        
+        size_layout = QHBoxLayout()
+        size_layout.addWidget(QLabel(_tr('width') + ':'))
+        width_spin = QSpinBox()
+        width_spin.setRange(1, 2000)
+        width_spin.setValue(int(image_format.width()))
+        size_layout.addWidget(width_spin)
+        size_layout.addWidget(QLabel(_tr('height') + ':'))
+        height_spin = QSpinBox()
+        height_spin.setRange(1, 2000)
+        height_spin.setValue(int(image_format.height()))
+        size_layout.addWidget(height_spin)
+        layout.addLayout(size_layout)
+        
+        keep_aspect = QCheckBox(_tr('keep_aspect_ratio'))
+        keep_aspect.setChecked(True)
+        layout.addWidget(keep_aspect)
+        
+        original_width = image_format.width()
+        original_height = image_format.height()
+        aspect_ratio = original_width / original_height if original_height != 0 else 1
+        
+        def update_height():
+            if keep_aspect.isChecked():
+                new_width = width_spin.value()
+                new_height = int(new_width / aspect_ratio)
+                height_spin.blockSignals(True)
+                height_spin.setValue(new_height)
+                height_spin.blockSignals(False)
+        
+        def update_width():
+            if keep_aspect.isChecked():
+                new_height = height_spin.value()
+                new_width = int(new_height * aspect_ratio)
+                width_spin.blockSignals(True)
+                width_spin.setValue(new_width)
+                width_spin.blockSignals(False)
+        
+        width_spin.valueChanged.connect(update_height)
+        height_spin.valueChanged.connect(update_width)
+        
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            new_width = width_spin.value()
+            new_height = height_spin.value()
+            image_format.setWidth(new_width)
+            image_format.setHeight(new_height)
+            cursor.setCharFormat(image_format)
+            self.setTextCursor(cursor)
+            # Notificar cambio
+            self.document().setModified(True)
+            if hasattr(self.parent(), 'content_changed'):
+                self.parent().content_changed.emit()

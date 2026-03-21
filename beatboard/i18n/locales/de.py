@@ -187,6 +187,7 @@ TRANSLATIONS: dict[str, str] = {
     "shortcut_deselect": "Auswahl aufheben / Verbindungsmodus abbrechen",
     "shortcut_change_color": "Farbe der Auswahl ändern",
     "shortcut_toggle_connection_mode": "Verbindungsmodus umschalten (ohne Auswahl)",
+    "shortcut_toggle_image_mode": "Bildmodus umschalten (ohne Auswahl)",
     "shortcut_zoom_selection": "Auswahlzoom (ohne Auswahl)",
     "shortcut_close_project": "Projekt schließen",
     "shortcut_new_beat": "Neuen Beat erstellen (Doppelklick auf Leinwand)",
@@ -288,4 +289,8 @@ TRANSLATIONS: dict[str, str] = {
     "register_file_association": "Dateizuordnungen registrieren...",
     "menu_tools": "Werkzeuge",
     "toggle_markdown": "Markdown umschalten",
+    "image_properties": "Bildeigenschaften",
+    "width": "Breite",
+    "height": "Höhe",
+    "keep_aspect_ratio": "Seitenverhältnis beibehalten",
 }
